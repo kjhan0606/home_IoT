@@ -1,0 +1,8 @@
+# HomeHub local gateway dependencies
+fastapi>=0.115
+uvicorn>=0.30
+zeroconf>=0.132
+samsungtvws>=2.6
+wakeonlan>=3.1
+requests>=2.31
+websocket-client>=1.7

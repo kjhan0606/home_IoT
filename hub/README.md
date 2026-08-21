@@ -1,0 +1,79 @@
+# HomeHub — Local Gateway
+
+Local-first smart-home hub. Discovers devices on the home LAN and controls them
+through a **canonical capability model** that maps to both **SmartThings
+capabilities** and **Matter clusters**, so integrations can later swap from
+local/unofficial protocols to official cloud/Matter backends without changing
+the API or the mobile app.
+
+The Flutter app is a thin client over this gateway's HTTP + WebSocket API; the
+hub advertises itself on the LAN via Bonjour (`_homehub._tcp`).
+
+## Architecture
+
+```
+Flutter app  ──HTTP/WS──▶  HomeHub gateway (this)  ──▶  DeviceAdapter
+                                                          ├─ samsung_local (WoL + WS)   [MVP]
+                                                          ├─ smartthings_cloud  (later)
+                                                          ├─ matter             (later)
+                                                          └─ roborock           (later)
+```
+
+- **capabilities.py** — canonical capability model (`power`, `volume`, `channel`, …)
+- **mappings.py** — canonical ⇄ SmartThings ⇄ Matter matrix
+- **discovery/** — ARP sweep + mDNS + SSDP + OUI vendor lookup → `DiscoveredHost`
+- **adapters/** — `DeviceAdapter` contract; `samsung_tv.py` is the first adapter
+- **manager.py** — control plane: scan, persist, route commands to adapters
+- **server.py** — FastAPI HTTP/WS API + Bonjour advertisement
+
+## Run
+
+```bash
+cd hub
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+./run.sh                      # serves on 0.0.0.0:8099
+```
+
+Optional env: `HOMEHUB_HTTP_PORT`, `HOMEHUB_TOKEN` (shared-secret auth),
+`HOMEHUB_DATA` (state dir), `HOMEHUB_NAME`.
+
+## API
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/health` | liveness + device count |
+| GET | `/capabilities` | canonical model + standards matrix |
+| POST | `/scan` | run network discovery |
+| GET | `/devices` | list devices (controllable + passive) |
+| GET | `/devices/{id}` | one device |
+| POST | `/devices/{id}/refresh` | refresh live state |
+| POST | `/devices/{id}/commands` | `{capability, action, params}` |
+| WS | `/ws` | live device/event push |
+
+### Example
+
+```bash
+# discover
+curl -X POST localhost:8099/scan
+
+# power on the TV (Wake-on-LAN)
+curl -X POST "localhost:8099/devices/samsung_local:<mac>/commands" \
+  -H 'Content-Type: application/json' \
+  -d '{"capability":"power","action":"turnOn"}'
+
+# volume down
+curl -X POST "localhost:8099/devices/samsung_local:<mac>/commands" \
+  -H 'Content-Type: application/json' \
+  -d '{"capability":"volume","action":"volumeDown"}'
+```
+
+## Status
+
+- [x] Discovery (ARP + mDNS + SSDP + OUI)
+- [x] Canonical capability model + SmartThings/Matter mapping
+- [x] Samsung TV adapter (WoL power-on, WS volume/channel/input/app)
+- [x] HTTP + WS API, Bonjour advertisement
+- [ ] Flutter thin client
+- [ ] Cloud relay (remote access, multi-tenant) — for App Store release
+- [ ] Official backends (SmartThings API, Matter controller) via new adapters
