@@ -59,6 +59,29 @@ curl -X POST localhost:8099/scan          # discover devices
 
 See **[hub/README.md](hub/README.md)** for the full API and examples.
 
+## Resume on another machine
+
+Pick up the project anywhere from a fresh clone:
+
+```bash
+git clone https://github.com/kjhan0606/home_IoT.git
+cd home_IoT/hub
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+./run.sh                                  # http://0.0.0.0:8099
+curl -X POST localhost:8099/scan          # discover devices on the LAN
+curl localhost:8099/devices               # list them
+```
+
+`hub/data/` (device snapshot, Samsung pairing tokens) is git-ignored, so it is
+**not** cloned — it regenerates on the first `/scan`, and the TV re-pairs on the
+first command (accept the on-screen prompt with the remote).
+
+Then continue the work:
+- **[PROGRESS.md](PROGRESS.md)** → "How to resume" + the decisions log and
+  what's already verified.
+- **[ROADMAP.md](ROADMAP.md)** → next up is **Phase 2 — the Flutter app**.
+
 ## Status
 
 MVP hub backend is **built and verified end-to-end on a real LAN** (10 devices
