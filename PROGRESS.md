@@ -1,6 +1,6 @@
 # Progress
 
-_Last updated: 2026-08-21_
+_Last updated: 2026-09-28_
 
 ## Where we are
 
@@ -16,6 +16,25 @@ Next session starts at **Phase 2: the Flutter app.**
 | Capability model | **Canonical + dual mapping** to SmartThings **and** Matter | Neutral internal vocabulary; adapters normalize into it; swap local→official backend later with no app/API change. Chose "both" standards, implemented as one canonical model + two mapping tables ("Plan A": mapping/vocabulary now, real SmartThings/Matter backends later). |
 | MVP target device | **Samsung TV** | Best local-control support; verifiable on the actual home TV (UN55KS8500). |
 | Public/App-Store path | Deferred, but **designed for** | Cloud relay + official backends come later; adapter pattern keeps it a plug-in, not a rewrite. |
+
+## 2026-09-28 — Cloud adapters (branch `feature/cloud-adapters`, local only)
+
+- New canonical capabilities: `washer`, `dryer` (run/pause/stop, job, remaining
+  time, `remoteControlEnabled`), `refrigeration` (temps, setpoints, doors, rapid
+  cool/freeze). `vacuum` gained `setCleaningMode` + `cleaningMode(s)`. Mapped to
+  SmartThings + Matter (`mappings.py`; also fixed vacuum → RvcOperationalState 0x0061).
+- `adapters/smartthings.py` (REST v1, PAT via `SMARTTHINGS_TOKEN`) and
+  `adapters/lg_thinq.py` (ThinQ Connect, PAT via `LG_THINQ_TOKEN`, region from
+  `LG_THINQ_COUNTRY`=KR → api-kic). Both are enabled only when the token is set.
+- `cloud/auth.py`: `TokenProvider` interface; PAT provider in use; OAuth2
+  refresh provider implemented but not wired (TODO(oauth)).
+- `linking.py` + manager: LAN/cloud dedup (MAC or kind+brand+name/model), local first
+  with cloud fallback, cloud-only actions routed to cloud, aliases for cloud ids.
+- Remote-start refusal (403) when the appliance's remote control is off.
+- 41 pytest tests (mocked HTTP) + pyflakes clean. **Not yet run against real
+  accounts.** Assumptions are listed in docs/cloud-integrations.md.
+- Decision: official cloud APIs as the compliant path for appliances. LG TVs aren't
+  in ThinQ Connect → need a separate local webOS adapter later.
 
 ## What's built (`hub/`)
 

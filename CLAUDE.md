@@ -57,7 +57,11 @@ hub/homehub/
   capabilities.py      canonical model            mappings.py   ST/Matter matrix
   models.py            Device / DiscoveredHost    netutil.py    LAN/WoL/ARP
   discovery/           engine, mdns, ssdp, oui    manager.py    control plane
-  adapters/            base, registry, samsung_tv server.py     FastAPI + WS + Bonjour
+  adapters/            base, registry, samsung_tv, cloud_base,
+                       smartthings, lg_thinq      server.py     FastAPI + WS + Bonjour
+  cloud/               auth (TokenProvider), errors   linking.py  LAN<->cloud dedup
+hub/tests/             pytest (mocked vendor HTTP): `pytest` from hub/
+docs/cloud-integrations.md  tokens, OAuth flow, limits, assumptions
 app/                   Flutter thin client (PLANNED — Phase 2)
 PROGRESS.md ROADMAP.md README.md
 ```

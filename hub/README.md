@@ -14,7 +14,8 @@ hub advertises itself on the LAN via Bonjour (`_homehub._tcp`).
 ```
 Flutter app  ──HTTP/WS──▶  HomeHub gateway (this)  ──▶  DeviceAdapter
                                                           ├─ samsung_local (WoL + WS)   [MVP]
-                                                          ├─ smartthings_cloud  (later)
+                                                          ├─ smartthings  (cloud, SMARTTHINGS_TOKEN)
+                                                          ├─ lg_thinq     (cloud, LG_THINQ_TOKEN)
                                                           ├─ matter             (later)
                                                           └─ roborock           (later)
 ```
@@ -36,7 +37,11 @@ pip install -r requirements.txt
 ```
 
 Optional env: `HOMEHUB_HTTP_PORT`, `HOMEHUB_TOKEN` (shared-secret auth),
-`HOMEHUB_DATA` (state dir), `HOMEHUB_NAME`.
+`HOMEHUB_DATA` (state dir), `HOMEHUB_NAME`, and for cloud adapters
+`SMARTTHINGS_TOKEN`, `LG_THINQ_TOKEN`, `LG_THINQ_COUNTRY` (default `KR`). See
+[../docs/cloud-integrations.md](../docs/cloud-integrations.md).
+
+Tests: `pip install -r requirements-dev.txt && pytest` (vendor HTTP mocked with `responses`).
 
 ## API
 
@@ -44,7 +49,8 @@ Optional env: `HOMEHUB_HTTP_PORT`, `HOMEHUB_TOKEN` (shared-secret auth),
 |---|---|---|
 | GET | `/health` | liveness + device count |
 | GET | `/capabilities` | canonical model + standards matrix |
-| POST | `/scan` | run network discovery |
+| GET | `/integrations` | adapters, enabled flags, last cloud errors |
+| POST | `/scan?lan=true&cloud=true` | LAN discovery and/or cloud account sync |
 | GET | `/devices` | list devices (controllable + passive) |
 | GET | `/devices/{id}` | one device |
 | POST | `/devices/{id}/refresh` | refresh live state |
@@ -76,4 +82,6 @@ curl -X POST "localhost:8099/devices/samsung_local:<mac>/commands" \
 - [x] HTTP + WS API, Bonjour advertisement
 - [ ] Flutter thin client
 - [ ] Cloud relay (remote access, multi-tenant) — for App Store release
-- [ ] Official backends (SmartThings API, Matter controller) via new adapters
+- [x] SmartThings + LG ThinQ cloud adapters (PAT auth; washer/dryer/fridge/vacuum/TV), LAN↔cloud dedup
+- [ ] OAuth2 wiring for SmartThings (provider exists; route + registry TODO)
+- [ ] Matter controller adapter
