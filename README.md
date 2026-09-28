@@ -21,7 +21,7 @@ touching the app.
                                                    │   ├─ smartthings    ✅   │
                                                    │   ├─ lg_thinq       ✅   │
                                                    │   ├─ matter         ⬚    │
-                                                   │   └─ roborock       ⬚    │
+                                                   │   └─ roborock       ✅   │
                                                    └──────────────────────────┘
                                                                 │
                               LAN: ARP · mDNS · SSDP · vendor devices
@@ -43,7 +43,7 @@ later be swapped for official cloud/Matter backends with no app or API change.
 home_IoT/
 ├── hub/            Python local gateway (FastAPI). See hub/README.md
 │   └── homehub/    capability model, discovery, adapters, server
-├── app/            Flutter thin client            (planned — next)
+├── app/            Flutter thin client (iOS/Android; web for dev). See app/README.md
 ├── docs/           cloud-integrations.md (tokens, OAuth flow, limits)
 ├── PROGRESS.md     what's built & verified, decisions log
 └── ROADMAP.md      phased plan toward App Store release
@@ -89,6 +89,17 @@ Details, what works per device, limits, and the OAuth plan: **[docs/cloud-integr
 
 Tests: `pip install -r requirements-dev.txt && pytest` (from `hub/`, all HTTP mocked).
 
+## App (Flutter)
+
+```bash
+cd app && flutter pub get && flutter test
+flutter run -d chrome     # or an iPhone: see app/README.md (free Apple ID or TestFlight)
+```
+
+To try it without hardware, start the hub in **demo mode** (example devices, dev only):
+`HOMEHUB_FAKE_DEVICES=1 HOMEHUB_CORS_ORIGINS=http://localhost:8088 ./run.sh`.
+Details are in **[app/README.md](app/README.md)**.
+
 ## Resume on another machine
 
 Pick up the project anywhere from a fresh clone:
@@ -116,10 +127,11 @@ Then continue the work:
 
 MVP hub backend is **built and verified end-to-end on a real LAN** (10 devices
 discovered/classified; a Samsung TV auto-claimed and controlled — Wake-on-LAN
-power-on + WebSocket volume/channel). **SmartThings + LG ThinQ cloud adapters** are
-implemented and unit-tested with mocked APIs (branch `feature/cloud-adapters`), but not yet tried
-against real accounts. A **Roborock** adapter (python-roborock; local-first, cloud fallback; rooms/zones/map)
-is on branch `feature/roborock`, also tested with mocks only. Next up: the Flutter app.
+power-on + WebSocket volume/channel). **SmartThings, LG ThinQ and Roborock**
+adapters are implemented and unit-tested with mocked APIs, but not yet tried
+against real accounts. **Phase 2 Flutter app** (branch `feature/flutter-app`) is built:
+it runs as a web build against the hub, is tested with a fake API, and is verified end to end
+with demo data. It has not yet been run on an iPhone.
 
 Full detail in **[PROGRESS.md](PROGRESS.md)** · plan in **[ROADMAP.md](ROADMAP.md)**.
 
