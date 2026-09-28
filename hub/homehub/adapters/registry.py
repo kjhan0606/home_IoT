@@ -8,18 +8,42 @@ from __future__ import annotations
 
 from ..models import Device, DiscoveredHost
 from .base import DeviceAdapter
+from .cloud_base import CloudAdapter
+from .lg_thinq import LGThinQAdapter
 from .samsung_tv import SamsungTVAdapter
+from .smartthings import SmartThingsAdapter
 
-# Order matters: first matching adapter wins.
-ADAPTERS: list[DeviceAdapter] = [
+# LAN adapters claim discovered hosts. Order matters: first matching adapter wins.
+LAN_ADAPTERS: list[DeviceAdapter] = [
     SamsungTVAdapter(),
 ]
+
+# Cloud adapters enumerate a vendor account. Each is enabled only when its
+# token env var is set (SMARTTHINGS_TOKEN, LG_THINQ_TOKEN); otherwise skipped.
+CLOUD_ADAPTERS: list[CloudAdapter] = [
+    SmartThingsAdapter(),
+    LGThinQAdapter(),
+]
+
+ADAPTERS: list[DeviceAdapter] = [*LAN_ADAPTERS, *CLOUD_ADAPTERS]
 
 _BY_ID = {a.id: a for a in ADAPTERS}
 
 
 def get_adapter(adapter_id: str) -> DeviceAdapter | None:
     return _BY_ID.get(adapter_id)
+
+
+def cloud_adapters(enabled_only: bool = True) -> list[CloudAdapter]:
+    return [a for a in CLOUD_ADAPTERS if a.enabled() or not enabled_only]
+
+
+def integrations_status() -> dict[str, dict[str, object]]:
+    return {
+        a.id: {"name": a.name, "type": "cloud" if getattr(a, "is_cloud", False) else "lan",
+               "enabled": a.enabled() if isinstance(a, CloudAdapter) else True}
+        for a in ADAPTERS
+    }
 
 
 def infer_kind(host: DiscoveredHost) -> str:
@@ -68,7 +92,7 @@ def build_devices(hosts: list[DiscoveredHost]) -> list[Device]:
     devices: list[Device] = []
     for host in hosts:
         claimed = False
-        for adapter in ADAPTERS:
+        for adapter in LAN_ADAPTERS:
             try:
                 if adapter.matches(host):
                     devices.append(adapter.build_device(host))
