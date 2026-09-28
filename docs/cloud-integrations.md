@@ -1,4 +1,4 @@
-# Cloud integrations: SmartThings & LG ThinQ
+# Cloud integrations: SmartThings, LG ThinQ & Roborock
 
 Two cloud adapters bring Samsung and LG appliances into the same canonical model
 as LAN devices: `hub/homehub/adapters/smartthings.py` and `hub/homehub/adapters/lg_thinq.py`.
@@ -105,3 +105,113 @@ SmartThings authorization-code flow (developer.smartthings.com → Service integ
 
 LG: individual use is PAT-only. LG's OAuth (authorization code) is for ThinQ **Business/partner** services
 and needs a partnership agreement. The same `TokenProvider` interface would host it.
+
+---
+
+## Roborock (local LAN first, cloud fallback; unofficial)
+
+`hub/homehub/adapters/roborock.py` (a `CloudAdapter`) + `hub/homehub/cloud/roborock_backend.py`,
+built on the open-source **[python-roborock](https://github.com/Python-roborock/python-roborock)**
+library (pinned `python-roborock==7.12.0`; it pulls in `vacuum-map-parser-roborock` and Pillow).
+Unlike SmartThings/ThinQ there is no env-var token. You link the account once through the hub API.
+
+### Linking (one-time cloud login)
+
+```bash
+# 1. ask Roborock to email a verification code to your Roborock-app account
+curl -X POST localhost:8099/integrations/roborock/request-code \
+  -H 'Content-Type: application/json' -d '{"email":"you@example.com"}'
+# 2. log in with the code (or {"email":..., "password":...} for password login)
+curl -X POST localhost:8099/integrations/roborock/login \
+  -H 'Content-Type: application/json' -d '{"email":"you@example.com","code":"123456"}'
+# 3. pull the vacuums in (LAN + cloud)
+curl -X POST localhost:8099/scan
+curl localhost:8099/integrations/roborock      # linked?, masked account, device list
+curl -X POST localhost:8099/integrations/roborock/unlink   # deletes stored credentials
+```
+
+These endpoints require the `X-HomeHub-Token` header when `HOMEHUB_TOKEN` is set, like the other mutating routes.
+The login response and `GET /integrations/roborock` return a **masked** email only.
+
+**What is stored and where:** `hub/data/tokens/roborock.json` (directory `0700`, file
+`0600`, written atomically). It holds the Roborock `user_data` (session token + MQTT credentials),
+the regional base URL, and the per-device **local keys** (needed for LAN control).
+The library's own cache (`roborock_cache.bin`, also `0600`) sits next to it. **The password
+is never stored**. Neither the code nor the tokens are logged, and a test checks both.
+`unlink` deletes both files and removes the devices on the next scan.
+
+### Transport
+
+The library's V1 RPC channel tries the **local LAN** connection first (TCP 58867, using the
+device's local key). If the vacuum isn't reachable locally, it falls back to **cloud MQTT**.
+Each command response reports which transport was used (`"transport": "local"|"cloud"`).
+Maps always come over the cloud (the library fetches them through MQTT).
+
+LAN/cloud dedup: a Roborock found by the LAN scan (`infer_kind` → vacuum via the Roborock OUI
+/ miio mDNS) is merged with the cloud-listed device by MAC, the vendor-reported IP, or
+brand+name/model (same `linking.py` logic as SmartThings). The app sees one device.
+
+### What works (all brand-neutral capabilities; only what the model supports is offered)
+
+| Capability | Actions / state | Roborock command | Matter / SmartThings mapping |
+|---|---|---|---|
+| `vacuum` | start (resumes a paused room/zone job), pause, stop, dock; status, battery, `error`, `dockError` | `app_start`, `resume_segment_clean`, `resume_zoned_clean`, `app_pause`, `app_stop`, `app_charge` | RvcOperationalState / robotCleanerMovement |
+| `roomCleaning` | `cleanRooms {roomIds, repeat}`; state `rooms[{id,name}]` | `app_segment_clean [{"segments":[..],"repeat":n}]` | ServiceArea 0x0150 / — |
+| `zoneCleaning` | `cleanZones {zones:[[x1,y1,x2,y2],..], repeat}` (map coords, ≤5 zones) | `app_zoned_clean [[x1,y1,x2,y2,rep],..]` | — (ServiceArea has no ad-hoc zones) |
+| `goTo` | `goTo {x, y}` (map coords) | `app_goto_target [x,y]` | — |
+| `fanSpeed` | `setLevel {level}`; `levels` are the model's own names (e.g. quiet/balanced/turbo/max) | `set_custom_mode [code]` | RvcCleanMode 0x0055 / robotCleanerTurboMode |
+| `mopping` | `setWaterLevel {level}`, `setMopMode {mode}`, each only if the model has it | `set_water_box_custom_mode`, `set_mop_mode` | RvcCleanMode 0x0055 / — |
+| `consumables` | `reset {id}`; items mainBrush, sideBrush, filter, sensors (+ mopRoller, read-only) with used hours and remaining % | `reset_consumable [attr]` | HepaFilterMonitoring 0x0071 (filter) / — |
+| `cleaningStats` | `areaM2`, `durationSeconds` of the current/last run | from `get_status` | — |
+| `vacuumMap` | see the map endpoints below | `get_map_v1` via the library | — |
+
+Unsupported actions, unknown room ids, or unknown level names are refused with HTTP 400
+before anything is sent. Devices on newer protocols (A01/B01, e.g. some Qrevo/Saros/Zeo models)
+are **listed but not controllable** (`controllable: false`, `meta.note`).
+
+### Map endpoints
+
+- `GET /devices/{id}/map.png`: the rendered map (PNG, from the library's map parser).
+- `GET /devices/{id}/map?image=true|false`: JSON metadata (+ `image.pngBase64` when `image=true`, and `imageUrl`):
+  - `image {width, height, format}`, `mapName`
+  - `rooms[{id, name, bbox:{map:{x0,y0,x1,y1}, image:{...}}}]`: ids match `roomCleaning.rooms`
+  - `robot` / `dock`: `{map:{x,y,angle?}, image:{x,y}}`
+  - `transform.mapToImage` / `transform.imageToMap`: 2×3 affine matrices `[[a,b,c],[d,e,f]]`
+    (`u = a·x + b·y + c`, `v = d·x + e·y + f`), fitted from the parser's calibration points
+    (also returned as `calibrationPoints`). Rotated maps work too.
+
+The app takes a tap or drawn rectangle in image pixels, applies `imageToMap`, and sends the result as
+`goTo` / `cleanZones`. For a room tap it hit-tests `rooms[].bbox.image`. Map coordinates are the robot's
+native units (mm; the dock is usually near 25500,25500). The last map is cached, so
+`map.png` right after `map` doesn't refetch (`?cached=false` forces a refetch).
+
+### Limits & caveats
+
+- **Unofficial, reverse-engineered API.** Roborock can break it at any time with firmware or
+  server changes. When it breaks, update `python-roborock` (check its changelog; the pin is deliberate).
+- Needs a **one-time cloud login**. Login and home-data calls are rate limited by the library/server
+  (HTTP 429 from the hub when hit). After that, day-to-day control is local when possible.
+- If Roborock asks you to accept a new user agreement, login fails until you accept it in the Roborock app.
+- **App Store:** shipping reverse-engineered vendor protocols in a commercial app risks ToS problems.
+  Keep this a personal/hub-side feature; the compliant long-term route is Matter RVC
+  (newer Roborock models are Matter-certified: RvcRunMode/RvcCleanMode/RvcOperationalState/ServiceArea),
+  which the canonical capabilities already map to.
+
+### Assumptions / unverified (no real Roborock device was available)
+
+- Everything is tested with the library/network mocked. The local→cloud fallback test uses the
+  library's real `RpcChannel` with stub transports. Map metadata was checked against the real
+  `vacuum-map-parser` calibration math (rotations 0°/90°), not a real device map.
+- The `repeat` key inside `app_segment_clean` params follows the Roborock app payload, but older
+  firmware may ignore it (the plain `[ids]` form doesn't carry repeat).
+- Zone/go-to are offered on every V1 model that reports a map. Very old models may refuse them.
+- Consumable lifetimes (main brush 300 h, side brush 200 h, filter 150 h, sensors 30 h) follow the
+  common Roborock defaults. Some models differ.
+
+### Room cleaning on SmartThings / ThinQ vacuums
+
+Not mapped, on purpose. The standard SmartThings robot-cleaner capabilities (`robotCleanerMovement`,
+`robotCleanerCleaningMode`, `robotCleanerTurboMode`) have no rooms or zones. Samsung's
+`samsungce.robotCleaner*` map capabilities are undocumented and couldn't be verified. LG ThinQ
+Connect's robot-cleaner profile exposes only run state, mode, and battery. If either API gains
+documented room control, the adapter only needs to fill in the same `roomCleaning` capability.

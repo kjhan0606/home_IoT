@@ -136,6 +136,35 @@ class DeviceManager:
             return {**res, "via": fb["adapter"]}
         raise RuntimeError(f"no available backend for {capability}.{action}")
 
+    def get_map(self, device_id: str) -> tuple[bytes | None, dict[str, Any]]:
+        """Fetch a rendered map from whichever linked backend provides one."""
+        from . import capabilities as cap
+
+        dev = self.get(device_id)
+        if dev is None:
+            raise KeyError(f"unknown device: {device_id}")
+        candidates = [(registry.get_adapter(dev.adapter), dev)]
+        fb = dev.meta.get("fallback")
+        if fb:
+            candidates.append((registry.get_adapter(fb["adapter"]), Device.from_dict(fb["device"])))
+        for adapter, d in candidates:
+            if adapter is not None and hasattr(adapter, "get_map") and cap.VACUUM_MAP in d.capabilities:
+                return adapter.get_map(d)
+        raise LookupError(f"device {device_id} has no map")
+
+    def cached_map(self, device_id: str) -> tuple[bytes | None, dict[str, Any]] | None:
+        dev = self.get(device_id)
+        if dev is None:
+            return None
+        for aid in (dev.adapter, (dev.meta.get("fallback") or {}).get("adapter")):
+            adapter = registry.get_adapter(aid) if aid else None
+            if adapter is not None and hasattr(adapter, "cached_map"):
+                did = dev.id if aid == dev.adapter else dev.meta["fallback"]["id"]
+                hit = adapter.cached_map(Device(id=did, name="", adapter=aid))
+                if hit:
+                    return hit
+        return None
+
     def refresh(self, device_id: str) -> Device | None:
         dev = self.get(device_id)
         if dev is None:

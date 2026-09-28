@@ -58,8 +58,9 @@ hub/homehub/
   models.py            Device / DiscoveredHost    netutil.py    LAN/WoL/ARP
   discovery/           engine, mdns, ssdp, oui    manager.py    control plane
   adapters/            base, registry, samsung_tv, cloud_base,
-                       smartthings, lg_thinq      server.py     FastAPI + WS + Bonjour
-  cloud/               auth (TokenProvider), errors   linking.py  LAN<->cloud dedup
+                       smartthings, lg_thinq, roborock   server.py  FastAPI + WS + Bonjour
+  cloud/               auth (TokenProvider), errors, roborock_backend   linking.py  LAN<->cloud dedup
+  secret_store.py      0600 per-integration secrets   vacuum_map.py  map metadata/transform
 hub/tests/             pytest (mocked vendor HTTP): `pytest` from hub/
 docs/cloud-integrations.md  tokens, OAuth flow, limits, assumptions
 app/                   Flutter thin client (PLANNED — Phase 2)
@@ -72,7 +73,7 @@ PROGRESS.md ROADMAP.md README.md
   the TV's MAC) are from the *original* home LAN. On this machine, **re-scan** —
   the device set will differ. Samsung control only works if a Samsung TV is
   actually present on this LAN.
-- **Legal / App Store:** the Samsung (WebSocket) and future Roborock (miIO)
+- **Legal / App Store:** the Samsung (WebSocket) and Roborock (python-roborock)
   integrations are **unofficial/reverse-engineered** — OK for personal use, must
   migrate to **official SmartThings API / Matter** before commercial release.
   The adapter pattern makes that a swap, not a rewrite. (ROADMAP.md § Legal.)

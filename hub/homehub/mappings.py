@@ -30,6 +30,14 @@ SMARTTHINGS_MAP: dict[str, str | None] = {
     cap.WASHER: "washerOperatingState",
     cap.DRYER: "dryerOperatingState",
     cap.REFRIGERATION: "refrigeration",
+    cap.ROOM_CLEANING: None,       # no standard ST capability (Samsung uses samsungce.* map extensions)
+    cap.ZONE_CLEANING: None,
+    cap.GO_TO: None,
+    cap.FAN_SPEED: "robotCleanerTurboMode",   # coarse (on/off/silence) equivalent
+    cap.MOPPING: None,
+    cap.CONSUMABLES: None,
+    cap.CLEANING_STATS: None,
+    cap.VACUUM_MAP: None,
 }
 
 # Secondary SmartThings capabilities the SmartThings adapter also ingests into a
@@ -67,6 +75,14 @@ MATTER_MAP: dict[str, tuple[str, int] | None] = {
     cap.WASHER: ("OperationalState", 0x0060),       # + LaundryWasherControls 0x0053
     cap.DRYER: ("OperationalState", 0x0060),        # + LaundryDryerControls 0x004A
     cap.REFRIGERATION: ("TemperatureControl", 0x0056),  # per-cabinet endpoint; + RefrigeratorAlarm 0x0057
+    cap.ROOM_CLEANING: ("ServiceArea", 0x0150),        # SelectAreas + RvcRunMode cleaning
+    cap.ZONE_CLEANING: None,                           # Matter has no free-form zones
+    cap.GO_TO: None,
+    cap.FAN_SPEED: ("RvcCleanMode", 0x0055),           # suction as clean-mode tags
+    cap.MOPPING: ("RvcCleanMode", 0x0055),             # Mop / VacuumThenMop + intensity tags
+    cap.CONSUMABLES: ("HepaFilterMonitoring", 0x0071),  # ResourceMonitoring family (filter); brushes: none
+    cap.CLEANING_STATS: None,
+    cap.VACUUM_MAP: None,                              # ServiceArea has area names, no raster map
 }
 
 

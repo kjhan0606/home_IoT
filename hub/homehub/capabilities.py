@@ -29,6 +29,16 @@ SENSOR = "sensor"
 WASHER = "washer"
 DRYER = "dryer"
 REFRIGERATION = "refrigeration"
+# Robot-vacuum extensions (brand-neutral; coordinates are the device's *map*
+# coordinates — GET /devices/{id}/map returns the pixel<->map transform).
+ROOM_CLEANING = "roomCleaning"
+ZONE_CLEANING = "zoneCleaning"
+GO_TO = "goTo"
+FAN_SPEED = "fanSpeed"
+MOPPING = "mopping"
+CONSUMABLES = "consumables"
+CLEANING_STATS = "cleaningStats"
+VACUUM_MAP = "vacuumMap"
 
 
 def _laundry_spec(key: str) -> "CapabilitySpec":
@@ -144,10 +154,12 @@ CANONICAL: dict[str, CapabilitySpec] = {
             "setCleaningMode": {"mode": "str (one of cleaningModes)"},
         },
         state={
-            "status": "cleaning|paused|returning|charging|docked|idle|error",
+            "status": "cleaning|paused|returning|charging|docked|moving|idle|error",
             "battery": "int 0..100",
             "cleaningMode": "str|null",
             "cleaningModes": "list[str]",
+            "error": "str|null (robot error code name; null = no error)",
+            "dockError": "str|null",
         },
         ui_hint="vacuum-controls",
     ),
@@ -179,6 +191,63 @@ CANONICAL: dict[str, CapabilitySpec] = {
             "rapidFreezing": "bool|null",
         },
         ui_hint="fridge-panel",
+    ),
+    ROOM_CLEANING: CapabilitySpec(
+        key=ROOM_CLEANING,
+        actions={"cleanRooms": {"roomIds": "list[str] (ids from state.rooms)", "repeat": "int 1..maxRepeat (default 1)"}},
+        state={"rooms": "list[{id: str, name: str}]", "maxRepeat": "int"},
+        ui_hint="room-picker",
+    ),
+    ZONE_CLEANING: CapabilitySpec(
+        key=ZONE_CLEANING,
+        actions={"cleanZones": {
+            "zones": "list[[x1, y1, x2, y2]] (map coordinates)",
+            "repeat": "int 1..maxRepeat (default 1)",
+        }},
+        state={"maxZones": "int", "maxRepeat": "int", "coordinateSpace": "map"},
+        ui_hint="zone-drawer",
+    ),
+    GO_TO: CapabilitySpec(
+        key=GO_TO,
+        actions={"goTo": {"x": "number (map coordinates)", "y": "number (map coordinates)"}},
+        state={"coordinateSpace": "map"},
+        ui_hint="map-tap",
+    ),
+    FAN_SPEED: CapabilitySpec(
+        key=FAN_SPEED,
+        actions={"setLevel": {"level": "str (one of state.levels)"}},
+        state={"level": "str|null", "levels": "list[str]"},
+        ui_hint="picker",
+    ),
+    MOPPING: CapabilitySpec(
+        key=MOPPING,
+        actions={
+            "setWaterLevel": {"level": "str (one of state.waterLevels)"},
+            "setMopMode": {"mode": "str (one of state.mopModes)"},
+        },
+        state={
+            "waterLevel": "str|null", "waterLevels": "list[str]",
+            "mopMode": "str|null", "mopModes": "list[str]",
+        },
+        ui_hint="mop-controls",
+    ),
+    CONSUMABLES: CapabilitySpec(
+        key=CONSUMABLES,
+        actions={"reset": {"id": "str (one of state.items[].id with resettable=true)"}},
+        state={"items": "list[{id, name, usedHours, remainingPercent, resettable}]"},
+        ui_hint="consumables-list",
+    ),
+    CLEANING_STATS: CapabilitySpec(
+        key=CLEANING_STATS,
+        actions={},  # read-only
+        state={"areaM2": "number|null (current/last run)", "durationSeconds": "int|null"},
+        ui_hint="readout",
+    ),
+    VACUUM_MAP: CapabilitySpec(
+        key=VACUUM_MAP,
+        actions={},  # read-only; fetch GET /devices/{id}/map (JSON) or /map.png
+        state={"available": "bool"},
+        ui_hint="map-view",
     ),
 }
 

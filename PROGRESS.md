@@ -36,6 +36,25 @@ Next session starts at **Phase 2: the Flutter app.**
 - Decision: official cloud APIs as the compliant path for appliances. LG TVs aren't
   in ThinQ Connect → need a separate local webOS adapter later.
 
+## 2026-09-28 — Roborock adapter (branch `feature/roborock`, local only, based on `feature/cloud-adapters`)
+
+- `adapters/roborock.py` + `cloud/roborock_backend.py` on **python-roborock 7.12.0** (pinned).
+  One-time cloud link via `POST /integrations/roborock/request-code` + `/login` (email code
+  or password) + `/unlink`. user_data, base URL and per-device local keys are stored with
+  `secret_store.py` (`data/tokens/roborock.json`, dir 0700 / file 0600). The password is never stored,
+  and secrets are never logged.
+- Transport: the library's RPC channel, local LAN first and cloud MQTT fallback. Each response
+  reports the transport it used. LAN-discovered Roborock merged with the cloud device (MAC / IP / name).
+- New brand-neutral capabilities: `roomCleaning`, `zoneCleaning`, `goTo`, `fanSpeed`,
+  `mopping`, `consumables`, `cleaningStats`, `vacuumMap`. `vacuum` gained `error`/`dockError`.
+  Mapped to Matter (ServiceArea, RvcCleanMode, HepaFilterMonitoring) and ST (turbo mode) where they exist.
+  Only model-supported actions are offered. A01/B01 models are listed but not controllable.
+- `vacuum_map.py` + `GET /devices/{id}/map` / `map.png`: PNG + rooms with bboxes, robot/dock,
+  and an affine pixel↔map transform from calibration points.
+- SmartThings/ThinQ vacuums: no documented room API, so not mapped (see docs).
+- 75 pytest tests (34 new, all mocked) + pyflakes clean. The server starts fine with no Roborock link.
+  **Not tried with a real vacuum.** Unverified points are in docs/cloud-integrations.md § Roborock.
+
 ## What's built (`hub/`)
 
 - **Canonical capability model** (`homehub/capabilities.py`) — `power`, `volume`,

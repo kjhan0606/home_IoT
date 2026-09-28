@@ -9,6 +9,8 @@ The Flutter app is a thin client over this:
   GET  /devices/{id}
   POST /devices/{id}/refresh
   POST /devices/{id}/commands {capability, action, params}
+  GET  /devices/{id}/map      vacuum map metadata (+ base64 PNG); /map.png = image
+  GET  /integrations/roborock  link status;  POST .../request-code, .../login, .../unlink
   WS   /ws                    live device/event push
 
 The hub advertises itself via Bonjour (_homehub._tcp) so the app auto-discovers
@@ -21,11 +23,14 @@ import contextlib
 import socket
 from typing import Any
 
+import base64
+
 from fastapi import (
     Depends,
     FastAPI,
     Header,
     HTTPException,
+    Response,
     WebSocket,
     WebSocketDisconnect,
 )
@@ -34,7 +39,7 @@ from pydantic import BaseModel
 from . import capabilities as cap
 from . import config, mappings
 from .adapters import registry
-from .cloud.errors import CloudNotConfiguredError
+from .cloud.errors import CloudAPIError, CloudNotConfiguredError
 from .manager import DeviceManager
 from .netutil import lan_ip
 
@@ -107,12 +112,26 @@ async def lifespan(app: FastAPI):
             with contextlib.suppress(Exception):
                 zc.unregister_service(info)
                 zc.close()
+        for a in registry.CLOUD_ADAPTERS:
+            if hasattr(a, "close"):
+                with contextlib.suppress(Exception):
+                    a.close()
 
 
 app = FastAPI(title="HomeHub Gateway", version="0.1.0", lifespan=lifespan)
 
 
 # --- request models -----------------------------------------------------------
+class RoborockCodeBody(BaseModel):
+    email: str
+
+
+class RoborockLoginBody(BaseModel):
+    email: str
+    code: str | None = None
+    password: str | None = None
+
+
 class CommandBody(BaseModel):
     capability: str
     action: str
@@ -155,6 +174,80 @@ def capabilities() -> dict[str, Any]:
 @app.get("/devices")
 def list_devices() -> dict[str, Any]:
     return {"devices": [d.to_dict() for d in manager.list_devices()]}
+
+
+# --- Roborock account link (secrets never returned) ---------------------------
+def _roborock():
+    a = registry.get_adapter("roborock")
+    if a is None:
+        raise HTTPException(404, "roborock adapter not loaded")
+    return a
+
+
+def _link_call(fn, *args, **kwargs) -> dict[str, Any]:
+    try:
+        return fn(*args, **kwargs)
+    except ValueError as e:
+        raise HTTPException(400, str(e)) from None
+    except CloudAPIError as e:
+        raise HTTPException(429 if e.status == 429 else 502, str(e)) from None
+
+
+@app.get("/integrations/roborock", dependencies=[Depends(require_token)])
+def roborock_status() -> dict[str, Any]:
+    return _roborock().link_status()
+
+
+@app.post("/integrations/roborock/request-code", dependencies=[Depends(require_token)])
+async def roborock_request_code(body: RoborockCodeBody) -> dict[str, Any]:
+    return await asyncio.to_thread(_link_call, _roborock().request_code, body.email)
+
+
+@app.post("/integrations/roborock/login", dependencies=[Depends(require_token)])
+async def roborock_login(body: RoborockLoginBody) -> dict[str, Any]:
+    return await asyncio.to_thread(
+        _link_call, _roborock().login, body.email, code=body.code, password=body.password)
+
+
+@app.post("/integrations/roborock/unlink", dependencies=[Depends(require_token)])
+async def roborock_unlink() -> dict[str, Any]:
+    res = await asyncio.to_thread(_roborock().unlink)
+    await asyncio.to_thread(manager.scan, lan=False, cloud=True)   # drop its devices
+    return res
+
+
+# --- vacuum map (declared before the greedy /devices/{id:path} route) --------
+def _map_or_http(device_id: str) -> tuple[bytes | None, dict[str, Any]]:
+    try:
+        return manager.get_map(device_id)
+    except KeyError as e:
+        raise HTTPException(404, str(e)) from e
+    except LookupError as e:
+        raise HTTPException(404, str(e)) from e
+    except CloudNotConfiguredError as e:
+        raise HTTPException(503, str(e)) from e
+    except ValueError as e:
+        raise HTTPException(400, str(e)) from e
+    except Exception as e:  # noqa: BLE001
+        raise HTTPException(502, str(e)) from e
+
+
+@app.get("/devices/{device_id:path}/map.png")
+async def device_map_png(device_id: str, cached: bool = True) -> Response:
+    hit = manager.cached_map(device_id) if cached else None
+    png, _ = hit if hit else await asyncio.to_thread(_map_or_http, device_id)
+    if not png:
+        raise HTTPException(404, "no map image")
+    return Response(content=png, media_type="image/png")
+
+
+@app.get("/devices/{device_id:path}/map")
+async def device_map(device_id: str, image: bool = True) -> dict[str, Any]:
+    png, meta = await asyncio.to_thread(_map_or_http, device_id)
+    out = {"deviceId": device_id, **meta, "imageUrl": f"/devices/{device_id}/map.png"}
+    if image and png:
+        out["image"] = {**meta["image"], "pngBase64": base64.b64encode(png).decode()}
+    return out
 
 
 @app.get("/devices/{device_id:path}")

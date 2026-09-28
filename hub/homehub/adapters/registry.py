@@ -10,6 +10,7 @@ from ..models import Device, DiscoveredHost
 from .base import DeviceAdapter
 from .cloud_base import CloudAdapter
 from .lg_thinq import LGThinQAdapter
+from .roborock import RoborockAdapter
 from .samsung_tv import SamsungTVAdapter
 from .smartthings import SmartThingsAdapter
 
@@ -19,10 +20,12 @@ LAN_ADAPTERS: list[DeviceAdapter] = [
 ]
 
 # Cloud adapters enumerate a vendor account. Each is enabled only when its
-# token env var is set (SMARTTHINGS_TOKEN, LG_THINQ_TOKEN); otherwise skipped.
+# credentials exist (SMARTTHINGS_TOKEN, LG_THINQ_TOKEN env vars; Roborock: a
+# linked account via POST /integrations/roborock/login); otherwise skipped.
 CLOUD_ADAPTERS: list[CloudAdapter] = [
     SmartThingsAdapter(),
     LGThinQAdapter(),
+    RoborockAdapter(),
 ]
 
 ADAPTERS: list[DeviceAdapter] = [*LAN_ADAPTERS, *CLOUD_ADAPTERS]

@@ -73,6 +73,18 @@ export LG_THINQ_COUNTRY=KR
 ./run.sh && curl -X POST localhost:8099/scan
 ```
 
+### Roborock vacuums (optional, unofficial)
+
+Link a Roborock account once (email code or password). After that the hub controls the vacuum
+over the LAN when it can and falls back to Roborock's cloud. Rooms, zones, go-to, suction, mop,
+consumables and a tappable map are all exposed as brand-neutral capabilities:
+
+```bash
+curl -X POST localhost:8099/integrations/roborock/request-code -H 'Content-Type: application/json' -d '{"email":"you@example.com"}'
+curl -X POST localhost:8099/integrations/roborock/login        -H 'Content-Type: application/json' -d '{"email":"you@example.com","code":"123456"}'
+curl -X POST localhost:8099/scan
+```
+
 Details, what works per device, limits, and the OAuth plan: **[docs/cloud-integrations.md](docs/cloud-integrations.md)**.
 
 Tests: `pip install -r requirements-dev.txt && pytest` (from `hub/`, all HTTP mocked).
@@ -106,7 +118,8 @@ MVP hub backend is **built and verified end-to-end on a real LAN** (10 devices
 discovered/classified; a Samsung TV auto-claimed and controlled — Wake-on-LAN
 power-on + WebSocket volume/channel). **SmartThings + LG ThinQ cloud adapters** are
 implemented and unit-tested with mocked APIs (branch `feature/cloud-adapters`), but not yet tried
-against real accounts. Next up: the Flutter app.
+against real accounts. A **Roborock** adapter (python-roborock; local-first, cloud fallback; rooms/zones/map)
+is on branch `feature/roborock`, also tested with mocks only. Next up: the Flutter app.
 
 Full detail in **[PROGRESS.md](PROGRESS.md)** · plan in **[ROADMAP.md](ROADMAP.md)**.
 
