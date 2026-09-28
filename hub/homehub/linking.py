@@ -4,7 +4,8 @@ Brand-agnostic: uses only canonical Device fields plus the hints cloud
 adapters publish in ``Device.meta["match"]`` ({brand, model, name, mac}).
 
 Rules
-  * A cloud device links to a LAN device when the MAC matches, or when kind +
+  * A cloud device links to a LAN device when the MAC (or the LAN IP the vendor
+    reports, e.g. Roborock network info) matches, or when kind +
     brand agree and the (normalized) name matches or one model number is a
     prefix of the other. Ambiguous matches (>1 candidate) are NOT linked.
   * LAN device controllable (e.g. samsung_local)  -> LAN stays primary; the
@@ -50,6 +51,8 @@ def same_device(lan: Device, cloud: Device) -> bool:
     hint = cloud.meta.get("match") or {}
     cmac = _mac(hint.get("mac") or cloud.mac)
     if cmac and cmac == _mac(lan.mac):
+        return True
+    if hint.get("ip") and lan.ip and hint["ip"] == lan.ip:
         return True
     if not lan.controllable:
         # Passive LAN kinds come from OUI guesses (every Samsung MAC looks like
