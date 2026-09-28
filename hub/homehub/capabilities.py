@@ -26,6 +26,31 @@ COLOR = "color"
 LOCK = "lock"
 VACUUM = "vacuum"
 SENSOR = "sensor"
+WASHER = "washer"
+DRYER = "dryer"
+REFRIGERATION = "refrigeration"
+
+
+def _laundry_spec(key: str) -> "CapabilitySpec":
+    """Washer and dryer share one brand-neutral shape: a run/pause/stop machine
+    with a job phase, remaining time and the appliance's remote-control flag.
+
+    ``remoteControlEnabled`` mirrors the physical "Remote Start" switch on the
+    appliance (SmartThings ``remoteControlStatus`` / LG ``remoteControlEnable``).
+    Adapters MUST refuse ``start`` when it is False (safety rule of both vendors).
+    """
+    return CapabilitySpec(
+        key=key,
+        actions={"start": {}, "pause": {}, "stop": {}},
+        state={
+            "machineState": "run|pause|stop",
+            "jobState": "str (vendor phase, lower-case, e.g. wash|rinse|spin|drying|none)",
+            "remainingMinutes": "int|null",
+            "completionTime": "iso8601|null",
+            "remoteControlEnabled": "bool|null (null = unknown/not reported)",
+        },
+        ui_hint="laundry-cycle",
+    )
 
 
 @dataclass(frozen=True)
@@ -111,8 +136,19 @@ CANONICAL: dict[str, CapabilitySpec] = {
     ),
     VACUUM: CapabilitySpec(
         key=VACUUM,
-        actions={"start": {}, "pause": {}, "stop": {}, "dock": {}},
-        state={"status": "cleaning|paused|docked|idle", "battery": "int 0..100"},
+        actions={
+            "start": {},          # also resumes when paused
+            "pause": {},
+            "stop": {},
+            "dock": {},
+            "setCleaningMode": {"mode": "str (one of cleaningModes)"},
+        },
+        state={
+            "status": "cleaning|paused|returning|charging|docked|idle|error",
+            "battery": "int 0..100",
+            "cleaningMode": "str|null",
+            "cleaningModes": "list[str]",
+        },
         ui_hint="vacuum-controls",
     ),
     SENSOR: CapabilitySpec(
@@ -120,6 +156,29 @@ CANONICAL: dict[str, CapabilitySpec] = {
         actions={},  # read-only
         state={"readings": "dict[str, number]"},
         ui_hint="readout",
+    ),
+    WASHER: _laundry_spec(WASHER),
+    DRYER: _laundry_spec(DRYER),
+    REFRIGERATION: CapabilitySpec(
+        key=REFRIGERATION,
+        actions={
+            "setFridgeSetpoint": {"temperature": "number (in state.unit)"},
+            "setFreezerSetpoint": {"temperature": "number (in state.unit)"},
+            "setRapidCooling": {"enabled": "bool"},
+            "setRapidFreezing": {"enabled": "bool"},
+        },
+        state={
+            "unit": "C|F",
+            "fridgeTemperature": "number|null (measured)",
+            "freezerTemperature": "number|null (measured)",
+            "fridgeSetpoint": "number|null",
+            "freezerSetpoint": "number|null",
+            "doorOpen": "bool|null (any door open)",
+            "doors": "dict[str, bool] (per-compartment open flags)",
+            "rapidCooling": "bool|null",
+            "rapidFreezing": "bool|null",
+        },
+        ui_hint="fridge-panel",
     ),
 }
 

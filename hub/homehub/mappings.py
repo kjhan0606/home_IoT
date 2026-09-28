@@ -27,6 +27,28 @@ SMARTTHINGS_MAP: dict[str, str | None] = {
     cap.LOCK: "lock",
     cap.VACUUM: "robotCleanerMovement",
     cap.SENSOR: "sensor",
+    cap.WASHER: "washerOperatingState",
+    cap.DRYER: "dryerOperatingState",
+    cap.REFRIGERATION: "refrigeration",
+}
+
+# Secondary SmartThings capabilities the SmartThings adapter also ingests into a
+# canonical capability (documentation + /capabilities output; the adapter holds
+# the actual translation logic).
+SMARTTHINGS_EXTRA: dict[str, list[str]] = {
+    cap.VOLUME: ["audioMute"],
+    cap.MEDIA_INPUT: ["samsungvd.mediaInputSource"],
+    cap.MEDIA_PLAYBACK: ["mediaTrackControl"],
+    cap.VACUUM: ["robotCleanerMovement", "robotCleanerCleaningMode", "battery"],
+    cap.WASHER: ["remoteControlStatus", "samsungce.washerOperatingState"],
+    cap.DRYER: ["remoteControlStatus", "samsungce.dryerOperatingState"],
+    cap.REFRIGERATION: [
+        "temperatureMeasurement",
+        "thermostatCoolingSetpoint",
+        "contactSensor",
+        "samsungce.powerCool",
+        "samsungce.powerFreeze",
+    ],
 }
 
 # canonical key -> Matter cluster (name, id). None where Matter has no clean fit.
@@ -40,8 +62,11 @@ MATTER_MAP: dict[str, tuple[str, int] | None] = {
     cap.BRIGHTNESS: ("LevelControl", 0x0008),
     cap.COLOR: ("ColorControl", 0x0300),
     cap.LOCK: ("DoorLock", 0x0101),
-    cap.VACUUM: ("RvcRunMode", 0x0061),
+    cap.VACUUM: ("RvcOperationalState", 0x0061),   # + RvcRunMode 0x0054
     cap.SENSOR: None,                       # depends on concrete sensor cluster
+    cap.WASHER: ("OperationalState", 0x0060),       # + LaundryWasherControls 0x0053
+    cap.DRYER: ("OperationalState", 0x0060),        # + LaundryDryerControls 0x004A
+    cap.REFRIGERATION: ("TemperatureControl", 0x0056),  # per-cabinet endpoint; + RefrigeratorAlarm 0x0057
 }
 
 
@@ -52,6 +77,7 @@ def describe(capability_key: str) -> dict[str, object]:
     return {
         "canonical": capability_key,
         "smartthings": st,
+        "smartthingsExtra": SMARTTHINGS_EXTRA.get(capability_key, []),
         "matter": None if mt is None else {"cluster": mt[0], "id": hex(mt[1])},
     }
 
