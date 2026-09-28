@@ -6,3 +6,4 @@ samsungtvws>=2.6
 wakeonlan>=3.1
 requests>=2.31
 websocket-client>=1.7
+python-roborock==7.12.0   # unofficial Roborock API (pinned: breaks between releases)

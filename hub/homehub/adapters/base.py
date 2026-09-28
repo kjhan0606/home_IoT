@@ -45,3 +45,6 @@ class DeviceAdapter(ABC):
     def refresh_state(self, device: Device) -> None:
         """Best-effort refresh of ``device.capabilities`` live state. Optional."""
         return None
+
+    # Optional: adapters whose devices expose the ``vacuumMap`` capability
+    # implement ``get_map(device) -> (png_bytes, metadata)`` (see vacuum_map.py).
