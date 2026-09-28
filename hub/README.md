@@ -42,6 +42,16 @@ Optional env: `HOMEHUB_HTTP_PORT`, `HOMEHUB_TOKEN` (shared-secret auth),
 link it through `/integrations/roborock/*` (secrets go to `data/tokens/roborock.json`, mode 0600). See
 [../docs/cloud-integrations.md](../docs/cloud-integrations.md).
 
+Dev-only options:
+
+- `HOMEHUB_FAKE_DEVICES=1` registers the **demo adapter** (`adapters/demo.py`): a sample TV, washer
+  (remote start off), fridge, robot vacuum with a rendered sample map, light and door lock, with
+  in-memory state. All of it is **example data** (names end in "(예시)", `meta.demo=true`). It is used
+  for app development, screenshots and E2E tests, and it is not registered at all when unset.
+- `HOMEHUB_CORS_ORIGINS=http://localhost:8088` (comma-separated) lets a browser origin (the Flutter
+  web build) call the API. It is **empty by default**, so arbitrary websites can't drive the hub; native
+  apps don't need it.
+
 Tests: `pip install -r requirements-dev.txt && pytest` (vendor HTTP mocked with `responses`).
 
 ## API

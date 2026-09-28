@@ -1,6 +1,7 @@
 # HomeHub local gateway dependencies
 fastapi>=0.115
 uvicorn>=0.30
+websockets>=13           # uvicorn needs it to serve /ws (else the handshake 404s)
 zeroconf>=0.132
 samsungtvws>=2.6
 wakeonlan>=3.1

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from ..models import Device, DiscoveredHost
 from .base import DeviceAdapter
+from . import demo
 from .cloud_base import CloudAdapter
 from .lg_thinq import LGThinQAdapter
 from .roborock import RoborockAdapter
@@ -27,6 +28,11 @@ CLOUD_ADAPTERS: list[CloudAdapter] = [
     LGThinQAdapter(),
     RoborockAdapter(),
 ]
+
+# Dev-only sample devices (HOMEHUB_FAKE_DEVICES=1). Registered only when the env
+# var is set at startup, so production /integrations output is unchanged.
+if demo.enabled_by_env():
+    CLOUD_ADAPTERS.append(demo.DemoAdapter())
 
 ADAPTERS: list[DeviceAdapter] = [*LAN_ADAPTERS, *CLOUD_ADAPTERS]
 

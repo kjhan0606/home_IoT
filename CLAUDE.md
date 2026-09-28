@@ -30,8 +30,11 @@ regenerates on first `/scan`.
 - **Phase 1 (local hub MVP backend): DONE and verified** on the original home
   LAN. Discovery + canonical model + Samsung TV adapter (WoL power-on + WebSocket
   control) all work through the API.
-- **Your next task: Phase 2 — the Flutter app** (`app/`, not created yet).
-  See ROADMAP.md § Phase 2 for the checklist. Flutter SDK is not installed.
+- **Phase 2 — the Flutter app** (`app/`) is built (branch `feature/flutter-app`):
+  thin client, capability-driven UI, tested with a fake API and verified on web.
+  Next: run it on the iPhone (needs a Mac), then real devices. See app/README.md.
+- Flutter SDK on the Linux dev box: `~/flutter` (stable). Web builds only; no
+  Android SDK, and iOS can't be built there.
 
 ## Architecture you MUST respect
 
@@ -63,7 +66,9 @@ hub/homehub/
   secret_store.py      0600 per-integration secrets   vacuum_map.py  map metadata/transform
 hub/tests/             pytest (mocked vendor HTTP): `pytest` from hub/
 docs/cloud-integrations.md  tokens, OAuth flow, limits, assumptions
-app/                   Flutter thin client (PLANNED — Phase 2)
+app/                   Flutter thin client: lib/{api,models,state,screens,widgets}, test/
+                       (fake API + fixtures captured from the hub), ci/ (iOS template)
+hub/homehub/adapters/demo.py   dev-only sample devices (HOMEHUB_FAKE_DEVICES=1)
 PROGRESS.md ROADMAP.md README.md
 ```
 
@@ -95,6 +100,9 @@ PROGRESS.md ROADMAP.md README.md
   TV someone is watching — ask first.
 
 ## Verifying changes
+
+- App: `cd app && flutter analyze && flutter test`. UI rule: pick widgets by
+  `uiHint` or capability key only, never by adapter/vendor/brand.
 
 - Import smoke test: `python -c "import homehub.server"` from `hub/` (venv on).
 - Live: `POST /scan` → `GET /devices` → send a safe command

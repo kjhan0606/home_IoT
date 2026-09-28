@@ -12,21 +12,26 @@ Legend: ✅ done · 🔜 next · ⬚ planned
 Discovery + canonical capability model + Samsung TV local control + HTTP/WS API.
 Verified end-to-end on a real LAN. (Details in `PROGRESS.md`.)
 
-## Phase 2 — Flutter thin client 🔜
+## Phase 2 — Flutter thin client ✅ (built; iPhone run pending)
 
-The immediate next step.
+Branch `feature/flutter-app`. See `app/README.md`.
 
-- [ ] Scaffold Flutter app (`app/`); install Flutter SDK.
-- [ ] **Hub auto-discovery** on LAN via Bonjour (`_homehub._tcp`); manual
-      IP fallback.
-- [ ] **Device list** screen — kinds, reachability, controllable badge.
-- [ ] **Generic capability rendering** — one widget per canonical capability
-      (toggle / slider+mute / stepper / picker / app-grid), driven by the
-      `/capabilities` `uiHint`. Adding an adapter later needs **no app change**.
-- [ ] **Samsung TV control** screen end-to-end: power (WoL on / off),
-      volume, channel, input, app launch.
-- [ ] Live updates via WebSocket `/ws`.
+- [x] Scaffold Flutter app (`app/`); Flutter SDK installed (stable 3.47).
+- [x] **Hub auto-discovery** via Bonjour (`_homehub._tcp`, bonsoir); manual
+      IP fallback; optional shared secret; last hub remembered.
+- [x] **Device list**: kind/room groups, reachability, quick power toggle, scan,
+      pull to refresh.
+- [x] **Generic capability rendering**: one widget per `uiHint`, plus a generic fallback.
+      Adding an adapter later needs **no app change**.
+- [x] TV remote, laundry (remote-start 403 flow), fridge, vacuum (+ map: rooms,
+      zones, go-to), light/lock/sensor.
+- [x] Live updates via WebSocket `/ws` (auto-reconnect).
+- [x] Settings: integrations status, Roborock link/unlink, ST/ThinQ token status.
+- [x] Tests (analyze clean, widget tests with a fake API) + web E2E with demo data.
+- [ ] **Run on the iPhone** (Mac + Xcode; free Apple ID or TestFlight). Verify
+      the local-network prompt and Bonjour on the device.
 - [ ] First-run: pairing helper for the Samsung "Allow device?" prompt.
+- [ ] Map zoom/pan; Keychain storage for the hub secret once real auth exists.
 
 ## Phase 3 — Hardening ⬚
 

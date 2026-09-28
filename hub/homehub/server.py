@@ -104,6 +104,9 @@ def _register_bonjour():
 @contextlib.asynccontextmanager
 async def lifespan(app: FastAPI):
     config.ensure_dirs()
+    if registry.get_adapter("demo") is not None:     # HOMEHUB_FAKE_DEVICES=1: show samples at once
+        with contextlib.suppress(Exception):
+            await asyncio.to_thread(manager.scan, lan=False, cloud=True)
     zc, info = _register_bonjour()
     try:
         yield
@@ -119,6 +122,12 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="HomeHub Gateway", version="0.1.0", lifespan=lifespan)
+if config.CORS_ORIGINS:
+    from fastapi.middleware.cors import CORSMiddleware
+
+    app.add_middleware(
+        CORSMiddleware, allow_origins=config.CORS_ORIGINS, allow_methods=["*"], allow_headers=["*"],
+    )
 
 
 # --- request models -----------------------------------------------------------
@@ -290,9 +299,11 @@ async def command(device_id: str, body: CommandBody) -> dict[str, Any]:
         raise HTTPException(400, str(e)) from e
     except Exception as e:  # noqa: BLE001
         raise HTTPException(502, str(e)) from e
+    dev = manager.get(device_id)
     await ws_hub.broadcast(
         {"type": "command", "deviceId": device_id,
-         "capability": body.capability, "action": body.action, "result": result}
+         "capability": body.capability, "action": body.action, "result": result,
+         "device": dev.to_dict() if dev else None}
     )
     return {"ok": True, "result": result}
 

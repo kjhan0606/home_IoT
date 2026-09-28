@@ -5,7 +5,8 @@ _Last updated: 2026-09-28_
 ## Where we are
 
 **Phase 1 (local hub MVP backend) — DONE and verified end-to-end on a real LAN.**
-Next session starts at **Phase 2: the Flutter app.**
+**Phase 2 (Flutter app) — built on `feature/flutter-app`**, verified as a web build against the
+hub in demo mode. **Next:** run it on the iPhone (Mac + Xcode, see app/README.md), then real devices.
 
 ## Key decisions (with rationale)
 
@@ -16,6 +17,29 @@ Next session starts at **Phase 2: the Flutter app.**
 | Capability model | **Canonical + dual mapping** to SmartThings **and** Matter | Neutral internal vocabulary; adapters normalize into it; swap local→official backend later with no app/API change. Chose "both" standards, implemented as one canonical model + two mapping tables ("Plan A": mapping/vocabulary now, real SmartThings/Matter backends later). |
 | MVP target device | **Samsung TV** | Best local-control support; verifiable on the actual home TV (UN55KS8500). |
 | Public/App-Store path | Deferred, but **designed for** | Cloud relay + official backends come later; adapter pattern keeps it a plug-in, not a rewrite. |
+
+## 2026-09-28 — Flutter app, Phase 2 (branch `feature/flutter-app`, local only)
+
+- `app/`: Flutter 3.47 stable, bundle id `com.kjhan0606.homeiot`, Korean UI, Material 3 light/dark.
+  Uses `provider` + one `ChangeNotifier`, `http` + `web_socket_channel`, `bonsoir` (Bonjour), and
+  `shared_preferences`.
+- Screens: connect (Bonjour + manual + shared secret, remembers the hub), device list (kind/room
+  groups, power toggle, scan, pull to refresh, live `/ws`), capability-driven detail (widget chosen
+  by `uiHint`, never by brand), vacuum map (room tap / zone draw / long-press go-to via the hub's
+  `imageToMap` affine), settings (integrations, Roborock code-login/unlink, ST/ThinQ token status).
+- Hub changes: dev-only **demo adapter** (`HOMEHUB_FAKE_DEVICES=1`: TV, washer with remote start off,
+  fridge, vacuum with a sample map, light, lock; all marked "(예시)"/`meta.demo`). CORS is **opt-in**
+  (`HOMEHUB_CORS_ORIGINS`, closed by default). `/ws` command events now carry the updated device.
+  **Bug fix:** `/ws` had never worked under plain uvicorn (no WebSocket library, so the handshake
+  returned 404). `websockets` is now in requirements.
+- Tests: hub 83 pytest (8 new) + pyflakes clean. App: `flutter analyze` clean, 27 `flutter test`
+  (model parsing on fixtures captured from the real hub, state, widget tests with a fake API).
+- E2E: web build in headless Chrome against the demo hub. Screenshots were taken of every main
+  screen, and a curl command showed up live in the open app via `/ws`.
+- Decision: example data comes from a hub-side adapter rather than a mock inside the app, so the
+  app's real HTTP/WS paths are exercised and the architecture ("new device = new adapter") holds.
+- Not verified: anything iOS-specific (local-network prompt, Bonjour on device, ATS local
+  networking, signing); Android builds (no Android SDK here).
 
 ## 2026-09-28 — Cloud adapters (branch `feature/cloud-adapters`, local only)
 
@@ -113,4 +137,4 @@ Next session starts at **Phase 2: the Flutter app.**
 
 1. `cd hub && source .venv/bin/activate && ./run.sh`
 2. `curl -X POST localhost:8099/scan` then `GET /devices`.
-3. Begin Phase 2 (Flutter app) — see `ROADMAP.md`.
+3. App: `cd app && flutter pub get && flutter run -d chrome` (see app/README.md; iPhone needs a Mac).
