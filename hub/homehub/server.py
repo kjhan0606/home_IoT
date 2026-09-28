@@ -3,7 +3,8 @@
 The Flutter app is a thin client over this:
   GET  /health
   GET  /capabilities          canonical model + SmartThings/Matter matrix
-  POST /scan                  run network discovery
+  GET  /integrations          LAN/cloud adapters + enabled flag + last cloud errors
+  POST /scan?lan=&cloud=      run LAN discovery and/or sync enabled cloud accounts
   GET  /devices               list devices (controllable + passive)
   GET  /devices/{id}
   POST /devices/{id}/refresh
@@ -32,6 +33,8 @@ from pydantic import BaseModel
 
 from . import capabilities as cap
 from . import config, mappings
+from .adapters import registry
+from .cloud.errors import CloudNotConfiguredError
 from .manager import DeviceManager
 from .netutil import lan_ip
 
@@ -125,7 +128,13 @@ def health() -> dict[str, Any]:
         "ip": lan_ip(),
         "scanning": manager.scanning,
         "deviceCount": len(manager.list_devices()),
+        "integrations": {k: v["enabled"] for k, v in registry.integrations_status().items()},
     }
+
+
+@app.get("/integrations")
+def integrations() -> dict[str, Any]:
+    return {"integrations": registry.integrations_status(), "cloudErrors": manager.cloud_errors}
 
 
 @app.get("/capabilities")
@@ -157,9 +166,9 @@ def get_device(device_id: str) -> dict[str, Any]:
 
 
 @app.post("/scan", dependencies=[Depends(require_token)])
-async def scan() -> dict[str, Any]:
-    devices = await asyncio.to_thread(manager.scan)
-    payload = {"devices": [d.to_dict() for d in devices]}
+async def scan(lan: bool = True, cloud: bool = True) -> dict[str, Any]:
+    devices = await asyncio.to_thread(manager.scan, lan=lan, cloud=cloud)
+    payload = {"devices": [d.to_dict() for d in devices], "cloudErrors": manager.cloud_errors}
     await ws_hub.broadcast({"type": "devices", **payload})
     return payload
 
@@ -180,6 +189,8 @@ async def command(device_id: str, body: CommandBody) -> dict[str, Any]:
         )
     except KeyError as e:
         raise HTTPException(404, str(e)) from e
+    except CloudNotConfiguredError as e:
+        raise HTTPException(503, str(e)) from e
     except PermissionError as e:
         raise HTTPException(403, str(e)) from e
     except ValueError as e:

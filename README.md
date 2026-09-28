@@ -18,7 +18,8 @@ touching the app.
 │  thin client   │      (finds hub via Bonjour)   │                          │
 └────────────────┘                                │  DeviceAdapter registry  │
                                                    │   ├─ samsung_local  ✅   │
-                                                   │   ├─ smartthings    ⬚    │
+                                                   │   ├─ smartthings    ✅   │
+                                                   │   ├─ lg_thinq       ✅   │
                                                    │   ├─ matter         ⬚    │
                                                    │   └─ roborock       ⬚    │
                                                    └──────────────────────────┘
@@ -43,6 +44,7 @@ home_IoT/
 ├── hub/            Python local gateway (FastAPI). See hub/README.md
 │   └── homehub/    capability model, discovery, adapters, server
 ├── app/            Flutter thin client            (planned — next)
+├── docs/           cloud-integrations.md (tokens, OAuth flow, limits)
 ├── PROGRESS.md     what's built & verified, decisions log
 └── ROADMAP.md      phased plan toward App Store release
 ```
@@ -58,6 +60,22 @@ curl -X POST localhost:8099/scan          # discover devices
 ```
 
 See **[hub/README.md](hub/README.md)** for the full API and examples.
+
+### Cloud appliances (optional)
+
+Samsung (SmartThings) and LG (ThinQ Connect) washers, dryers, fridges, robot vacuums
+and Samsung TVs are available once you set a token. Nothing changes if the tokens are unset:
+
+```bash
+export SMARTTHINGS_TOKEN=...   # https://account.smartthings.com/tokens  (24 h PAT)
+export LG_THINQ_TOKEN=...      # https://connect-pat.lgthinq.com
+export LG_THINQ_COUNTRY=KR
+./run.sh && curl -X POST localhost:8099/scan
+```
+
+Details, what works per device, limits, and the OAuth plan: **[docs/cloud-integrations.md](docs/cloud-integrations.md)**.
+
+Tests: `pip install -r requirements-dev.txt && pytest` (from `hub/`, all HTTP mocked).
 
 ## Resume on another machine
 
@@ -86,7 +104,9 @@ Then continue the work:
 
 MVP hub backend is **built and verified end-to-end on a real LAN** (10 devices
 discovered/classified; a Samsung TV auto-claimed and controlled — Wake-on-LAN
-power-on + WebSocket volume/channel). Next up: the Flutter app.
+power-on + WebSocket volume/channel). **SmartThings + LG ThinQ cloud adapters** are
+implemented and unit-tested with mocked APIs (branch `feature/cloud-adapters`), but not yet tried
+against real accounts. Next up: the Flutter app.
 
 Full detail in **[PROGRESS.md](PROGRESS.md)** · plan in **[ROADMAP.md](ROADMAP.md)**.
 

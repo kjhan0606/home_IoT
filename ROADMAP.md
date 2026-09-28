@@ -53,9 +53,13 @@ Turns the personal hub into a service. See README "Why a local hub".
 
 New adapters satisfying the **same canonical contract** — the app never changes.
 
-- [ ] **SmartThings cloud adapter** (official Samsung API) — replaces the
-      unofficial local TV control for compliant shipping. Vocabulary already
-      matches (canonical modeled on SmartThings capabilities).
+- [x] **SmartThings cloud adapter** (official Samsung API) — PAT auth, TV +
+      washer/dryer/fridge/vacuum, LAN dedup with local-first fallback.
+      (`feature/cloud-adapters`; mocked tests only so far)
+- [x] **LG ThinQ Connect adapter** — washer/dryer/fridge/robot vacuum (no TVs in
+      that API).
+- [ ] Verify both on real accounts; wire **OAuth2** for SmartThings (24 h PATs).
+- [ ] LG webOS TV local adapter; washtower/combo + more appliance types.
 - [ ] **Matter controller adapter** — lights/plugs/locks/sensors/newer vacuums.
       iOS: Apple Matter framework; Android: Google Home APIs; bridged to Flutter
       via platform channels. Needs a Thread Border Router in-home for Thread.
