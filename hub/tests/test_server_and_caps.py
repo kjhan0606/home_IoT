@@ -29,7 +29,7 @@ def test_new_capabilities_are_mapped():
 
 def test_endpoints_without_tokens(client):
     h = client.get("/health").json()
-    assert h["ok"] and h["integrations"] == {"samsung_local": True, "smartthings": False, "lg_thinq": False}
+    assert h["ok"] and h["integrations"] == {"samsung_local": True, "smartthings": False, "lg_thinq": False, "roborock": False}
     caps = client.get("/capabilities").json()
     assert {"washer", "dryer", "refrigeration"} <= set(caps["canonical"])
     assert client.get("/devices").json() == {"devices": []}
