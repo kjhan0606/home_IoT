@@ -63,7 +63,10 @@ New adapters satisfying the **same canonical contract** — the app never change
 - [ ] **Matter controller adapter** — lights/plugs/locks/sensors/newer vacuums.
       iOS: Apple Matter framework; Android: Google Home APIs; bridged to Flutter
       via platform channels. Needs a Thread Border Router in-home for Thread.
-- [ ] **Roborock adapter** (needs one-time cloud token extraction).
+- [x] **Roborock adapter**: python-roborock, one-time cloud login (email code/password),
+      LAN first with cloud fallback, rooms/zones/go-to/fan/mop/consumables/map.
+      (`feature/roborock`; mocked tests only so far)
+- [ ] Verify Roborock on a real vacuum; app UI for the map (tap rooms, draw zones).
 - [ ] Media adapters (AirPlay / Chromecast / DIAL) for TVs/speakers/IPTV that
       Matter doesn't cover.
 
@@ -71,7 +74,7 @@ New adapters satisfying the **same canonical contract** — the app never change
 
 ## Legal / App Store notes ⚠️
 
-- Current Samsung (WebSocket) and future Roborock (miIO) integrations are
+- Current Samsung (WebSocket) and Roborock (python-roborock: cloud login + local/MQTT) integrations are
   **reverse-engineered, unofficial** protocols. Fine for personal use; a
   **commercial** release risks vendor ToS violations.
 - Compliant path before shipping: **SmartThings partner API** for Samsung, and

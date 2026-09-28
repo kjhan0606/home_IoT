@@ -38,7 +38,8 @@ pip install -r requirements.txt
 
 Optional env: `HOMEHUB_HTTP_PORT`, `HOMEHUB_TOKEN` (shared-secret auth),
 `HOMEHUB_DATA` (state dir), `HOMEHUB_NAME`, and for cloud adapters
-`SMARTTHINGS_TOKEN`, `LG_THINQ_TOKEN`, `LG_THINQ_COUNTRY` (default `KR`). See
+`SMARTTHINGS_TOKEN`, `LG_THINQ_TOKEN`, `LG_THINQ_COUNTRY` (default `KR`). Roborock needs no env var;
+link it through `/integrations/roborock/*` (secrets go to `data/tokens/roborock.json`, mode 0600). See
 [../docs/cloud-integrations.md](../docs/cloud-integrations.md).
 
 Tests: `pip install -r requirements-dev.txt && pytest` (vendor HTTP mocked with `responses`).
@@ -55,6 +56,12 @@ Tests: `pip install -r requirements-dev.txt && pytest` (vendor HTTP mocked with 
 | GET | `/devices/{id}` | one device |
 | POST | `/devices/{id}/refresh` | refresh live state |
 | POST | `/devices/{id}/commands` | `{capability, action, params}` |
+| GET | `/devices/{id}/map` | vacuum map metadata (rooms+bboxes, robot/dock, pixel↔map transform) + base64 PNG |
+| GET | `/devices/{id}/map.png` | rendered vacuum map |
+| GET | `/integrations/roborock` | Roborock link status (masked account, devices) |
+| POST | `/integrations/roborock/request-code` | `{email}`: email a login code |
+| POST | `/integrations/roborock/login` | `{email, code}` or `{email, password}`: link account |
+| POST | `/integrations/roborock/unlink` | delete stored Roborock credentials |
 | WS | `/ws` | live device/event push |
 
 ### Example
@@ -83,5 +90,6 @@ curl -X POST "localhost:8099/devices/samsung_local:<mac>/commands" \
 - [ ] Flutter thin client
 - [ ] Cloud relay (remote access, multi-tenant) — for App Store release
 - [x] SmartThings + LG ThinQ cloud adapters (PAT auth; washer/dryer/fridge/vacuum/TV), LAN↔cloud dedup
+- [x] Roborock adapter (python-roborock 7.12; LAN first → cloud MQTT; rooms, zones, go-to, fan, mop, consumables, map), mocked tests only
 - [ ] OAuth2 wiring for SmartThings (provider exists; route + registry TODO)
 - [ ] Matter controller adapter
