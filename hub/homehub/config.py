@@ -22,3 +22,9 @@ API_TOKEN = os.environ.get("HOMEHUB_TOKEN", "")   # empty = auth disabled (dev)
 def ensure_dirs() -> None:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     TOKEN_DIR.mkdir(parents=True, exist_ok=True)
+
+# Browser origins allowed to call the API (CORS), comma-separated, e.g.
+# "http://localhost:8080" for the Flutter web build during development.
+# Empty (default) = no CORS headers: native apps don't need them, and leaving
+# CORS closed stops arbitrary websites from driving the hub via the browser.
+CORS_ORIGINS = [o.strip() for o in os.environ.get("HOMEHUB_CORS_ORIGINS", "").split(",") if o.strip()]
