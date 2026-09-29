@@ -164,5 +164,5 @@ server (people travel), so it is a natural Max feature.
 * Direct-mode automation and the away mode are foreground-only.
 * Real presence (geofence/Wi-Fi), server-side rules and push (premium relay), SmartThings export for the
   away mode, curtain "position" sliders in rules (only open/close are templated) are not built.
-* Merging with `feature/cctv`: expect conflicts in `capabilities.py`, `demo.py`, `server.py`,
-  `canonical_catalog.dart` (regenerate it with `app/tool/gen_canonical_catalog.py`); drop `demo:cam-entrance`.
+* `feature/cctv` is merged in `feature/integrated`: `demo:cam-entrance` was dropped; the demo cameras
+  (`demo:cam-living`, `demo:cam-door`) carry the `sensor` readings (`visitorCount`, `motion`) the Home Summary reads.
