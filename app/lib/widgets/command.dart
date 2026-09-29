@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../api/hub_api.dart';
+import '../backend/device_backend.dart';
+import '../backend/direct/cloud_provider.dart';
 import '../state/hub_state.dart';
 
 /// Sends a canonical command and reports errors in Korean. Returns true on success.
@@ -23,11 +24,13 @@ Future<bool> sendCommand(
       messenger?.showSnackBar(SnackBar(content: Text(successMessage)));
     }
     return true;
-  } on HubApiException catch (e) {
+  } on BackendException catch (e) {
     final msg = switch (e.statusCode) {
       403 => forbiddenMessage ?? '기기가 명령을 거부했습니다: ${e.message}',
       400 => '지원하지 않는 요청입니다: ${e.message}',
-      401 => '허브 비밀키가 올바르지 않습니다.',
+      401 => e is CloudAuthException ? e.message : '허브 비밀키가 올바르지 않습니다.',
+      429 => e.message,
+      501 => e.message,
       404 => '기기를 찾을 수 없습니다.',
       503 => '연동이 설정되지 않았습니다: ${e.message}',
       0 => e.message,

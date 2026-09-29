@@ -4,6 +4,8 @@ import '../l10n/ko.dart';
 import '../models/capability_spec.dart';
 import '../models/device.dart';
 import 'capabilities/appliances.dart';
+import 'capabilities/camera.dart';
+import 'capabilities/curtain.dart';
 import 'capabilities/generic.dart';
 import 'capabilities/media.dart';
 import 'capabilities/vacuum.dart';
@@ -11,8 +13,11 @@ import 'command.dart';
 
 /// Display order for known capabilities; unknown ones follow alphabetically.
 const capabilityOrder = [
+  'videoStream',
+  'ptz',
   'power',
   'lock',
+  'curtain',
   'washer',
   'dryer',
   'refrigeration',
@@ -53,6 +58,8 @@ Widget capabilityWidget(Device device, CapabilityInstance inst, CapabilitySpec? 
   final hint = spec?.uiHint ?? _defaultHints[inst.key] ?? 'generic';
   final hasMap = device.has('vacuumMap');
   switch (hint) {
+    case 'curtain-controls':
+      return CurtainCard(device: device, inst: inst);
     case 'toggle':
       return ToggleCard(device: device, inst: inst);
     case 'slider+mute':
@@ -83,6 +90,10 @@ Widget capabilityWidget(Device device, CapabilityInstance inst, CapabilitySpec? 
       return ConsumablesCard(device: device, inst: inst);
     case 'room-picker':
       return RoomPickerCard(device: device, inst: inst);
+    case 'camera-view':
+      return CameraCard(device: device, inst: inst);
+    case 'ptz-pad':
+      return PtzCard(device: device, inst: inst);
     case 'map-view':
       return MapEntryCard(device: device);
     case 'zone-drawer':
@@ -99,6 +110,7 @@ Widget capabilityWidget(Device device, CapabilityInstance inst, CapabilitySpec? 
 const _defaultHints = {
   'power': 'toggle',
   'lock': 'toggle',
+  'curtain': 'curtain-controls',
   'volume': 'slider+mute',
   'channel': 'stepper',
   'mediaInput': 'picker',
@@ -119,4 +131,6 @@ const _defaultHints = {
   'vacuumMap': 'map-view',
   'zoneCleaning': 'zone-drawer',
   'goTo': 'map-tap',
+  'videoStream': 'camera-view',
+  'ptz': 'ptz-pad',
 };

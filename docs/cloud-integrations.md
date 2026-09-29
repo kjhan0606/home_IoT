@@ -1,5 +1,8 @@
 # Cloud integrations: SmartThings, LG ThinQ & Roborock
 
+> The Flutter app can also call SmartThings and LG ThinQ directly, without the hub: it has Dart ports of these
+> two adapters (`app/lib/backend/direct/`). See [app-backends.md](app-backends.md).
+
 Two cloud adapters bring Samsung and LG appliances into the same canonical model
 as LAN devices: `hub/homehub/adapters/smartthings.py` and `hub/homehub/adapters/lg_thinq.py`.
 An adapter is **enabled only when its token env var is set**. With no tokens set,

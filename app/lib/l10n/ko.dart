@@ -17,6 +17,8 @@ class Ko {
     'light': '조명',
     'switch': '스위치/플러그',
     'lock': '도어락',
+    'curtain': '커튼/블라인드',
+    'camera': '카메라',
     'speaker': '스피커',
     'air-conditioner': '에어컨',
     'air-purifier': '공기청정기',
@@ -45,6 +47,8 @@ class Ko {
     'light' => Icons.lightbulb_outline,
     'switch' => Icons.power,
     'lock' => Icons.lock_outline,
+    'curtain' => Icons.blinds,
+    'camera' => Icons.videocam_outlined,
     'speaker' => Icons.speaker,
     'air-conditioner' => Icons.ac_unit,
     'air-purifier' => Icons.air,
@@ -64,6 +68,7 @@ class Ko {
     'brightness': '밝기',
     'color': '색상',
     'lock': '잠금',
+    'curtain': '커튼',
     'vacuum': '청소',
     'sensor': '센서',
     'washer': '세탁',
@@ -77,6 +82,8 @@ class Ko {
     'consumables': '소모품',
     'cleaningStats': '청소 기록',
     'vacuumMap': '지도',
+    'videoStream': '영상',
+    'ptz': '카메라 회전/확대',
   };
   static String cap(String k) => _caps[k] ?? k;
 
@@ -143,6 +150,16 @@ class Ko {
   static const remoteStartHelp =
       "원격 제어가 꺼져 있어 앱에서 시작할 수 없습니다. "
       "기기에서 '원격 시작' 버튼을 누른 뒤 다시 시도하세요.";
+
+  static const _curtain = {
+    'open': '열림',
+    'closed': '닫힘',
+    'opening': '열리는 중',
+    'closing': '닫히는 중',
+    'partial': '일부 열림',
+    'unknown': '알 수 없음',
+  };
+  static String curtainStatus(String? s) => s == null ? '-' : (_curtain[s] ?? s);
 
   static String duration(num? seconds) {
     if (seconds == null) return '-';

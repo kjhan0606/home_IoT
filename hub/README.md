@@ -72,7 +72,27 @@ Tests: `pip install -r requirements-dev.txt && pytest` (vendor HTTP mocked with 
 | POST | `/integrations/roborock/request-code` | `{email}`: email a login code |
 | POST | `/integrations/roborock/login` | `{email, code}` or `{email, password}`: link account |
 | POST | `/integrations/roborock/unlink` | delete stored Roborock credentials |
+| GET | `/cameras/discover` | ONVIF WS-Discovery of IP cameras |
+| GET | `/cameras` | configured cameras (passwords hidden) |
+| POST | `/cameras` | add a camera `{protocol: onvif\|rtsp\|http, name, address\|url, username, password}` |
+| DELETE | `/cameras/{id}` | remove a camera and its stored password |
+| GET | `/devices/{id}/snapshot.jpg` | camera snapshot (JPEG) |
+| GET | `/devices/{id}/stream.mjpeg` | camera MJPEG stream (needs ffmpeg for RTSP cameras) |
+| GET | `/devices/{id}/stream` | stream info: RTSP URL (no credentials), snapshot/MJPEG URLs |
 | WS | `/ws` | live device/event push |
+
+Camera notes (ONVIF/RTSP/MJPEG, PTZ, security, not tested with a real camera): [../docs/cameras.md](../docs/cameras.md).
+### Automation (docs/home-automation.md)
+
+| | |
+|---|---|
+| `GET/POST /automation/rules`, `PUT/DELETE /automation/rules/{id}`, `POST .../{id}/enable` | rules (writes need `HOMEHUB_TOKEN` when set) |
+| `GET/DELETE /automation/log` | run log (last 200) |
+| `POST /automation/events/{name}` | fire a signal (`leaving`, `arriving`, `wake`, ...) and run matching rules now |
+| `GET/PUT/DELETE /automation/away` | 휴가/장기 외출 모드 plan (lights + curtains only), status, today's schedule |
+
+Env: `HOMEHUB_TZ` (e.g. `Asia/Seoul`), `HOMEHUB_AUTOMATION=0` to turn the engine off,
+`HOMEHUB_AUTOMATION_TICK` (20 s), `HOMEHUB_AUTOMATION_REFRESH` (60 s cloud re-sync while rules need it).
 
 ### Example
 

@@ -61,18 +61,41 @@ hub/homehub/
   models.py            Device / DiscoveredHost    netutil.py    LAN/WoL/ARP
   discovery/           engine, mdns, ssdp, oui    manager.py    control plane
   adapters/            base, registry, samsung_tv, cloud_base,
-                       smartthings, lg_thinq, roborock   server.py  FastAPI + WS + Bonjour
+                       smartthings, lg_thinq, roborock, camera   server.py  FastAPI + WS + Bonjour
+  camera/              ONVIF SOAP client, RTSP/MJPEG helpers, 0600 camera store (docs/cameras.md)
   cloud/               auth (TokenProvider), errors, roborock_backend   linking.py  LAN<->cloud dedup
   secret_store.py      0600 per-integration secrets   vacuum_map.py  map metadata/transform
+hub/homehub/automation/  rules engine (rules.py, engine.py, service.py) + 휴가 모드 (away.py)
 hub/tests/             pytest (mocked vendor HTTP): `pytest` from hub/
 docs/cloud-integrations.md  tokens, OAuth flow, limits, assumptions
-app/                   Flutter thin client: lib/{api,models,state,screens,widgets}, test/
+docs/cameras.md        IP camera / CCTV: ONVIF, RTSP, MJPEG, PTZ, security, premium relay draft
+docs/home-summary.md   집 전체 요약 (summary engine, local notifications, camera contract)
+docs/home-automation.md  rules, curtain/light capabilities, 휴가 모드, SmartThings Rules export, tier suggestion
+app/                   Flutter app: lib/{backend,api,models,state,screens,widgets}, test/
+                       (summary/ = home summary engine; automation/ = Dart rules engine + away mode;
+                        tests share app/test/fixtures/{automation,away}_scenarios.json with hub pytest)
+                       (backend/direct = Dart ports of the SmartThings/LG adapters; see docs/app-backends.md)
+                       (lib/camera + backend/direct/camera_provider.dart = LAN cameras: ONVIF/RTSP/MJPEG, media_kit)
                        (fake API + fixtures captured from the hub), ci/ (iOS template)
 hub/homehub/adapters/demo.py   dev-only sample devices (HOMEHUB_FAKE_DEVICES=1)
 PROGRESS.md ROADMAP.md README.md
 ```
 
+## Cameras (branch `feature/cctv`)
+
+Camera = the `camera` kind with the `videoStream` (`camera-view`) and `ptz` (`ptz-pad`) capabilities; no brand code in the
+app. Hub: `adapters/camera.py` + `camera/`; app: `lib/camera/`, `DirectCameraProvider`, `CameraBackend` (implemented by both
+`DirectCloudBackend` and `HttpHubApi`). LAN only; remote viewing is a premium relay idea. Not tested with a real camera.
+Details: docs/cameras.md.
+
 ## Constraints & gotchas
+
+- **Automation engines exist twice** (Python hub, Dart app) and must stay identical: change
+  `engine.py`/`away.py` and the Dart port together, regenerate the fixtures
+  (`app/tool/gen_automation_scenarios.py`, `app/tool/gen_away_scenarios.py`) and run both test suites.
+  The away mode may only ever control lights + curtains (allow-list in `AutomationService._away_step`
+  and `AutomationController._awayStep`) – never widen it.
+- Direct-mode automation and local notifications only work while the app runs; say so, never promise more.
 
 - **Different network now.** Device IPs/MACs in PROGRESS.md (e.g. `192.168.45.x`,
   the TV's MAC) are from the *original* home LAN. On this machine, **re-scan** —
@@ -103,6 +126,9 @@ PROGRESS.md ROADMAP.md README.md
 
 - App: `cd app && flutter analyze && flutter test`. UI rule: pick widgets by
   `uiHint` or capability key only, never by adapter/vendor/brand.
+- The app has a `DeviceBackend` abstraction (direct cloud | hub | future relay). When you change a
+  Python cloud adapter's mapping, mirror it in `app/lib/backend/direct/`; when you change
+  `capabilities.py`, run `app/tool/gen_canonical_catalog.py`.
 
 - Import smoke test: `python -c "import homehub.server"` from `hub/` (venv on).
 - Live: `POST /scan` → `GET /devices` → send a safe command

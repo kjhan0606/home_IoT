@@ -80,6 +80,14 @@ class DeviceManager:
             except Exception as e:  # noqa: BLE001
                 self.cloud_errors[adapter.id] = f"{type(e).__name__}: {e}"
 
+    def sync_adapter(self, adapter_id: str) -> list[Device]:
+        """Re-list one adapter only (e.g. after a camera was added/removed)."""
+        adapter = registry.get_adapter(adapter_id)
+        if adapter is None:
+            raise KeyError(adapter_id)
+        self._cloud[adapter_id] = adapter.list_devices()
+        return self._rebuild()
+
     def _rebuild(self) -> list[Device]:
         cloud_all = [d for devs in self._cloud.values() for d in devs]
         merged, aliases = linking.merge(self._lan, cloud_all)
@@ -189,3 +197,25 @@ class DeviceManager:
             except Exception:
                 pass
         return dev
+
+    # --- camera media ------------------------------------------------------------
+    def _camera_adapter(self, device_id: str):
+        dev = self.get(device_id)
+        if dev is None:
+            raise KeyError(f"unknown device: {device_id}")
+        adapter = registry.get_adapter(dev.adapter)
+        if adapter is None or "videoStream" not in dev.capabilities or not hasattr(adapter, "snapshot"):
+            raise LookupError(f"device {device_id} is not a camera")
+        return adapter, dev
+
+    def camera_snapshot(self, device_id: str) -> bytes:
+        adapter, dev = self._camera_adapter(device_id)
+        return adapter.snapshot(dev)
+
+    def camera_frames(self, device_id: str, fps: int = 5):
+        adapter, dev = self._camera_adapter(device_id)
+        return adapter.mjpeg_frames(dev, fps=fps)
+
+    def camera_stream_info(self, device_id: str) -> dict[str, Any]:
+        adapter, dev = self._camera_adapter(device_id)
+        return adapter.stream_info(dev)

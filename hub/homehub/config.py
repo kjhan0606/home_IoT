@@ -28,3 +28,11 @@ def ensure_dirs() -> None:
 # Empty (default) = no CORS headers: native apps don't need them, and leaving
 # CORS closed stops arbitrary websites from driving the hub via the browser.
 CORS_ORIGINS = [o.strip() for o in os.environ.get("HOMEHUB_CORS_ORIGINS", "").split(",") if o.strip()]
+
+# --- automation rules (hub is the always-on rules engine) ----------------------------------------
+# IANA zone for rule times ("22:00"); empty = the hub machine's local time.
+TIMEZONE = os.environ.get("HOMEHUB_TZ", "").strip()
+AUTOMATION_TICK_SECONDS = float(os.environ.get("HOMEHUB_AUTOMATION_TICK", "20"))
+# How often cloud device state is re-read for state-based rules (allLightsOff, deviceState).
+AUTOMATION_REFRESH_SECONDS = float(os.environ.get("HOMEHUB_AUTOMATION_REFRESH", "60"))
+AUTOMATION_ENABLED = os.environ.get("HOMEHUB_AUTOMATION", "1").strip().lower() not in ("0", "false", "no", "off")

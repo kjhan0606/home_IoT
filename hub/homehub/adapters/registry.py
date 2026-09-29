@@ -9,6 +9,7 @@ from __future__ import annotations
 from ..models import Device, DiscoveredHost
 from .base import DeviceAdapter
 from . import demo
+from .camera import CameraAdapter
 from .cloud_base import CloudAdapter
 from .lg_thinq import LGThinQAdapter
 from .roborock import RoborockAdapter
@@ -23,7 +24,7 @@ LAN_ADAPTERS: list[DeviceAdapter] = [
 # Cloud adapters enumerate a vendor account. Each is enabled only when its
 # credentials exist (SMARTTHINGS_TOKEN, LG_THINQ_TOKEN env vars; Roborock: a
 # linked account via POST /integrations/roborock/login); otherwise skipped.
-CLOUD_ADAPTERS: list[CloudAdapter] = [
+CLOUD_ADAPTERS: list = [
     SmartThingsAdapter(),
     LGThinQAdapter(),
     RoborockAdapter(),
@@ -34,6 +35,11 @@ CLOUD_ADAPTERS: list[CloudAdapter] = [
 if demo.enabled_by_env():
     CLOUD_ADAPTERS.append(demo.DemoAdapter())
 
+# Cameras are configured explicitly (they need a password), so this adapter is
+# not a LAN claimer; the manager lists its stored cameras alongside cloud devices.
+CAMERA_ADAPTER = CameraAdapter()
+CLOUD_ADAPTERS.append(CAMERA_ADAPTER)
+
 ADAPTERS: list[DeviceAdapter] = [*LAN_ADAPTERS, *CLOUD_ADAPTERS]
 
 _BY_ID = {a.id: a for a in ADAPTERS}
@@ -43,15 +49,16 @@ def get_adapter(adapter_id: str) -> DeviceAdapter | None:
     return _BY_ID.get(adapter_id)
 
 
-def cloud_adapters(enabled_only: bool = True) -> list[CloudAdapter]:
+def cloud_adapters(enabled_only: bool = True) -> list:
     return [a for a in CLOUD_ADAPTERS if a.enabled() or not enabled_only]
 
 
 def integrations_status() -> dict[str, dict[str, object]]:
     return {
         a.id: {"name": a.name, "type": "cloud" if getattr(a, "is_cloud", False) else "lan",
-               "enabled": a.enabled() if isinstance(a, CloudAdapter) else True}
+               "enabled": a.enabled() if hasattr(a, "enabled") else True}
         for a in ADAPTERS
+        if not getattr(a, "hidden", False)      # cameras have their own /cameras API
     }
 
 
@@ -61,6 +68,8 @@ def infer_kind(host: DiscoveredHost) -> str:
     st = " ".join(host.ssdp_st).lower()
     if "randomized" in vendor:
         return "phone/private"
+    if "onvif" in host.sources:              # answered WS-Discovery as a NetworkVideoTransmitter
+        return "camera"
     if "router" in vendor or "mercury" in vendor:
         return "router"
     if "roborock" in vendor or "_miio" in services:
@@ -77,6 +86,8 @@ def infer_kind(host: DiscoveredHost) -> str:
         return "printer"
     if "mediarenderer" in st or "dial" in services:
         return "media"
+    if 554 in host.open_ports or "_rtsp" in services:   # weak hint: only after every vendor rule
+        return "camera"
     return "unknown"
 
 
@@ -93,7 +104,8 @@ def build_passive_device(host: DiscoveredHost) -> Device:
         reachable=True,
         controllable=False,
         capabilities={},
-        meta={"sources": host.sources, "openPorts": host.open_ports},
+        meta={"sources": host.sources, "openPorts": host.open_ports,
+              **({"onvifUrl": host.extra["onvif"].get("onvifUrl")} if host.extra.get("onvif") else {})},
     )
 
 

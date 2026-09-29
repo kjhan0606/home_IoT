@@ -1,68 +1,62 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import '../backend/device_backend.dart';
+import '../camera/camera_models.dart';
+import '../camera/mjpeg.dart';
 import '../models/capability_spec.dart';
 import '../models/device.dart';
 import '../models/hub_config.dart';
 import '../models/vacuum_map.dart';
 
 /// Error from the hub: HTTP status + the hub's `detail` message.
-class HubApiException implements Exception {
-  const HubApiException(this.statusCode, this.message);
-  final int statusCode; // 0 = network error / unreachable
-  final String message;
-
-  bool get isForbidden => statusCode == 403;
-  bool get isUnauthorized => statusCode == 401;
-
-  @override
-  String toString() => 'HubApiException($statusCode): $message';
+class HubApiException extends BackendException {
+  const HubApiException(super.statusCode, super.message); // 0 = network error / unreachable
 }
 
-/// Event pushed on `/ws`.
-class HubEvent {
-  const HubEvent(this.type, this.data);
-  final String type; // "devices" | "command" | ...
-  final Map<String, dynamic> data;
-}
+/// Event pushed on `/ws` (kept under its old name for the hub code and tests).
+typedef HubEvent = BackendEvent;
 
-/// Everything the app needs from the hub. Screens and state depend on this
-/// interface only, so tests inject a fake.
-abstract class HubApi {
+/// The **hub** implementation of [DeviceBackend], plus the hub-only extras
+/// (health, integrations, Roborock linking). Screens that only need devices
+/// depend on [DeviceBackend]; hub-specific settings screens use this type.
+abstract class HubApi implements DeviceBackend {
   HubConfig get config;
   Future<Map<String, dynamic>> health();
-  Future<Map<String, CapabilitySpec>> capabilities();
-  Future<List<Device>> devices();
-  Future<Device> device(String id);
-  Future<Device> refresh(String id);
-  Future<List<Device>> scan({bool lan = true, bool cloud = true});
-  Future<Map<String, dynamic>> command(
-    String id,
-    String capability,
-    String action, [
-    Map<String, dynamic> params = const {},
-  ]);
-  Future<VacuumMap> vacuumMap(String id);
   Future<Map<String, dynamic>> integrations();
   Future<Map<String, dynamic>> roborockStatus();
   Future<Map<String, dynamic>> roborockRequestCode(String email);
   Future<Map<String, dynamic>> roborockLogin(String email, {String? code, String? password});
   Future<Map<String, dynamic>> roborockUnlink();
 
-  /// Live events; the stream closes when the socket drops.
-  Stream<HubEvent> events();
-  void close();
+  // ---- automation rules: the hub is the always-on rules engine (hub mode only) ----
+  Future<List<Map<String, dynamic>>> automationRules();
+  Future<Map<String, dynamic>> saveAutomationRule(Map<String, dynamic> rule, {String? id});
+  Future<void> deleteAutomationRule(String id);
+  Future<Map<String, dynamic>> setAutomationRuleEnabled(String id, bool enabled);
+  Future<List<Map<String, dynamic>>> automationLog({int limit = 50});
+  Future<void> clearAutomationLog();
+
+  /// 휴가/장기 외출 모드 (away plan, lights + curtains only). `plan` is null when none is set.
+  Future<Map<String, dynamic>> awayGet();
+  Future<Map<String, dynamic>> awaySet(Map<String, dynamic> plan);
+  Future<void> awayStop();
+
+  /// Fires a named event ('leaving', 'arriving', 'wake', 'alarm', ...) and returns the log entries it produced.
+  Future<List<Map<String, dynamic>>> emitAutomationEvent(String name);
 }
 
-class HttpHubApi implements HubApi {
+class HttpHubApi implements HubApi, CameraBackend {
   HttpHubApi(this.config, {http.Client? client}) : _client = client ?? http.Client();
 
   @override
   final HubConfig config;
   final http.Client _client;
+  String? _hubName;
   static const _timeout = Duration(seconds: 15);
   static const _scanTimeout = Duration(seconds: 120);
 
@@ -108,13 +102,29 @@ class HttpHubApi implements HubApi {
     return data;
   }
 
+  @override
+  BackendKind get kind => BackendKind.hub;
+  @override
+  String get title => _hubName ?? '허브';
+  @override
+  String? get subtitle => config.label;
+  @override
+  bool get hasEventStream => true;
+  @override
+  Duration? get pollInterval => null;
+  @override
+  Map<String, String> get warnings => const {};
+
   Map<String, dynamic> _map(dynamic d) => Map<String, dynamic>.from((d as Map?) ?? const {});
   List<Device> _devs(dynamic d) =>
       ((_map(d)['devices'] as List?) ?? const []).map((e) => Device.fromJson(Map<String, dynamic>.from(e))).toList();
 
   @override
-  Future<Map<String, dynamic>> health() async =>
-      _map(await _send('GET', '/health', timeout: const Duration(seconds: 5)));
+  Future<Map<String, dynamic>> health() async {
+    final h = _map(await _send('GET', '/health', timeout: const Duration(seconds: 5)));
+    _hubName = h['name']?.toString() ?? _hubName;
+    return h;
+  }
 
   @override
   Future<Map<String, CapabilitySpec>> capabilities() async =>
@@ -128,6 +138,9 @@ class HttpHubApi implements HubApi {
 
   @override
   Future<Device> refresh(String id) async => Device.fromJson(_map(await _send('POST', '/devices/${_id(id)}/refresh')));
+
+  @override
+  Future<List<Device>> sync() => devices();
 
   @override
   Future<List<Device>> scan({bool lan = true, bool cloud = true}) async =>
@@ -175,6 +188,135 @@ class HttpHubApi implements HubApi {
   Future<Map<String, dynamic>> roborockUnlink() async =>
       _map(await _send('POST', '/integrations/roborock/unlink', timeout: const Duration(seconds: 60)));
 
+  // ------------------------------------------------------------- cameras ----
+  // Hub mode: the hub holds the camera password; the phone only ever talks to the hub.
+  @override
+  bool get canAddDemoCamera => false;
+
+  @override
+  Future<CameraFeed> cameraFeed(String deviceId) async => _HubCameraFeed(this, deviceId);
+
+  @override
+  Future<List<DiscoveredCamera>> discoverCameras() async {
+    final r = _map(await _send('GET', '/cameras/discover', timeout: const Duration(seconds: 20)));
+    return [for (final c in (r['cameras'] as List?) ?? const []) DiscoveredCamera.fromJson(Map<String, dynamic>.from(c as Map))];
+  }
+
+  @override
+  Future<Device> addCamera(NewCamera c) async {
+    final body = {
+      'protocol': c.protocol,
+      'name': c.name,
+      if (c.address.isNotEmpty) 'address': c.address,
+      if (c.url.isNotEmpty) 'url': c.url,
+      'username': c.username,
+      'password': c.password,
+      if (c.room != null && c.room!.isNotEmpty) 'room': c.room,
+    };
+    final r = _map(await _send('POST', '/cameras', body: body, timeout: const Duration(seconds: 45)));
+    return Device.fromJson(_map(r['device']));
+  }
+
+  @override
+  Future<void> removeCamera(String deviceId) async {
+    await _send('DELETE', '/cameras/${_id(deviceId)}');
+  }
+
+  Future<Uint8List> _cameraSnapshot(String id) async {
+    final req = http.Request('GET', _u('/devices/${_id(id)}/snapshot.jpg'))..headers.addAll(_headers);
+    http.Response res;
+    try {
+      res = await http.Response.fromStream(await _client.send(req).timeout(const Duration(seconds: 15)));
+    } catch (e) {
+      throw HubApiException(0, '허브에 연결할 수 없습니다: $e');
+    }
+    if (res.statusCode != 200) {
+      var detail = res.body;
+      try {
+        detail = (jsonDecode(res.body) as Map)['detail'].toString();
+      } catch (_) {}
+      throw HubApiException(res.statusCode, detail);
+    }
+    return res.bodyBytes;
+  }
+
+  Stream<Uint8List> _cameraMjpeg(String id) {
+    late StreamController<Uint8List> ctl;
+    StreamSubscription<Uint8List>? sub;
+    ctl = StreamController<Uint8List>(
+      onListen: () async {
+        try {
+          final req = http.Request('GET', _u('/devices/${_id(id)}/stream.mjpeg'))..headers.addAll(_headers);
+          final res = await _client.send(req).timeout(const Duration(seconds: 15));
+          if (res.statusCode != 200) {
+            final body = await res.stream.bytesToString();
+            var detail = body;
+            try {
+              detail = (jsonDecode(body) as Map)['detail'].toString();
+            } catch (_) {}
+            throw HubApiException(res.statusCode, detail);
+          }
+          sub = jpegFrames(res.stream).listen(ctl.add, onError: ctl.addError, onDone: ctl.close);
+        } catch (e) {
+          ctl.addError(e is BackendException ? e : HubApiException(0, '허브에 연결할 수 없습니다: $e'));
+          await ctl.close();
+        }
+      },
+      onCancel: () => sub?.cancel(),
+    );
+    return ctl.stream;
+  }
+  List<Map<String, dynamic>> _maps(dynamic d, String key) =>
+      ((_map(d)[key] as List?) ?? const []).map((e) => Map<String, dynamic>.from(e as Map)).toList();
+
+  @override
+  Future<List<Map<String, dynamic>>> automationRules() async => _maps(await _send('GET', '/automation/rules'), 'rules');
+
+  @override
+  Future<Map<String, dynamic>> saveAutomationRule(Map<String, dynamic> rule, {String? id}) async => _map(
+    await _send(
+      id == null ? 'POST' : 'PUT',
+      id == null ? '/automation/rules' : '/automation/rules/${Uri.encodeComponent(id)}',
+      body: rule,
+    ),
+  );
+
+  @override
+  Future<void> deleteAutomationRule(String id) async {
+    await _send('DELETE', '/automation/rules/${Uri.encodeComponent(id)}');
+  }
+
+  @override
+  Future<Map<String, dynamic>> setAutomationRuleEnabled(String id, bool enabled) async =>
+      _map(await _send('POST', '/automation/rules/${Uri.encodeComponent(id)}/enable', body: {'enabled': enabled}));
+
+  @override
+  Future<List<Map<String, dynamic>>> automationLog({int limit = 50}) async =>
+      _maps(await _send('GET', '/automation/log', query: {'limit': '$limit'}), 'log');
+
+  @override
+  Future<void> clearAutomationLog() async {
+    await _send('DELETE', '/automation/log');
+  }
+
+  @override
+  Future<Map<String, dynamic>> awayGet() async => _map(await _send('GET', '/automation/away'));
+
+  @override
+  Future<Map<String, dynamic>> awaySet(Map<String, dynamic> plan) async =>
+      _map(await _send('PUT', '/automation/away', body: plan));
+
+  @override
+  Future<void> awayStop() async {
+    await _send('DELETE', '/automation/away', timeout: const Duration(seconds: 60));
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> emitAutomationEvent(String name) async => _maps(
+    await _send('POST', '/automation/events/${Uri.encodeComponent(name)}', timeout: const Duration(seconds: 60)),
+    'fired',
+  );
+
   @override
   Stream<HubEvent> events() {
     final ch = WebSocketChannel.connect(config.wsUri);
@@ -192,4 +334,21 @@ class HttpHubApi implements HubApi {
 
   @override
   void close() => _client.close();
+}
+
+/// Camera pictures relayed by the hub. No RTSP URL is exposed on purpose: the
+/// hub owns the camera password, and its MJPEG relay works on every platform.
+class _HubCameraFeed implements CameraFeed {
+  _HubCameraFeed(this._api, this._id);
+  final HttpHubApi _api;
+  final String _id;
+
+  @override
+  Future<Uint8List> snapshot() => _api._cameraSnapshot(_id);
+  @override
+  Stream<Uint8List>? mjpeg() => _api._cameraMjpeg(_id);
+  @override
+  String? get rtspUrl => null;
+  @override
+  bool get hasSnapshot => true;
 }

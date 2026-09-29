@@ -29,6 +29,9 @@ SENSOR = "sensor"
 WASHER = "washer"
 DRYER = "dryer"
 REFRIGERATION = "refrigeration"
+# Curtain / blind / shade (open, close, stop, position). Lights need no capability of their
+# own: a light is `kind == "light"` + `power` (+ `brightness`/`color`) -- see docs/home-automation.md.
+CURTAIN = "curtain"
 # Robot-vacuum extensions (brand-neutral; coordinates are the device's *map*
 # coordinates — GET /devices/{id}/map returns the pixel<->map transform).
 ROOM_CLEANING = "roomCleaning"
@@ -39,6 +42,11 @@ MOPPING = "mopping"
 CONSUMABLES = "consumables"
 CLEANING_STATS = "cleaningStats"
 VACUUM_MAP = "vacuumMap"
+# IP camera / CCTV (brand-neutral; ONVIF, RTSP and MJPEG cameras all map here).
+# Camera credentials are NEVER part of any state: they live in the hub's 0600
+# secret store (hub) or the phone's Keychain/Keystore (direct mode).
+VIDEO_STREAM = "videoStream"
+PTZ = "ptz"
 
 
 def _laundry_spec(key: str) -> "CapabilitySpec":
@@ -192,6 +200,20 @@ CANONICAL: dict[str, CapabilitySpec] = {
         },
         ui_hint="fridge-panel",
     ),
+    CURTAIN: CapabilitySpec(
+        key=CURTAIN,
+        actions={
+            "open": {},
+            "close": {},
+            "stop": {},
+            "setPosition": {"position": "int 0..100 (100 = fully open, 0 = fully closed)"},
+        },
+        state={
+            "position": "int 0..100|null (100 = fully open, 0 = fully closed; null = unknown)",
+            "status": "open|closed|opening|closing|partial|unknown",
+        },
+        ui_hint="curtain-controls",
+    ),
     ROOM_CLEANING: CapabilitySpec(
         key=ROOM_CLEANING,
         actions={"cleanRooms": {"roomIds": "list[str] (ids from state.rooms)", "repeat": "int 1..maxRepeat (default 1)"}},
@@ -248,6 +270,41 @@ CANONICAL: dict[str, CapabilitySpec] = {
         actions={},  # read-only; fetch GET /devices/{id}/map (JSON) or /map.png
         state={"available": "bool"},
         ui_hint="map-view",
+    ),
+    VIDEO_STREAM: CapabilitySpec(
+        key=VIDEO_STREAM,
+        # Live video / snapshot are fetched over media endpoints (hub:
+        # GET /devices/{id}/snapshot.jpg | stream.mjpeg | stream), not commands.
+        actions={"selectProfile": {"profile": "str (one of state.profiles[].token)"}},
+        state={
+            "protocol": "onvif|rtsp|mjpeg|demo (informational; the UI must not branch on it)",
+            "rtspUrl": "str|null (credentials are never included)",
+            "profiles": "list[{token, name, width, height, codec}]",
+            "selectedProfile": "str|null",
+            "snapshotAvailable": "bool",
+            "mjpegAvailable": "bool (the hub can relay an MJPEG stream)",
+            "audio": "bool|null",
+        },
+        ui_hint="camera-view",
+    ),
+    PTZ: CapabilitySpec(
+        key=PTZ,
+        actions={
+            "move": {
+                "pan": "number -1..1 (velocity, + = right)",
+                "tilt": "number -1..1 (velocity, + = up)",
+                "zoom": "number -1..1 (velocity, + = in)",
+                "durationMs": "int 100..5000 (default 500; the camera stops by itself)",
+            },
+            "stop": {},
+            "gotoPreset": {"preset": "str (one of state.presets[].token)"},
+        },
+        state={
+            "panTilt": "bool",
+            "zoom": "bool",
+            "presets": "list[{token, name}]",
+        },
+        ui_hint="ptz-pad",
     ),
 }
 

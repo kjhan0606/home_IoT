@@ -44,7 +44,7 @@ home_IoT/
 ├── hub/            Python local gateway (FastAPI). See hub/README.md
 │   └── homehub/    capability model, discovery, adapters, server
 ├── app/            Flutter thin client (iOS/Android; web for dev). See app/README.md
-├── docs/           cloud-integrations.md (tokens, OAuth flow, limits)
+├── docs/           cloud-integrations.md, cameras.md (IP camera / CCTV), home-summary.md, home-automation.md, home_IoT_scenario.md (현재 상태·시나리오, 한국어), home_IoT_revenue_model.xlsx (수익 모델 초안)
 ├── PROGRESS.md     what's built & verified, decisions log
 └── ROADMAP.md      phased plan toward App Store release
 ```
@@ -91,6 +91,11 @@ Tests: `pip install -r requirements-dev.txt && pytest` (from `hub/`, all HTTP mo
 
 ## App (Flutter)
 
+The app works **without a server** by default: it talks to SmartThings and LG ThinQ directly with your
+personal tokens (direct-cloud mode). The hub stays available as an optional mode for TV local control,
+Roborock and vacuum maps, and a future paid relay can plug in as a third backend.
+See **[docs/app-backends.md](docs/app-backends.md)**.
+
 ```bash
 cd app && flutter pub get && flutter test
 flutter run -d chrome     # or an iPhone: see app/README.md (free Apple ID or TestFlight)
@@ -99,6 +104,12 @@ flutter run -d chrome     # or an iPhone: see app/README.md (free Apple ID or Te
 To try it without hardware, start the hub in **demo mode** (example devices, dev only):
 `HOMEHUB_FAKE_DEVICES=1 HOMEHUB_CORS_ORIGINS=http://localhost:8088 ./run.sh`.
 Details are in **[app/README.md](app/README.md)**.
+
+### IP cameras / CCTV (LAN only)
+
+Add ONVIF / RTSP / MJPEG cameras: live view, snapshot, PTZ. Works in direct mode (no account needed) and through the hub.
+Auto-discovery uses ONVIF WS-Discovery. **Not tested with a real camera yet.** Never expose camera ports to the internet.
+See **[docs/cameras.md](docs/cameras.md)**.
 
 ## Resume on another machine
 
