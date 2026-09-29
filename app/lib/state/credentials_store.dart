@@ -78,6 +78,9 @@ class CredentialsStore {
       _rng = random ?? Random.secure();
 
   final SecretStore _store;
+
+  /// The underlying secure storage (cameras keep their passwords here too).
+  SecretStore get secrets => _store;
   final DateTime Function() _now;
   final Random _rng;
 

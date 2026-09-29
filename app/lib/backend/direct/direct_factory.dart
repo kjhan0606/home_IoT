@@ -1,7 +1,9 @@
 import 'package:http/http.dart' as http;
 
+import '../../camera/camera_store.dart';
 import '../../state/credentials_store.dart';
 import '../device_backend.dart';
+import 'camera_provider.dart';
 import 'direct_cloud_backend.dart';
 import 'lg_thinq_client.dart';
 import 'smartthings_client.dart';
@@ -20,6 +22,8 @@ Future<DeviceBackend> defaultDirectBackendFactory(
     pollInterval: pollInterval,
     settleDelay: settleDelay,
     providers: [
+      // IP cameras (LAN, no account needed): always available in direct mode.
+      DirectCameraProvider(CameraStore(store.secrets), client: client),
       if (creds.hasSmartThings) SmartThingsClient(token: store.smartThingsToken, client: client),
       if (creds.hasLg)
         LgThinqClient(

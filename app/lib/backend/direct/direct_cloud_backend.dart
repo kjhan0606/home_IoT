@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import '../../camera/camera_models.dart';
 import '../../models/canonical_catalog.dart';
 import '../../models/capability_spec.dart';
 import '../../models/device.dart';
 import '../../models/vacuum_map.dart';
 import '../device_backend.dart';
+import 'camera_provider.dart';
 import 'cloud_provider.dart';
 
 /// [DeviceBackend] that needs no server: the app talks to each vendor cloud
@@ -15,7 +17,7 @@ import 'cloud_provider.dart';
 /// One provider failing (e.g. an expired SmartThings PAT) does not hide the
 /// others: the failure is reported through [warnings] and only its devices
 /// disappear.
-class DirectCloudBackend implements DeviceBackend {
+class DirectCloudBackend implements DeviceBackend, CameraBackend {
   DirectCloudBackend({
     required List<CloudProvider> providers,
     this.pollInterval = const Duration(seconds: 60),
@@ -38,7 +40,14 @@ class DirectCloudBackend implements DeviceBackend {
   @override
   String get title => '직접 연결';
   @override
-  String? get subtitle => _providers.values.map((p) => p.name.replaceAll(' (cloud)', '')).join(' · ');
+  String? get subtitle {
+    final names = [
+      for (final p in _providers.values)
+        if (p is! DirectCameraProvider) p.name.replaceAll(' (cloud)', ''),
+      if (_devices.values.any((d) => d.kind == 'camera')) 'IP 카메라',
+    ];
+    return names.join(' · ');
+  }
   @override
   bool get hasEventStream => false;
   @override
@@ -78,7 +87,10 @@ class DirectCloudBackend implements DeviceBackend {
       }),
     );
     final failures = results.where((r) => r.$3 != null).toList();
-    if (failures.length == results.length) {
+    // The (always present, account-less) camera provider must not mask an
+    // "every cloud failed" error when there are no cameras to show.
+    final onlyFailedOrEmptyCameras = results.every((r) => r.$3 != null || (r.$1 is DirectCameraProvider && r.$2.isEmpty));
+    if (failures.isNotEmpty && onlyFailedOrEmptyCameras) {
       _warnings
         ..clear()
         ..addEntries(failures.map((f) => MapEntry(f.$1.id, f.$3!.message)));
@@ -137,7 +149,8 @@ class DirectCloudBackend implements DeviceBackend {
     if (!d.has(capability)) throw BackendException(400, '이 기기는 $capability 기능이 없습니다.');
     final res = await _providerFor(d).execute(d, capability, action, params);
     // Best effort: pick up the new state (cloud applies commands asynchronously).
-    if (settleDelay > Duration.zero) await Future<void>.delayed(settleDelay);
+    // (cameras answer immediately; waiting would make PTZ feel sluggish)
+    if (settleDelay > Duration.zero && d.kind != 'camera') await Future<void>.delayed(settleDelay);
     try {
       await refresh(id);
     } catch (_) {}
@@ -149,6 +162,35 @@ class DirectCloudBackend implements DeviceBackend {
 
   @override
   Stream<BackendEvent> events() => const Stream.empty();
+
+  // ------------------------------------------------------------- cameras ----
+  DirectCameraProvider get _cameras {
+    final p = _providers['camera'];
+    if (p is DirectCameraProvider) return p;
+    throw const BackendException(501, '이 연결 방식에서는 카메라를 지원하지 않습니다.');
+  }
+
+  @override
+  bool get canAddDemoCamera => _providers['camera'] is DirectCameraProvider;
+
+  @override
+  Future<CameraFeed> cameraFeed(String deviceId) => _cameras.feed(deviceId);
+
+  @override
+  Future<List<DiscoveredCamera>> discoverCameras() => _cameras.discover();
+
+  @override
+  Future<Device> addCamera(NewCamera camera) async {
+    final d = await _cameras.add(camera);
+    _devices[d.id] = d;
+    return d;
+  }
+
+  @override
+  Future<void> removeCamera(String deviceId) async {
+    await _cameras.remove(deviceId);
+    _devices.remove(deviceId);
+  }
 
   @override
   void close() {

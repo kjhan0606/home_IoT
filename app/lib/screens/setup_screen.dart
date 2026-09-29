@@ -53,6 +53,15 @@ class _SetupScreenState extends State<SetupScreen> {
               child: Text('서버 없이 앱이 삼성 SmartThings와 LG ThinQ에 바로 연결합니다. 토큰만 있으면 됩니다.'),
             ),
             const CloudAccountsForm(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: OutlinedButton.icon(
+                key: const Key('camera-only'),
+                onPressed: () => hub.startDirect(cameraOnly: true),
+                icon: const Icon(Icons.videocam_outlined),
+                label: const Text('계정 없이 IP 카메라(CCTV)만 사용하기'),
+              ),
+            ),
           ] else
             Padding(
               padding: const EdgeInsets.all(16),

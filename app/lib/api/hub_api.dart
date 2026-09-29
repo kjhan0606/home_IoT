@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../backend/device_backend.dart';
+import '../camera/camera_models.dart';
+import '../camera/mjpeg.dart';
 import '../models/capability_spec.dart';
 import '../models/device.dart';
 import '../models/hub_config.dart';
@@ -31,7 +34,7 @@ abstract class HubApi implements DeviceBackend {
   Future<Map<String, dynamic>> roborockUnlink();
 }
 
-class HttpHubApi implements HubApi {
+class HttpHubApi implements HubApi, CameraBackend {
   HttpHubApi(this.config, {http.Client? client}) : _client = client ?? http.Client();
 
   @override
@@ -169,6 +172,85 @@ class HttpHubApi implements HubApi {
   Future<Map<String, dynamic>> roborockUnlink() async =>
       _map(await _send('POST', '/integrations/roborock/unlink', timeout: const Duration(seconds: 60)));
 
+  // ------------------------------------------------------------- cameras ----
+  // Hub mode: the hub holds the camera password; the phone only ever talks to the hub.
+  @override
+  bool get canAddDemoCamera => false;
+
+  @override
+  Future<CameraFeed> cameraFeed(String deviceId) async => _HubCameraFeed(this, deviceId);
+
+  @override
+  Future<List<DiscoveredCamera>> discoverCameras() async {
+    final r = _map(await _send('GET', '/cameras/discover', timeout: const Duration(seconds: 20)));
+    return [for (final c in (r['cameras'] as List?) ?? const []) DiscoveredCamera.fromJson(Map<String, dynamic>.from(c as Map))];
+  }
+
+  @override
+  Future<Device> addCamera(NewCamera c) async {
+    final body = {
+      'protocol': c.protocol,
+      'name': c.name,
+      if (c.address.isNotEmpty) 'address': c.address,
+      if (c.url.isNotEmpty) 'url': c.url,
+      'username': c.username,
+      'password': c.password,
+      if (c.room != null && c.room!.isNotEmpty) 'room': c.room,
+    };
+    final r = _map(await _send('POST', '/cameras', body: body, timeout: const Duration(seconds: 45)));
+    return Device.fromJson(_map(r['device']));
+  }
+
+  @override
+  Future<void> removeCamera(String deviceId) async {
+    await _send('DELETE', '/cameras/${_id(deviceId)}');
+  }
+
+  Future<Uint8List> _cameraSnapshot(String id) async {
+    final req = http.Request('GET', _u('/devices/${_id(id)}/snapshot.jpg'))..headers.addAll(_headers);
+    http.Response res;
+    try {
+      res = await http.Response.fromStream(await _client.send(req).timeout(const Duration(seconds: 15)));
+    } catch (e) {
+      throw HubApiException(0, '허브에 연결할 수 없습니다: $e');
+    }
+    if (res.statusCode != 200) {
+      var detail = res.body;
+      try {
+        detail = (jsonDecode(res.body) as Map)['detail'].toString();
+      } catch (_) {}
+      throw HubApiException(res.statusCode, detail);
+    }
+    return res.bodyBytes;
+  }
+
+  Stream<Uint8List> _cameraMjpeg(String id) {
+    late StreamController<Uint8List> ctl;
+    StreamSubscription<Uint8List>? sub;
+    ctl = StreamController<Uint8List>(
+      onListen: () async {
+        try {
+          final req = http.Request('GET', _u('/devices/${_id(id)}/stream.mjpeg'))..headers.addAll(_headers);
+          final res = await _client.send(req).timeout(const Duration(seconds: 15));
+          if (res.statusCode != 200) {
+            final body = await res.stream.bytesToString();
+            var detail = body;
+            try {
+              detail = (jsonDecode(body) as Map)['detail'].toString();
+            } catch (_) {}
+            throw HubApiException(res.statusCode, detail);
+          }
+          sub = jpegFrames(res.stream).listen(ctl.add, onError: ctl.addError, onDone: ctl.close);
+        } catch (e) {
+          ctl.addError(e is BackendException ? e : HubApiException(0, '허브에 연결할 수 없습니다: $e'));
+          await ctl.close();
+        }
+      },
+      onCancel: () => sub?.cancel(),
+    );
+    return ctl.stream;
+  }
+
   @override
   Stream<HubEvent> events() {
     final ch = WebSocketChannel.connect(config.wsUri);
@@ -186,4 +268,21 @@ class HttpHubApi implements HubApi {
 
   @override
   void close() => _client.close();
+}
+
+/// Camera pictures relayed by the hub. No RTSP URL is exposed on purpose: the
+/// hub owns the camera password, and its MJPEG relay works on every platform.
+class _HubCameraFeed implements CameraFeed {
+  _HubCameraFeed(this._api, this._id);
+  final HttpHubApi _api;
+  final String _id;
+
+  @override
+  Future<Uint8List> snapshot() => _api._cameraSnapshot(_id);
+  @override
+  Stream<Uint8List>? mjpeg() => _api._cameraMjpeg(_id);
+  @override
+  String? get rtspUrl => null;
+  @override
+  bool get hasSnapshot => true;
 }

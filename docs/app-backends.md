@@ -52,6 +52,12 @@ Same brand-neutral output, so the existing widgets render it unchanged:
 - One provider failing (e.g. expired SmartThings PAT) does not hide the other's devices; it shows as a
   banner with a shortcut to the token screen.
 
+### IP cameras (both modes)
+
+`DirectCameraProvider` (id `camera`) is always part of direct mode, so cameras work without any cloud account. In hub mode
+the same UI goes through the hub's `/cameras*` endpoints. Both implement `CameraBackend` (`backend/device_backend` consumers
+only ask `backend is CameraBackend`). See [cameras.md](cameras.md).
+
 ### Not available in direct mode
 
 Samsung TV local control (WoL + WebSocket), Roborock, the vacuum map screen (`501` message),
