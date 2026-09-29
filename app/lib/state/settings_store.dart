@@ -2,18 +2,36 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../backend/device_backend.dart';
 import '../models/hub_config.dart';
 
-/// Remembers the last hub (address + optional shared secret).
+/// Remembers the chosen backend mode, the last hub (address + optional shared
+/// secret) and UI preferences.
 ///
-/// NOTE: the shared secret is kept in SharedPreferences (NSUserDefaults /
-/// Android SharedPreferences). It is a LAN-only dev secret today; move it to
-/// the Keychain/Keystore (flutter_secure_storage) once real per-client auth lands.
+/// Vendor tokens (SmartThings / LG ThinQ) are NOT here: they live in secure
+/// storage (Keychain/Keystore) via `CredentialsStore`.
+///
+/// NOTE: the hub's shared secret is still kept in SharedPreferences
+/// (NSUserDefaults / Android SharedPreferences). It is a LAN-only dev secret;
+/// move it to secure storage too if hub auth ever becomes more than that.
 class SettingsStore {
   SettingsStore(this._prefs);
   final SharedPreferences _prefs;
   static const _kHub = 'lastHub';
   static const _kGroup = 'groupBy';
+  static const _kMode = 'backendMode';
+
+  /// Chosen backend. New installs default to [BackendKind.directCloud] (no
+  /// server needed); an install that already remembers a hub keeps using it.
+  BackendKind get mode {
+    final raw = _prefs.getString(_kMode);
+    for (final k in const [BackendKind.directCloud, BackendKind.hub]) {
+      if (k.name == raw) return k;
+    }
+    return loadHub() != null ? BackendKind.hub : BackendKind.directCloud;
+  }
+
+  Future<void> setMode(BackendKind m) => _prefs.setString(_kMode, m.name);
 
   HubConfig? loadHub() {
     final raw = _prefs.getString(_kHub);

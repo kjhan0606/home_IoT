@@ -4,57 +4,31 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import '../backend/device_backend.dart';
 import '../models/capability_spec.dart';
 import '../models/device.dart';
 import '../models/hub_config.dart';
 import '../models/vacuum_map.dart';
 
 /// Error from the hub: HTTP status + the hub's `detail` message.
-class HubApiException implements Exception {
-  const HubApiException(this.statusCode, this.message);
-  final int statusCode; // 0 = network error / unreachable
-  final String message;
-
-  bool get isForbidden => statusCode == 403;
-  bool get isUnauthorized => statusCode == 401;
-
-  @override
-  String toString() => 'HubApiException($statusCode): $message';
+class HubApiException extends BackendException {
+  const HubApiException(super.statusCode, super.message); // 0 = network error / unreachable
 }
 
-/// Event pushed on `/ws`.
-class HubEvent {
-  const HubEvent(this.type, this.data);
-  final String type; // "devices" | "command" | ...
-  final Map<String, dynamic> data;
-}
+/// Event pushed on `/ws` (kept under its old name for the hub code and tests).
+typedef HubEvent = BackendEvent;
 
-/// Everything the app needs from the hub. Screens and state depend on this
-/// interface only, so tests inject a fake.
-abstract class HubApi {
+/// The **hub** implementation of [DeviceBackend], plus the hub-only extras
+/// (health, integrations, Roborock linking). Screens that only need devices
+/// depend on [DeviceBackend]; hub-specific settings screens use this type.
+abstract class HubApi implements DeviceBackend {
   HubConfig get config;
   Future<Map<String, dynamic>> health();
-  Future<Map<String, CapabilitySpec>> capabilities();
-  Future<List<Device>> devices();
-  Future<Device> device(String id);
-  Future<Device> refresh(String id);
-  Future<List<Device>> scan({bool lan = true, bool cloud = true});
-  Future<Map<String, dynamic>> command(
-    String id,
-    String capability,
-    String action, [
-    Map<String, dynamic> params = const {},
-  ]);
-  Future<VacuumMap> vacuumMap(String id);
   Future<Map<String, dynamic>> integrations();
   Future<Map<String, dynamic>> roborockStatus();
   Future<Map<String, dynamic>> roborockRequestCode(String email);
   Future<Map<String, dynamic>> roborockLogin(String email, {String? code, String? password});
   Future<Map<String, dynamic>> roborockUnlink();
-
-  /// Live events; the stream closes when the socket drops.
-  Stream<HubEvent> events();
-  void close();
 }
 
 class HttpHubApi implements HubApi {
@@ -63,6 +37,7 @@ class HttpHubApi implements HubApi {
   @override
   final HubConfig config;
   final http.Client _client;
+  String? _hubName;
   static const _timeout = Duration(seconds: 15);
   static const _scanTimeout = Duration(seconds: 120);
 
@@ -108,13 +83,29 @@ class HttpHubApi implements HubApi {
     return data;
   }
 
+  @override
+  BackendKind get kind => BackendKind.hub;
+  @override
+  String get title => _hubName ?? '허브';
+  @override
+  String? get subtitle => config.label;
+  @override
+  bool get hasEventStream => true;
+  @override
+  Duration? get pollInterval => null;
+  @override
+  Map<String, String> get warnings => const {};
+
   Map<String, dynamic> _map(dynamic d) => Map<String, dynamic>.from((d as Map?) ?? const {});
   List<Device> _devs(dynamic d) =>
       ((_map(d)['devices'] as List?) ?? const []).map((e) => Device.fromJson(Map<String, dynamic>.from(e))).toList();
 
   @override
-  Future<Map<String, dynamic>> health() async =>
-      _map(await _send('GET', '/health', timeout: const Duration(seconds: 5)));
+  Future<Map<String, dynamic>> health() async {
+    final h = _map(await _send('GET', '/health', timeout: const Duration(seconds: 5)));
+    _hubName = h['name']?.toString() ?? _hubName;
+    return h;
+  }
 
   @override
   Future<Map<String, CapabilitySpec>> capabilities() async =>
@@ -128,6 +119,9 @@ class HttpHubApi implements HubApi {
 
   @override
   Future<Device> refresh(String id) async => Device.fromJson(_map(await _send('POST', '/devices/${_id(id)}/refresh')));
+
+  @override
+  Future<List<Device>> sync() => devices();
 
   @override
   Future<List<Device>> scan({bool lan = true, bool cloud = true}) async =>

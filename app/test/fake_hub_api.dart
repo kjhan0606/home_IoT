@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:homeiot/api/hub_api.dart';
+import 'package:homeiot/backend/device_backend.dart';
 import 'package:homeiot/models/capability_spec.dart';
 import 'package:homeiot/models/device.dart';
 import 'package:homeiot/models/hub_config.dart';
@@ -26,6 +27,18 @@ class FakeHubApi implements HubApi {
 
   @override
   final HubConfig config;
+  @override
+  BackendKind get kind => BackendKind.hub;
+  @override
+  String get title => 'TestHub';
+  @override
+  String? get subtitle => config.label;
+  @override
+  bool get hasEventStream => true;
+  @override
+  Duration? get pollInterval => null;
+  @override
+  Map<String, String> get warnings => const {};
   final List<SentCommand> commands = [];
   final events$ = StreamController<HubEvent>.broadcast();
   late List<Map<String, dynamic>> deviceJson = (fixture('devices')['devices'] as List)
@@ -56,6 +69,9 @@ class FakeHubApi implements HubApi {
 
   @override
   Future<Device> refresh(String id) => device(id);
+
+  @override
+  Future<List<Device>> sync() => devices();
 
   @override
   Future<List<Device>> scan({bool lan = true, bool cloud = true}) async {

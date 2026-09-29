@@ -5,13 +5,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'api/hub_api.dart';
 import 'api/hub_discovery.dart';
 import 'app.dart';
+import 'state/credentials_store.dart';
 import 'state/hub_state.dart';
 import 'state/settings_store.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final settings = SettingsStore(await SharedPreferences.getInstance());
-  final hub = HubState(settings: settings, apiFactory: (c) => HttpHubApi(c));
+  final hub = HubState(
+    settings: settings,
+    apiFactory: (c) => HttpHubApi(c),
+    credentials: CredentialsStore(const SecureSecretStore()),
+  );
   runApp(
     MultiProvider(
       providers: [
@@ -21,5 +26,5 @@ Future<void> main() async {
       child: const HomeIotApp(),
     ),
   );
-  hub.reconnectLast(); // remember the last hub
+  hub.start(); // resume the remembered mode (direct cloud by default, or the last hub)
 }
