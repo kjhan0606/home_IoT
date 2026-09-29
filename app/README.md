@@ -76,6 +76,11 @@ State management is plain `provider` + one `ChangeNotifier`. Nothing more is nee
     draw up to `maxZones` rectangles and clean them; long-press to send the robot to a point. Taps are
     converted with the hub's `imageToMap` affine, so rotated or flipped maps work unchanged.
   - **Generic:** brightness, colour, lock, sensors, plus a fallback card for anything unknown.
+- **IP cameras (CCTV):** camera grid on the device list, camera screen (live view, snapshot refresh, PTZ pad with hold-to-move,
+  presets, resolution profile) and an add-camera screen (auto-found ONVIF cameras, or manual RTSP / MJPEG / JPEG address +
+  user/password kept in secure storage). Works in direct mode with no cloud account and in hub mode. Live view uses RTSP via
+  `media_kit` on iOS/Android and falls back to MJPEG, then snapshots; the web build shows snapshots only. Demo cameras can be
+  added from the add-camera screen. **Untested with a real camera.** See [../docs/cameras.md](../docs/cameras.md).
 - **Settings:** hub address/change/disconnect, integration status (`/integrations`, with last cloud
   errors), Roborock link (email → request code → log in with the code, or password) and unlink,
   and SmartThings/ThinQ token status with short instructions. Tokens stay on the hub.
@@ -163,6 +168,9 @@ See `../ROADMAP.md` § Legal before a public release.
   - `NSAppTransportSecurity.NSAllowsLocalNetworking = true` (the hub is plain HTTP on the LAN)
   - display name "홈 IoT"
 - Deployment target iOS 15 (bonsoir needs ≥ 13).
+
+- Cameras: RTSP playback needs the native `media_kit` libraries (not built on the dev box). WS-Discovery on iOS may need
+  Apple's multicast networking entitlement; without it, type the camera IP.
 
 ### Android
 

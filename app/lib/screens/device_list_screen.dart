@@ -3,9 +3,13 @@ import 'package:provider/provider.dart';
 
 import '../backend/device_backend.dart';
 import '../l10n/ko.dart';
+import '../camera/camera_models.dart';
 import '../models/device.dart';
 import '../state/hub_state.dart';
+import '../widgets/camera_thumb.dart';
 import '../widgets/command.dart';
+import 'add_camera_screen.dart';
+import 'camera_screen.dart';
 import 'cloud_accounts_screen.dart';
 import 'device_detail_screen.dart';
 import 'settings_screen.dart';
@@ -45,7 +49,9 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
   Widget build(BuildContext context) {
     final hub = context.watch<HubState>();
     final all = hub.devices;
-    final controllable = all.where((d) => d.controllable).toList();
+    final cameras = all.where((d) => d.has('videoStream')).toList();
+    final canAddCamera = hub.backend is CameraBackend;
+    final controllable = all.where((d) => d.controllable && !d.has('videoStream')).toList();
     final passive = all.where((d) => !d.controllable).toList();
     final groups = <String, List<Device>>{};
     for (final d in controllable) {
@@ -85,6 +91,13 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
                 ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                 : const Icon(Icons.radar),
           ),
+          if (canAddCamera)
+            IconButton(
+              key: const Key('add-camera'),
+              tooltip: '카메라 추가',
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AddCameraScreen())),
+              icon: const Icon(Icons.add_a_photo_outlined),
+            ),
           IconButton(
             tooltip: '설정',
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen())),
@@ -137,7 +150,11 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
                 },
               ),
             ),
-            if (controllable.isEmpty)
+            if (cameras.isNotEmpty) ...[
+              _Header('카메라', cameras.length),
+              CameraGrid(cameras: cameras),
+            ],
+            if (controllable.isEmpty && cameras.isEmpty)
               Padding(
                 padding: const EdgeInsets.all(32),
                 child: Column(
@@ -312,7 +329,11 @@ class DeviceTile extends StatelessWidget {
             )
           : (d.controllable ? const Icon(Icons.chevron_right) : null),
       onTap: d.controllable || d.capabilities.isNotEmpty
-          ? () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => DeviceDetailScreen(deviceId: d.id)))
+          ? () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => d.has('videoStream') ? CameraScreen(deviceId: d.id) : DeviceDetailScreen(deviceId: d.id),
+              ),
+            )
           : null,
     );
   }

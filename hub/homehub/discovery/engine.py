@@ -4,6 +4,8 @@ Multi-modal on purpose — each source sees devices the others miss:
   * ARP sweep  -> everything with an IP (incl. silent IoT), gives MAC/vendor
   * mDNS       -> Apple/Cast/Samsung/HomeKit service hints, friendly names
   * SSDP/UPnP  -> DLNA/media renderers, friendlyName/manufacturer
+  * ONVIF WS-Discovery (UDP 3702 multicast) -> IP cameras, plus the RTSP port
+    (554/8554) in the port probe as a weaker "probably a camera" hint
 """
 from __future__ import annotations
 
@@ -11,11 +13,13 @@ import concurrent.futures
 import socket
 
 from ..models import DiscoveredHost
-from ..netutil import arp_table, ping_sweep, subnet_prefix
+from ..netutil import arp_table, lan_ip, ping_sweep, subnet_prefix
+from ..camera import onvif
 from . import mdns, oui, ssdp
 
 # Control ports worth probing so adapters can fingerprint by open port.
-PROBE_PORTS = [80, 443, 8001, 8002, 9197, 8080, 8443, 7676, 55000, 1400]
+# 554 = RTSP (IP cameras / NVRs); 8554 = common alternative RTSP port.
+PROBE_PORTS = [80, 443, 8001, 8002, 9197, 8080, 8443, 7676, 55000, 1400, 554, 8554]
 
 
 def _tcp_open(ip: str, port: int, timeout: float = 0.6) -> bool:
@@ -48,16 +52,21 @@ def scan(
     ping_sweep(prefix)
     arp = arp_table(prefix)              # {ip: mac}
 
-    # 2 & 3. mDNS + SSDP in parallel with each other.
-    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as ex:
+    # 2 & 3 (+ ONVIF WS-Discovery): mDNS, SSDP and ONVIF probes in parallel.
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as ex:
         f_mdns = ex.submit(mdns.browse, mdns_time)
         f_ssdp = ex.submit(ssdp.discover, ssdp_time)
+        f_onvif = ex.submit(onvif.ws_discover, ssdp_time, lan_ip())
         mdns_res = f_mdns.result()
         ssdp_res = f_ssdp.result()
+        try:
+            onvif_res = {m["host"]: m for m in f_onvif.result() if m.get("host")}
+        except Exception:  # noqa: BLE001 - discovery must never break a scan
+            onvif_res = {}
 
     # Merge by IP, restricted to the real LAN subnet (drop loopback/link-local
     # and any stray addresses mDNS reports for the host itself).
-    ips = set(arp) | set(mdns_res) | set(ssdp_res)
+    ips = set(arp) | set(mdns_res) | set(ssdp_res) | set(onvif_res)
 
     def _on_lan(ip: str) -> bool:
         if ip.startswith(("127.", "169.254.")):
@@ -91,6 +100,12 @@ def scan(
                 h.vendor = info["manufacturer"]
             h.extra["ssdp_info"] = info
             h.sources.append("ssdp")
+        if ip in onvif_res:
+            o = onvif_res[ip]
+            h.extra["onvif"] = o
+            if o.get("name") and not h.hostname:
+                h.hostname = o["name"]
+            h.sources.append("onvif")
         hosts[ip] = h
 
     # 4. Port probe (parallel across hosts) to aid adapter fingerprinting.

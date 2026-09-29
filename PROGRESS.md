@@ -79,6 +79,14 @@ hub in demo mode. **Next:** run it on the iPhone (Mac + Xcode, see app/README.md
 - 75 pytest tests (34 new, all mocked) + pyflakes clean. The server starts fine with no Roborock link.
   **Not tried with a real vacuum.** Unverified points are in docs/cloud-integrations.md § Roborock.
 
+## 2026-09-29 — IP camera / CCTV (branch `feature/cctv`, local only, based on `feature/direct-cloud`)
+
+- Hub: `videoStream` + `ptz` capabilities (ST/Matter mapped), `camera/` (ONVIF SOAP + WS-Security digest, WS-Discovery, RTSP/MJPEG helpers,
+  0600 store), `CameraAdapter`, discovery (WS-Discovery + ports 554/8554), `/cameras*`, snapshot + MJPEG relay, demo cameras. 116 pytest.
+- App: `lib/camera/` (Dart ONVIF, discovery, Basic/Digest, MJPEG), `DirectCameraProvider`, camera grid/screen/add flow, `media_kit`
+  RTSP with MJPEG/snapshot fallback, demo cameras from bundled JPEGs. 134 Flutter tests, analyze clean, web build compiles.
+- **Not tested with a real camera; media_kit not built natively; HLS, remote viewing, recording not built.** See docs/cameras.md.
+
 ## What's built (`hub/`)
 
 - **Canonical capability model** (`homehub/capabilities.py`) — `power`, `volume`,

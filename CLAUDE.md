@@ -61,17 +61,27 @@ hub/homehub/
   models.py            Device / DiscoveredHost    netutil.py    LAN/WoL/ARP
   discovery/           engine, mdns, ssdp, oui    manager.py    control plane
   adapters/            base, registry, samsung_tv, cloud_base,
-                       smartthings, lg_thinq, roborock   server.py  FastAPI + WS + Bonjour
+                       smartthings, lg_thinq, roborock, camera   server.py  FastAPI + WS + Bonjour
+  camera/              ONVIF SOAP client, RTSP/MJPEG helpers, 0600 camera store (docs/cameras.md)
   cloud/               auth (TokenProvider), errors, roborock_backend   linking.py  LAN<->cloud dedup
   secret_store.py      0600 per-integration secrets   vacuum_map.py  map metadata/transform
 hub/tests/             pytest (mocked vendor HTTP): `pytest` from hub/
 docs/cloud-integrations.md  tokens, OAuth flow, limits, assumptions
+docs/cameras.md        IP camera / CCTV: ONVIF, RTSP, MJPEG, PTZ, security, premium relay draft
 app/                   Flutter app: lib/{backend,api,models,state,screens,widgets}, test/
                        (backend/direct = Dart ports of the SmartThings/LG adapters; see docs/app-backends.md)
+                       (lib/camera + backend/direct/camera_provider.dart = LAN cameras: ONVIF/RTSP/MJPEG, media_kit)
                        (fake API + fixtures captured from the hub), ci/ (iOS template)
 hub/homehub/adapters/demo.py   dev-only sample devices (HOMEHUB_FAKE_DEVICES=1)
 PROGRESS.md ROADMAP.md README.md
 ```
+
+## Cameras (branch `feature/cctv`)
+
+Camera = the `camera` kind with the `videoStream` (`camera-view`) and `ptz` (`ptz-pad`) capabilities; no brand code in the
+app. Hub: `adapters/camera.py` + `camera/`; app: `lib/camera/`, `DirectCameraProvider`, `CameraBackend` (implemented by both
+`DirectCloudBackend` and `HttpHubApi`). LAN only; remote viewing is a premium relay idea. Not tested with a real camera.
+Details: docs/cameras.md.
 
 ## Constraints & gotchas
 

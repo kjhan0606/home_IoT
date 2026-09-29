@@ -38,6 +38,8 @@ SMARTTHINGS_MAP: dict[str, str | None] = {
     cap.CONSUMABLES: None,
     cap.CLEANING_STATS: None,
     cap.VACUUM_MAP: None,
+    cap.VIDEO_STREAM: "videoStream",   # ST cameras also expose imageCapture (snapshot)
+    cap.PTZ: None,                     # no standard ST capability (vendor-specific)
 }
 
 # Secondary SmartThings capabilities the SmartThings adapter also ingests into a
@@ -48,6 +50,7 @@ SMARTTHINGS_EXTRA: dict[str, list[str]] = {
     cap.MEDIA_INPUT: ["samsungvd.mediaInputSource"],
     cap.MEDIA_PLAYBACK: ["mediaTrackControl"],
     cap.VACUUM: ["robotCleanerMovement", "robotCleanerCleaningMode", "battery"],
+    cap.VIDEO_STREAM: ["imageCapture"],
     cap.WASHER: ["remoteControlStatus", "samsungce.washerOperatingState"],
     cap.DRYER: ["remoteControlStatus", "samsungce.dryerOperatingState"],
     cap.REFRIGERATION: [
@@ -83,6 +86,8 @@ MATTER_MAP: dict[str, tuple[str, int] | None] = {
     cap.CONSUMABLES: ("HepaFilterMonitoring", 0x0071),  # ResourceMonitoring family (filter); brushes: none
     cap.CLEANING_STATS: None,
     cap.VACUUM_MAP: None,                              # ServiceArea has area names, no raster map
+    cap.VIDEO_STREAM: ("CameraAvStreamManagement", 0x0551),        # Matter 1.5 camera clusters
+    cap.PTZ: ("CameraAvSettingsUserLevelManagement", 0x0552),      # MPTZ position / presets
 }
 
 

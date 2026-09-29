@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../api/hub_api.dart';
 import '../backend/device_backend.dart';
 import '../backend/direct/direct_factory.dart';
+import '../camera/camera_store.dart';
 import '../models/capability_spec.dart';
 import '../models/device.dart';
 import '../models/hub_config.dart';
@@ -82,7 +83,7 @@ class HubState extends ChangeNotifier {
     if (settings.mode == BackendKind.hub) {
       final c = settings.loadHub();
       if (c != null) await connect(c, remember: false);
-    } else if (creds.hasAny) {
+    } else if (creds.hasAny || await _hasCameras()) {
       await startDirect();
     }
     _notify();
@@ -98,10 +99,13 @@ class HubState extends ChangeNotifier {
   /// Builds the direct-cloud backend from the stored tokens and loads devices.
   /// A failing sync (e.g. expired SmartThings PAT) keeps the app "connected"
   /// with an error/warning banner so the user can fix the token in place.
-  Future<bool> startDirect() async {
+  ///
+  /// Direct mode also works with **no** account at all when the user only wants
+  /// IP cameras ([cameraOnly] from onboarding, or cameras already saved).
+  Future<bool> startDirect({bool cameraOnly = false}) async {
     _teardown();
     creds = await credentials.load();
-    if (!creds.hasAny) {
+    if (!creds.hasAny && !cameraOnly && !await _hasCameras()) {
       status = HubStatus.disconnected;
       _devices.clear();
       _notify();
@@ -125,6 +129,8 @@ class HubState extends ChangeNotifier {
     _notify();
     return true;
   }
+
+  Future<bool> _hasCameras() async => (await CameraStore(credentials.secrets).list()).isNotEmpty;
 
   /// Saves tokens (Keychain) and (re)starts direct mode. Pass null to leave a
   /// token untouched; pass an empty string to remove it.

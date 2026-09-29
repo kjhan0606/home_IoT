@@ -7,20 +7,31 @@ const Map<String, CapabilitySpec> canonicalCatalog = {
   'power': CapabilitySpec(
     key: 'power',
     uiHint: 'toggle',
-    actions: {'turnOn': {}, 'turnOff': {}, 'toggle': {}},
-    state: {'switch': 'on|off'},
+    actions: {
+      'turnOn': {},
+      'turnOff': {},
+      'toggle': {},
+    },
+    state: {
+      'switch': 'on|off',
+    },
   ),
   'volume': CapabilitySpec(
     key: 'volume',
     uiHint: 'slider+mute',
     actions: {
-      'setLevel': {'level': 'int 0..100'},
+      'setLevel': {
+          'level': 'int 0..100',
+        },
       'volumeUp': {},
       'volumeDown': {},
       'mute': {},
       'unmute': {},
     },
-    state: {'level': 'int 0..100', 'muted': 'bool'},
+    state: {
+      'level': 'int 0..100',
+      'muted': 'bool',
+    },
   ),
   'channel': CapabilitySpec(
     key: 'channel',
@@ -28,50 +39,94 @@ const Map<String, CapabilitySpec> canonicalCatalog = {
     actions: {
       'channelUp': {},
       'channelDown': {},
-      'setChannel': {'channel': 'str|int'},
+      'setChannel': {
+          'channel': 'str|int',
+        },
     },
-    state: {'channel': 'str'},
+    state: {
+      'channel': 'str',
+    },
   ),
   'mediaInput': CapabilitySpec(
     key: 'mediaInput',
     uiHint: 'picker',
     actions: {
-      'select': {'source': 'str (one of sources)'},
+      'select': {
+          'source': 'str (one of sources)',
+        },
     },
-    state: {'sources': 'list[str]', 'selected': 'str'},
+    state: {
+      'sources': 'list[str]',
+      'selected': 'str',
+    },
   ),
   'mediaPlayback': CapabilitySpec(
     key: 'mediaPlayback',
     uiHint: 'transport',
-    actions: {'play': {}, 'pause': {}, 'stop': {}, 'next': {}, 'previous': {}},
-    state: {'status': 'playing|paused|stopped'},
+    actions: {
+      'play': {},
+      'pause': {},
+      'stop': {},
+      'next': {},
+      'previous': {},
+    },
+    state: {
+      'status': 'playing|paused|stopped',
+    },
   ),
   'launchApp': CapabilitySpec(
     key: 'launchApp',
     uiHint: 'app-grid',
     actions: {
-      'open': {'app': 'str (one of apps)'},
+      'open': {
+          'app': 'str (one of apps)',
+        },
     },
-    state: {'apps': 'list[str]'},
+    state: {
+      'apps': 'list[str]',
+    },
   ),
   'brightness': CapabilitySpec(
     key: 'brightness',
     uiHint: 'slider',
     actions: {
-      'setLevel': {'level': 'int 0..100'},
+      'setLevel': {
+          'level': 'int 0..100',
+        },
     },
-    state: {'level': 'int 0..100'},
+    state: {
+      'level': 'int 0..100',
+    },
   ),
   'color': CapabilitySpec(
     key: 'color',
     uiHint: 'color-wheel',
     actions: {
-      'setColor': {'hue': 'int 0..360', 'saturation': 'int 0..100'},
-      'setColorTemperature': {'kelvin': 'int'},
+      'setColor': {
+          'hue': 'int 0..360',
+          'saturation': 'int 0..100',
+        },
+      'setColorTemperature': {
+          'kelvin': 'int',
+        },
     },
-    state: {'hue': 'int', 'saturation': 'int', 'kelvin': 'int'},
+    state: {
+      'hue': 'int',
+      'saturation': 'int',
+      'kelvin': 'int',
+    },
   ),
-  'lock': CapabilitySpec(key: 'lock', uiHint: 'toggle', actions: {'lock': {}, 'unlock': {}}, state: {'locked': 'bool'}),
+  'lock': CapabilitySpec(
+    key: 'lock',
+    uiHint: 'toggle',
+    actions: {
+      'lock': {},
+      'unlock': {},
+    },
+    state: {
+      'locked': 'bool',
+    },
+  ),
   'vacuum': CapabilitySpec(
     key: 'vacuum',
     uiHint: 'vacuum-controls',
@@ -80,7 +135,9 @@ const Map<String, CapabilitySpec> canonicalCatalog = {
       'pause': {},
       'stop': {},
       'dock': {},
-      'setCleaningMode': {'mode': 'str (one of cleaningModes)'},
+      'setCleaningMode': {
+          'mode': 'str (one of cleaningModes)',
+        },
     },
     state: {
       'status': 'cleaning|paused|returning|charging|docked|moving|idle|error',
@@ -91,11 +148,22 @@ const Map<String, CapabilitySpec> canonicalCatalog = {
       'dockError': 'str|null',
     },
   ),
-  'sensor': CapabilitySpec(key: 'sensor', uiHint: 'readout', actions: {}, state: {'readings': 'dict[str, number]'}),
+  'sensor': CapabilitySpec(
+    key: 'sensor',
+    uiHint: 'readout',
+    actions: {},
+    state: {
+      'readings': 'dict[str, number]',
+    },
+  ),
   'washer': CapabilitySpec(
     key: 'washer',
     uiHint: 'laundry-cycle',
-    actions: {'start': {}, 'pause': {}, 'stop': {}},
+    actions: {
+      'start': {},
+      'pause': {},
+      'stop': {},
+    },
     state: {
       'machineState': 'run|pause|stop',
       'jobState': 'str (vendor phase, lower-case, e.g. wash|rinse|spin|drying|none)',
@@ -107,7 +175,11 @@ const Map<String, CapabilitySpec> canonicalCatalog = {
   'dryer': CapabilitySpec(
     key: 'dryer',
     uiHint: 'laundry-cycle',
-    actions: {'start': {}, 'pause': {}, 'stop': {}},
+    actions: {
+      'start': {},
+      'pause': {},
+      'stop': {},
+    },
     state: {
       'machineState': 'run|pause|stop',
       'jobState': 'str (vendor phase, lower-case, e.g. wash|rinse|spin|drying|none)',
@@ -120,10 +192,18 @@ const Map<String, CapabilitySpec> canonicalCatalog = {
     key: 'refrigeration',
     uiHint: 'fridge-panel',
     actions: {
-      'setFridgeSetpoint': {'temperature': 'number (in state.unit)'},
-      'setFreezerSetpoint': {'temperature': 'number (in state.unit)'},
-      'setRapidCooling': {'enabled': 'bool'},
-      'setRapidFreezing': {'enabled': 'bool'},
+      'setFridgeSetpoint': {
+          'temperature': 'number (in state.unit)',
+        },
+      'setFreezerSetpoint': {
+          'temperature': 'number (in state.unit)',
+        },
+      'setRapidCooling': {
+          'enabled': 'bool',
+        },
+      'setRapidFreezing': {
+          'enabled': 'bool',
+        },
     },
     state: {
       'unit': 'C|F',
@@ -141,56 +221,141 @@ const Map<String, CapabilitySpec> canonicalCatalog = {
     key: 'roomCleaning',
     uiHint: 'room-picker',
     actions: {
-      'cleanRooms': {'roomIds': 'list[str] (ids from state.rooms)', 'repeat': 'int 1..maxRepeat (default 1)'},
+      'cleanRooms': {
+          'roomIds': 'list[str] (ids from state.rooms)',
+          'repeat': 'int 1..maxRepeat (default 1)',
+        },
     },
-    state: {'rooms': 'list[{id: str, name: str}]', 'maxRepeat': 'int'},
+    state: {
+      'rooms': 'list[{id: str, name: str}]',
+      'maxRepeat': 'int',
+    },
   ),
   'zoneCleaning': CapabilitySpec(
     key: 'zoneCleaning',
     uiHint: 'zone-drawer',
     actions: {
-      'cleanZones': {'zones': 'list[[x1, y1, x2, y2]] (map coordinates)', 'repeat': 'int 1..maxRepeat (default 1)'},
+      'cleanZones': {
+          'zones': 'list[[x1, y1, x2, y2]] (map coordinates)',
+          'repeat': 'int 1..maxRepeat (default 1)',
+        },
     },
-    state: {'maxZones': 'int', 'maxRepeat': 'int', 'coordinateSpace': 'map'},
+    state: {
+      'maxZones': 'int',
+      'maxRepeat': 'int',
+      'coordinateSpace': 'map',
+    },
   ),
   'goTo': CapabilitySpec(
     key: 'goTo',
     uiHint: 'map-tap',
     actions: {
-      'goTo': {'x': 'number (map coordinates)', 'y': 'number (map coordinates)'},
+      'goTo': {
+          'x': 'number (map coordinates)',
+          'y': 'number (map coordinates)',
+        },
     },
-    state: {'coordinateSpace': 'map'},
+    state: {
+      'coordinateSpace': 'map',
+    },
   ),
   'fanSpeed': CapabilitySpec(
     key: 'fanSpeed',
     uiHint: 'picker',
     actions: {
-      'setLevel': {'level': 'str (one of state.levels)'},
+      'setLevel': {
+          'level': 'str (one of state.levels)',
+        },
     },
-    state: {'level': 'str|null', 'levels': 'list[str]'},
+    state: {
+      'level': 'str|null',
+      'levels': 'list[str]',
+    },
   ),
   'mopping': CapabilitySpec(
     key: 'mopping',
     uiHint: 'mop-controls',
     actions: {
-      'setWaterLevel': {'level': 'str (one of state.waterLevels)'},
-      'setMopMode': {'mode': 'str (one of state.mopModes)'},
+      'setWaterLevel': {
+          'level': 'str (one of state.waterLevels)',
+        },
+      'setMopMode': {
+          'mode': 'str (one of state.mopModes)',
+        },
     },
-    state: {'waterLevel': 'str|null', 'waterLevels': 'list[str]', 'mopMode': 'str|null', 'mopModes': 'list[str]'},
+    state: {
+      'waterLevel': 'str|null',
+      'waterLevels': 'list[str]',
+      'mopMode': 'str|null',
+      'mopModes': 'list[str]',
+    },
   ),
   'consumables': CapabilitySpec(
     key: 'consumables',
     uiHint: 'consumables-list',
     actions: {
-      'reset': {'id': 'str (one of state.items[].id with resettable=true)'},
+      'reset': {
+          'id': 'str (one of state.items[].id with resettable=true)',
+        },
     },
-    state: {'items': 'list[{id, name, usedHours, remainingPercent, resettable}]'},
+    state: {
+      'items': 'list[{id, name, usedHours, remainingPercent, resettable}]',
+    },
   ),
   'cleaningStats': CapabilitySpec(
     key: 'cleaningStats',
     uiHint: 'readout',
     actions: {},
-    state: {'areaM2': 'number|null (current/last run)', 'durationSeconds': 'int|null'},
+    state: {
+      'areaM2': 'number|null (current/last run)',
+      'durationSeconds': 'int|null',
+    },
   ),
-  'vacuumMap': CapabilitySpec(key: 'vacuumMap', uiHint: 'map-view', actions: {}, state: {'available': 'bool'}),
+  'vacuumMap': CapabilitySpec(
+    key: 'vacuumMap',
+    uiHint: 'map-view',
+    actions: {},
+    state: {
+      'available': 'bool',
+    },
+  ),
+  'videoStream': CapabilitySpec(
+    key: 'videoStream',
+    uiHint: 'camera-view',
+    actions: {
+      'selectProfile': {
+          'profile': 'str (one of state.profiles[].token)',
+        },
+    },
+    state: {
+      'protocol': 'onvif|rtsp|mjpeg|demo (informational; the UI must not branch on it)',
+      'rtspUrl': 'str|null (credentials are never included)',
+      'profiles': 'list[{token, name, width, height, codec}]',
+      'selectedProfile': 'str|null',
+      'snapshotAvailable': 'bool',
+      'mjpegAvailable': 'bool (the hub can relay an MJPEG stream)',
+      'audio': 'bool|null',
+    },
+  ),
+  'ptz': CapabilitySpec(
+    key: 'ptz',
+    uiHint: 'ptz-pad',
+    actions: {
+      'move': {
+          'pan': 'number -1..1 (velocity, + = right)',
+          'tilt': 'number -1..1 (velocity, + = up)',
+          'zoom': 'number -1..1 (velocity, + = in)',
+          'durationMs': 'int 100..5000 (default 500; the camera stops by itself)',
+        },
+      'stop': {},
+      'gotoPreset': {
+          'preset': 'str (one of state.presets[].token)',
+        },
+    },
+    state: {
+      'panTilt': 'bool',
+      'zoom': 'bool',
+      'presets': 'list[{token, name}]',
+    },
+  ),
 };

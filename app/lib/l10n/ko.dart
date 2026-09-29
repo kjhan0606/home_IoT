@@ -32,6 +32,7 @@ class Ko {
     'printer': '프린터',
     'media': '미디어 기기',
     'sensor': '센서',
+    'camera': '카메라',
     'unknown': '기타',
   };
   static String kind(String k) => _kinds[k] ?? k;
@@ -51,6 +52,7 @@ class Ko {
     'phone' || 'phone/private' => Icons.smartphone,
     'router' => Icons.router,
     'printer' => Icons.print,
+    'camera' => Icons.videocam_outlined,
     _ => Icons.devices_other,
   };
 
@@ -77,6 +79,8 @@ class Ko {
     'consumables': '소모품',
     'cleaningStats': '청소 기록',
     'vacuumMap': '지도',
+    'videoStream': '영상',
+    'ptz': '카메라 회전/확대',
   };
   static String cap(String k) => _caps[k] ?? k;
 

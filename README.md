@@ -44,7 +44,7 @@ home_IoT/
 ├── hub/            Python local gateway (FastAPI). See hub/README.md
 │   └── homehub/    capability model, discovery, adapters, server
 ├── app/            Flutter thin client (iOS/Android; web for dev). See app/README.md
-├── docs/           cloud-integrations.md (tokens, OAuth flow, limits)
+├── docs/           cloud-integrations.md (tokens, OAuth flow, limits), cameras.md (IP camera / CCTV)
 ├── PROGRESS.md     what's built & verified, decisions log
 └── ROADMAP.md      phased plan toward App Store release
 ```
@@ -104,6 +104,12 @@ flutter run -d chrome     # or an iPhone: see app/README.md (free Apple ID or Te
 To try it without hardware, start the hub in **demo mode** (example devices, dev only):
 `HOMEHUB_FAKE_DEVICES=1 HOMEHUB_CORS_ORIGINS=http://localhost:8088 ./run.sh`.
 Details are in **[app/README.md](app/README.md)**.
+
+### IP cameras / CCTV (LAN only)
+
+Add ONVIF / RTSP / MJPEG cameras: live view, snapshot, PTZ. Works in direct mode (no account needed) and through the hub.
+Auto-discovery uses ONVIF WS-Discovery. **Not tested with a real camera yet.** Never expose camera ports to the internet.
+See **[docs/cameras.md](docs/cameras.md)**.
 
 ## Resume on another machine
 

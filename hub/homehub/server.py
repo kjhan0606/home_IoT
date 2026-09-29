@@ -11,6 +11,12 @@ The Flutter app is a thin client over this:
   POST /devices/{id}/commands {capability, action, params}
   GET  /devices/{id}/map      vacuum map metadata (+ base64 PNG); /map.png = image
   GET  /integrations/roborock  link status;  POST .../request-code, .../login, .../unlink
+  GET  /devices/{id}/snapshot.jpg   camera: one JPEG           (token required)
+  GET  /devices/{id}/stream.mjpeg   camera: MJPEG relay          (token required)
+  GET  /devices/{id}/stream         camera: stream info (RTSP URI without password)
+  GET  /cameras/discover            ONVIF WS-Discovery on the LAN
+  GET  /cameras                     configured cameras (password never returned)
+  POST /cameras                     add {protocol: onvif|rtsp|http, ...};  DELETE /cameras/{id}
   WS   /ws                    live device/event push
 
 The hub advertises itself via Bonjour (_homehub._tcp) so the app auto-discovers
@@ -25,11 +31,13 @@ from typing import Any
 
 import base64
 
+from fastapi.responses import StreamingResponse
 from fastapi import (
     Depends,
     FastAPI,
     Header,
     HTTPException,
+    Request,
     Response,
     WebSocket,
     WebSocketDisconnect,
@@ -39,6 +47,9 @@ from pydantic import BaseModel
 from . import capabilities as cap
 from . import config, mappings
 from .adapters import registry
+from .camera import media as cam_media
+from .camera import onvif as cam_onvif
+from .camera import store as cam_store
 from .cloud.errors import CloudAPIError, CloudNotConfiguredError
 from .manager import DeviceManager
 from .netutil import lan_ip
@@ -107,6 +118,9 @@ async def lifespan(app: FastAPI):
     if registry.get_adapter("demo") is not None:     # HOMEHUB_FAKE_DEVICES=1: show samples at once
         with contextlib.suppress(Exception):
             await asyncio.to_thread(manager.scan, lan=False, cloud=True)
+    if cam_store.list_cameras():                     # refresh configured cameras' online state
+        with contextlib.suppress(Exception):
+            await asyncio.to_thread(manager.sync_adapter, "camera")
     zc, info = _register_bonjour()
     try:
         yield
@@ -139,6 +153,17 @@ class RoborockLoginBody(BaseModel):
     email: str
     code: str | None = None
     password: str | None = None
+
+
+class CameraBody(BaseModel):
+    protocol: str                       # onvif | rtsp | http
+    name: str = ""
+    address: str | None = None          # onvif: 192.168.0.50 or http://host:port/onvif/device_service
+    url: str | None = None              # rtsp / http: full URL (credentials may be embedded or separate)
+    username: str = ""
+    password: str = ""
+    room: str | None = None
+    verify: bool = True
 
 
 class CommandBody(BaseModel):
@@ -223,6 +248,107 @@ async def roborock_unlink() -> dict[str, Any]:
     res = await asyncio.to_thread(_roborock().unlink)
     await asyncio.to_thread(manager.scan, lan=False, cloud=True)   # drop its devices
     return res
+
+
+# --- cameras (declared before the greedy /devices/{id:path} route) ------------
+def _camera():
+    a = registry.get_adapter("camera")
+    if a is None:
+        raise HTTPException(404, "camera adapter not loaded")
+    return a
+
+
+def _camera_errors(fn, *args):
+    try:
+        return fn(*args)
+    except KeyError as e:
+        raise HTTPException(404, str(e)) from e
+    except LookupError as e:
+        raise HTTPException(404, str(e)) from e
+    except cam_onvif.OnvifAuthError as e:
+        raise HTTPException(403, str(e)) from e           # not 401: that means "wrong hub token"
+    except cam_media.MediaError as e:
+        raise HTTPException(403 if "user name or password" in str(e) else 502, str(e)) from e
+    except cam_onvif.OnvifError as e:
+        raise HTTPException(502, str(e)) from e
+    except ValueError as e:
+        raise HTTPException(400, str(e)) from e
+
+
+_MAX_STREAMS = 4
+_streams_open = 0
+
+
+@app.get("/cameras/discover", dependencies=[Depends(require_token)])
+async def cameras_discover() -> dict[str, Any]:
+    """ONVIF cameras answering WS-Discovery (not yet necessarily added)."""
+    found = await asyncio.to_thread(cam_onvif.ws_discover, 3.0, lan_ip())
+    added = {c.get("host") for c in cam_store.list_cameras()}
+    return {"cameras": [{**f, "added": f["host"] in added} for f in found]}
+
+
+@app.get("/cameras", dependencies=[Depends(require_token)])
+def cameras_list() -> dict[str, Any]:
+    return {"cameras": [cam_store.redacted(c) for c in cam_store.list_cameras()]}
+
+
+@app.post("/cameras", dependencies=[Depends(require_token)])
+async def cameras_add(body: CameraBody) -> dict[str, Any]:
+    dev = await asyncio.to_thread(_camera_errors, _camera().add_camera, body.model_dump())
+    await asyncio.to_thread(manager.sync_adapter, "camera")
+    d = manager.get(dev.id)
+    payload = {"device": (d or dev).to_dict()}
+    await ws_hub.broadcast({"type": "devices", "devices": [x.to_dict() for x in manager.list_devices()]})
+    return payload
+
+
+@app.delete("/cameras/{camera_id:path}", dependencies=[Depends(require_token)])
+async def cameras_remove(camera_id: str) -> dict[str, Any]:
+    if not _camera().remove_camera(camera_id):
+        raise HTTPException(404, "camera not found")
+    await asyncio.to_thread(manager.sync_adapter, "camera")
+    await ws_hub.broadcast({"type": "devices", "devices": [x.to_dict() for x in manager.list_devices()]})
+    return {"ok": True}
+
+
+@app.get("/devices/{device_id:path}/snapshot.jpg", dependencies=[Depends(require_token)])
+async def camera_snapshot(device_id: str) -> Response:
+    jpeg = await asyncio.to_thread(_camera_errors, manager.camera_snapshot, device_id)
+    return Response(content=jpeg, media_type="image/jpeg", headers={"Cache-Control": "no-store"})
+
+
+@app.get("/devices/{device_id:path}/stream.mjpeg", dependencies=[Depends(require_token)])
+async def camera_mjpeg(device_id: str, request: Request, fps: int = 5) -> StreamingResponse:
+    """MJPEG relay (multipart/x-mixed-replace). RTSP cameras need ffmpeg on the hub."""
+    global _streams_open
+    if _streams_open >= _MAX_STREAMS:
+        raise HTTPException(429, "too many open camera streams")
+    frames = await asyncio.to_thread(_camera_errors, manager.camera_frames, device_id, max(1, min(fps, 15)))
+    it = iter(frames)
+    _streams_open += 1
+
+    async def body():
+        global _streams_open
+        try:
+            while not await request.is_disconnected():
+                jpeg = await asyncio.to_thread(next, it, None)
+                if jpeg is None:
+                    break
+                yield cam_media.multipart_frame(jpeg)
+        except Exception:  # noqa: BLE001 - camera dropped: just end the stream
+            pass
+        finally:
+            _streams_open -= 1
+            with contextlib.suppress(Exception):
+                await asyncio.to_thread(frames.close)
+
+    return StreamingResponse(body(), media_type=cam_media.MJPEG_MEDIA_TYPE,
+                             headers={"Cache-Control": "no-store"})
+
+
+@app.get("/devices/{device_id:path}/stream", dependencies=[Depends(require_token)])
+async def camera_stream_info(device_id: str) -> dict[str, Any]:
+    return await asyncio.to_thread(_camera_errors, manager.camera_stream_info, device_id)
 
 
 # --- vacuum map (declared before the greedy /devices/{id:path} route) --------

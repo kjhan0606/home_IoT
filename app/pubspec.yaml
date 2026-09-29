@@ -40,6 +40,11 @@ dependencies:
   shared_preferences: ^2.5.5
   bonsoir: ^7.1.5
   flutter_secure_storage: ^11.2.0
+  media_kit: ^1.2.6
+  media_kit_video: ^2.0.1
+  media_kit_libs_video: ^1.0.7
+  crypto: ^3.0.7
+  xml: ^7.1.0
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +67,9 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - assets/demo/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
