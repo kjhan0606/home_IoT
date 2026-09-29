@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../api/hub_api.dart';
+import '../backend/device_backend.dart';
 import '../l10n/ko.dart';
 import '../state/hub_state.dart';
 import '../widgets/capability_view.dart';
@@ -14,7 +14,7 @@ class DeviceDetailScreen extends StatelessWidget {
   Future<void> _refresh(BuildContext context) async {
     try {
       await context.read<HubState>().refreshDevice(deviceId);
-    } on HubApiException catch (e) {
+    } on BackendException catch (e) {
       if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
     }
   }

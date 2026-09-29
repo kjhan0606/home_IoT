@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../api/hub_api.dart';
+import '../backend/device_backend.dart';
 import '../state/hub_state.dart';
+import 'cloud_accounts_screen.dart';
 import 'connect_screen.dart';
 
-/// Hub address, integration status, Roborock account link.
+/// Mode (direct cloud / hub), cloud tokens, hub address, integration status,
+/// Roborock account link.
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -67,65 +70,145 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: 8),
           children: [
-            _section(context, '허브'),
-            ListTile(
-              leading: const Icon(Icons.hub_outlined),
-              title: Text(hub.hubName ?? 'HomeHub'),
-              subtitle: Text(
-                '${hub.config?.label ?? '-'}${hub.config?.token != null ? ' · 비밀키 사용' : ''} · ${hub.liveConnected ? '실시간 연결됨' : '실시간 연결 끊김'}',
+            _section(context, '연결 방식'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: SegmentedButton<BackendKind>(
+                key: const Key('mode-picker'),
+                segments: const [
+                  ButtonSegment(value: BackendKind.directCloud, icon: Icon(Icons.cloud_outlined), label: Text('직접 연결')),
+                  ButtonSegment(value: BackendKind.hub, icon: Icon(Icons.hub_outlined), label: Text('홈 허브')),
+                ],
+                selected: {hub.mode},
+                onSelectionChanged: (sel) async {
+                  await hub.selectMode(sel.first);
+                  if (!context.mounted) return;
+                  // Nothing to show yet (no tokens / no hub): back to the setup gate.
+                  if (hub.status != HubStatus.connected) Navigator.of(context).popUntil((r) => r.isFirst);
+                },
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.swap_horiz),
-              title: const Text('허브 변경'),
-              onTap: () =>
-                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => ConnectScreen(initial: hub.config))),
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('연결 해제'),
-              onTap: () async {
-                await hub.disconnect(forget: true);
-                if (context.mounted) Navigator.of(context).popUntil((r) => r.isFirst);
-              },
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+              child: Text(
+                hub.mode == BackendKind.hub
+                    ? '같은 Wi-Fi의 HomeHub 서버를 통해 기기를 제어합니다.'
+                    : '서버 없이 앱이 SmartThings·LG ThinQ 클라우드에 직접 연결합니다.',
+                style: t.bodySmall,
+              ),
             ),
             const Divider(),
-            _section(context, '연동 상태'),
-            if (_error != null)
-              ListTile(
-                title: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
-              ),
-            if (_integrations == null && _error == null)
-              const Center(
-                child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator()),
-              ),
-            for (final e in (_integrations ?? const {}).entries)
-              if (e.key != 'roborock')
+            if (hub.mode == BackendKind.directCloud) ...[
+              _section(context, '클라우드 계정'),
+              for (final (id, label, has) in [
+                ('smartthings', 'Samsung SmartThings', hub.creds.hasSmartThings),
+                ('lg_thinq', 'LG ThinQ', hub.creds.hasLg),
+              ])
                 ListTile(
-                  key: Key('integration-${e.key}'),
+                  key: Key('cloud-$id'),
                   leading: Icon(
-                    (e.value as Map)['enabled'] == true ? Icons.check_circle : Icons.radio_button_unchecked,
-                    color: (e.value as Map)['enabled'] == true ? Colors.green : null,
+                    !has
+                        ? Icons.radio_button_unchecked
+                        : (hub.warnings.containsKey(id) ? Icons.error_outline : Icons.check_circle),
+                    color: !has
+                        ? null
+                        : (hub.warnings.containsKey(id) ? Theme.of(context).colorScheme.error : Colors.green),
                   ),
-                  title: Text('${(e.value as Map)['name'] ?? e.key}'),
+                  title: Text(label),
                   subtitle: Text(
-                    [
-                      (e.value as Map)['enabled'] == true ? '사용 중' : '설정 안 됨',
-                      if (_cloudErrors[e.key] != null) '오류: ${_cloudErrors[e.key]}',
-                      if (_help[e.key] != null) _help[e.key]!,
-                    ].join('\n'),
+                    !has
+                        ? '설정 안 됨'
+                        : (hub.warnings[id] ??
+                              (id == 'smartthings' && hub.smartThingsLikelyExpired ? '토큰 만료 가능성 (24시간 경과)' : '사용 중')),
                   ),
-                  isThreeLine: true,
+                  isThreeLine: has && hub.warnings.containsKey(id),
                 ),
-            if (_integrations?.containsKey('roborock') ?? false) ...[
+              ListTile(
+                key: const Key('edit-tokens'),
+                leading: const Icon(Icons.key),
+                title: const Text('토큰 입력/변경'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CloudAccountsScreen())),
+              ),
+              ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: const Text('직접 연결 모드 안내'),
+                subtitle: const Text(
+                  'SmartThings 토큰은 24시간마다 다시 발급해야 합니다(OAuth 로그인은 추후 지원). '
+                  '로봇청소기 지도, Roborock, 삼성 TV 로컬 제어는 허브 모드에서만 사용할 수 있습니다.',
+                ),
+                isThreeLine: true,
+              ),
+            ] else ...[
+              _section(context, '허브'),
+              ListTile(
+                leading: const Icon(Icons.hub_outlined),
+                title: Text(hub.hubName ?? 'HomeHub'),
+                subtitle: Text(
+                  '${hub.config?.label ?? '-'}${hub.config?.token != null ? ' · 비밀키 사용' : ''} · ${hub.liveConnected ? '실시간 연결됨' : '실시간 연결 끊김'}',
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.swap_horiz),
+                title: const Text('허브 변경'),
+                onTap: () =>
+                    Navigator.of(context).push(MaterialPageRoute(builder: (_) => ConnectScreen(initial: hub.config))),
+              ),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text('연결 해제'),
+                onTap: () async {
+                  await hub.disconnect(forget: true);
+                  if (context.mounted) Navigator.of(context).popUntil((r) => r.isFirst);
+                },
+              ),
               const Divider(),
-              _section(context, 'Roborock 계정'),
-              RoborockLinkPanel(status: _roborock, onChanged: _load, cloudError: _cloudErrors['roborock']?.toString()),
+              _section(context, '연동 상태'),
+              if (_error != null)
+                ListTile(
+                  title: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                ),
+              if (_integrations == null && _error == null)
+                const Center(
+                  child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator()),
+                ),
+              for (final e in (_integrations ?? const {}).entries)
+                if (e.key != 'roborock')
+                  ListTile(
+                    key: Key('integration-${e.key}'),
+                    leading: Icon(
+                      (e.value as Map)['enabled'] == true ? Icons.check_circle : Icons.radio_button_unchecked,
+                      color: (e.value as Map)['enabled'] == true ? Colors.green : null,
+                    ),
+                    title: Text('${(e.value as Map)['name'] ?? e.key}'),
+                    subtitle: Text(
+                      [
+                        (e.value as Map)['enabled'] == true ? '사용 중' : '설정 안 됨',
+                        if (_cloudErrors[e.key] != null) '오류: ${_cloudErrors[e.key]}',
+                        if (_help[e.key] != null) _help[e.key]!,
+                      ].join('\n'),
+                    ),
+                    isThreeLine: true,
+                  ),
+              if (_integrations?.containsKey('roborock') ?? false) ...[
+                const Divider(),
+                _section(context, 'Roborock 계정'),
+                RoborockLinkPanel(
+                  status: _roborock,
+                  onChanged: _load,
+                  cloudError: _cloudErrors['roborock']?.toString(),
+                ),
+              ],
             ],
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text('토큰과 계정 정보는 허브에만 저장되며 앱에는 저장되지 않습니다.', style: t.bodySmall),
+              child: Text(
+                hub.mode == BackendKind.hub
+                    ? '토큰과 계정 정보는 허브에만 저장되며 앱에는 저장되지 않습니다.'
+                    : '토큰은 이 기기의 보안 저장소(키체인/키스토어)에만 저장됩니다.',
+                style: t.bodySmall,
+              ),
             ),
           ],
         ),

@@ -66,7 +66,8 @@ hub/homehub/
   secret_store.py      0600 per-integration secrets   vacuum_map.py  map metadata/transform
 hub/tests/             pytest (mocked vendor HTTP): `pytest` from hub/
 docs/cloud-integrations.md  tokens, OAuth flow, limits, assumptions
-app/                   Flutter thin client: lib/{api,models,state,screens,widgets}, test/
+app/                   Flutter app: lib/{backend,api,models,state,screens,widgets}, test/
+                       (backend/direct = Dart ports of the SmartThings/LG adapters; see docs/app-backends.md)
                        (fake API + fixtures captured from the hub), ci/ (iOS template)
 hub/homehub/adapters/demo.py   dev-only sample devices (HOMEHUB_FAKE_DEVICES=1)
 PROGRESS.md ROADMAP.md README.md
@@ -103,6 +104,9 @@ PROGRESS.md ROADMAP.md README.md
 
 - App: `cd app && flutter analyze && flutter test`. UI rule: pick widgets by
   `uiHint` or capability key only, never by adapter/vendor/brand.
+- The app has a `DeviceBackend` abstraction (direct cloud | hub | future relay). When you change a
+  Python cloud adapter's mapping, mirror it in `app/lib/backend/direct/`; when you change
+  `capabilities.py`, run `app/tool/gen_canonical_catalog.py`.
 
 - Import smoke test: `python -c "import homehub.server"` from `hub/` (venv on).
 - Live: `POST /scan` → `GET /devices` → send a safe command

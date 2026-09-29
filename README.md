@@ -91,6 +91,11 @@ Tests: `pip install -r requirements-dev.txt && pytest` (from `hub/`, all HTTP mo
 
 ## App (Flutter)
 
+The app works **without a server** by default: it talks to SmartThings and LG ThinQ directly with your
+personal tokens (direct-cloud mode). The hub stays available as an optional mode for TV local control,
+Roborock and vacuum maps, and a future paid relay can plug in as a third backend.
+See **[docs/app-backends.md](docs/app-backends.md)**.
+
 ```bash
 cd app && flutter pub get && flutter test
 flutter run -d chrome     # or an iPhone: see app/README.md (free Apple ID or TestFlight)

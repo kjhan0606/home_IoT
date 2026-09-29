@@ -2,7 +2,7 @@ import 'package:flutter/gestures.dart' show DragStartBehavior;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../api/hub_api.dart';
+import '../backend/device_backend.dart';
 import '../l10n/ko.dart';
 import '../models/vacuum_map.dart';
 import '../state/hub_state.dart';
@@ -41,7 +41,7 @@ class _VacuumMapScreenState extends State<VacuumMapScreen> {
   }
 
   Future<void> _load() async {
-    final api = context.read<HubState>().api;
+    final api = context.read<HubState>().backend;
     setState(() {
       _loading = true;
       _error = null;
@@ -49,7 +49,7 @@ class _VacuumMapScreenState extends State<VacuumMapScreen> {
     try {
       final m = await api!.vacuumMap(widget.deviceId);
       if (mounted) setState(() => _map = m);
-    } on HubApiException catch (e) {
+    } on BackendException catch (e) {
       if (mounted) setState(() => _error = e.statusCode == 0 ? e.message : '지도를 불러오지 못했습니다: ${e.message}');
     } on FormatException catch (e) {
       if (mounted) setState(() => _error = '지도 데이터 형식 오류: ${e.message}');

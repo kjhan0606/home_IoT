@@ -24,11 +24,16 @@ class FakeDiscovery implements HubDiscovery {
   Future<void> stop() async {}
 }
 
-Future<(HubState, FakeHubApi)> pumpApp(WidgetTester tester, {Widget? home, bool connect = true}) async {
+Future<(HubState, FakeHubApi)> pumpApp(
+  WidgetTester tester, {
+  Widget? home,
+  bool connect = true,
+  Map<String, Object> prefs = const {},
+}) async {
   tester.view.physicalSize = const Size(1170, 2532); // iPhone-ish
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
-  SharedPreferences.setMockInitialValues({});
+  SharedPreferences.setMockInitialValues(prefs);
   final api = FakeHubApi();
   final hub = HubState(settings: SettingsStore(await SharedPreferences.getInstance()), apiFactory: (_) => api);
   if (connect) await hub.connect(const HubConfig(host: '192.168.0.10'));
@@ -52,7 +57,7 @@ Future<void> scrollTo(WidgetTester tester, Finder f) async {
 
 void main() {
   testWidgets('connect screen: discovered hub + manual entry', (tester) async {
-    final (hub, api) = await pumpApp(tester, connect: false);
+    final (hub, api) = await pumpApp(tester, connect: false, prefs: {'backendMode': 'hub'});
     expect(find.text('허브 연결'), findsOneWidget);
     expect(find.text('LivingRoomHub'), findsOneWidget);
     await tester.enterText(find.byKey(const Key('hub-address')), '192.168.0.10:8099');

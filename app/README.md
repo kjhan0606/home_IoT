@@ -1,31 +1,52 @@
 # 홈 IoT — Flutter app (Phase 2)
 
-A thin client for the **HomeHub** local gateway (`../hub`), talking to it over HTTP + WebSocket.
-It targets **iOS first**, then Android; the web build is used for development and verification.
+Controls Samsung SmartThings and LG ThinQ devices (and, with the optional HomeHub, more) from
+iOS/Android. It targets **iOS first**, then Android; the web build is used for development and hub mode.
 
-The app **never special-cases a brand**. Screens are built from the hub's brand-neutral data:
-`GET /capabilities` (canonical actions, state, `uiHint`) and `GET /devices` (the capabilities each
-device actually supports, plus live state). A new hub adapter or capability needs no app change.
-Unknown capabilities fall back to a generic card.
+## Modes (how the app gets its devices)
+
+| Mode | Server? | Notes |
+|---|---|---|
+| **직접 연결 / Direct cloud** (default for new installs) | none | The app calls SmartThings and LG ThinQ Connect itself with your personal tokens (kept in Keychain/Keystore). Enter them on first launch or in Settings. |
+| **홈 허브 / Hub** | your own HomeHub on the LAN | HTTP + WebSocket to `../hub`. Adds Samsung TV local control, Roborock, vacuum maps. Existing behaviour, unchanged. |
+| Relay (future, optional, paid) | hosted | Push notifications, Roborock, SmartThings OAuth. Not built; plugs in as another `DeviceBackend`. |
+
+- SmartThings personal tokens **expire after 24 h**; the app warns and shows how to renew.
+  OAuth (no expiry) needs a small relay and is a documented TODO.
+- Web builds of direct mode will likely be blocked by the vendors' CORS policy; use iOS/Android.
+- Nothing has been tried with real tokens or devices yet (unit tests use mocked HTTP).
+
+Details, wiring and how to add a backend: **[../docs/app-backends.md](../docs/app-backends.md)**.
+
+The app **never special-cases a brand**. Screens are built from brand-neutral data: canonical
+capabilities (actions, state, `uiHint`) and each device's supported capabilities with live state.
+The hub serves them; in direct mode the app builds them itself (`lib/backend/direct/`, ports of the
+hub's Python adapters, with a bundled copy of the capability catalog). A new adapter or capability
+needs no UI change. Unknown capabilities fall back to a generic card.
 
 ## Structure
 
 ```
 lib/
-  main.dart                 bootstrap (SharedPreferences, Provider, reconnect to the last hub)
-  app.dart                  MaterialApp (Material 3, light/dark, Korean), connect-or-list gate
-  api/hub_api.dart          HubApi interface + HttpHubApi (REST, X-HomeHub-Token, /ws events)
+  main.dart                 bootstrap (SharedPreferences, secure storage, Provider, resume last mode)
+  app.dart                  MaterialApp (Material 3, light/dark, Korean), onboarding/connect/list gate
+  backend/device_backend.dart   DeviceBackend interface (direct cloud | hub | future relay)
+  backend/direct/           SmartThings + LG ThinQ clients (ports of the hub adapters), DirectCloudBackend
+  api/hub_api.dart          HttpHubApi = the hub DeviceBackend (REST, X-HomeHub-Token, /ws events)
   api/hub_discovery.dart    Bonjour discovery of _homehub._tcp (bonsoir; iOS/Android)
   models/                   Device/CapabilityInstance, CapabilitySpec, VacuumMap (+affine), HubConfig
-  state/hub_state.dart      ChangeNotifier: connection, devices, catalog, live updates (auto-reconnect)
-  state/settings_store.dart last hub + preferences
+  state/hub_state.dart      ChangeNotifier over the active backend: devices, catalog, live updates / polling
+  state/settings_store.dart mode, last hub, preferences
+  state/credentials_store.dart  SmartThings/LG tokens in Keychain/Keystore (flutter_secure_storage)
   l10n/ko.dart              Korean labels for canonical vocabulary (raw value when unknown)
-  screens/                  connect, device list, device detail, vacuum map, settings
+  screens/                  setup (onboarding), cloud accounts, hub connect, device list/detail, vacuum map, settings
   widgets/capability_view.dart   uiHint -> widget dispatcher
   widgets/capabilities/     toggle, slider+mute, stepper, picker, transport, app-grid, slider,
                             color-wheel, readout, laundry-cycle, fridge-panel, vacuum-controls,
                             mop-controls, consumables-list, room-picker, map-view, generic fallback
 test/                       model parsing, state, widget tests (FakeHubApi + fixtures captured from the hub)
+test/direct/                SmartThings/LG client tests with mocked HTTP, backend, state and UI tests
+tool/gen_canonical_catalog.py   regenerates lib/models/canonical_catalog.dart from the hub's capabilities.py
 ci/                         iOS TestFlight workflow TEMPLATE (inactive)
 tool/screenshots/           headless-Chrome screenshot + live-update E2E scripts
 ```
@@ -34,6 +55,10 @@ State management is plain `provider` + one `ChangeNotifier`. Nothing more is nee
 
 ## Features
 
+- **Direct cloud (no server):** onboarding + Settings > 클라우드 계정 for the SmartThings token and the LG
+  ThinQ token + country; devices of both clouds in one list (polled every 60 s while the app is open);
+  washer/dryer remote start refused with a Korean explanation when remote control is off; an expired
+  or rejected token shows a banner with a shortcut. Not available here: TV local control, Roborock, vacuum map.
 - **Hub connection:** Bonjour auto-discovery (`_homehub._tcp`), manual `IP:port`, optional shared
   secret (`HOMEHUB_TOKEN` on the hub → sent as `X-HomeHub-Token`), and the last hub is remembered.
 - **Device list:** grouped by kind or room (`meta.room` when an adapter provides one), online dot,
@@ -56,9 +81,9 @@ State management is plain `provider` + one `ChangeNotifier`. Nothing more is nee
   and SmartThings/ThinQ token status with short instructions. Tokens stay on the hub.
 - **UI:** Korean, Material 3, follows system light/dark.
 
-**Stubbed or not done yet:** zoom/pan on the map; Samsung first-pairing helper; per-client auth
-(the shared secret is kept in SharedPreferences, so move it to the Keychain once real auth
-exists); remote access outside the LAN (Phase 4 relay); localization beyond Korean.
+**Stubbed or not done yet:** SmartThings OAuth (needs a relay); the paid relay backend (push, Roborock);
+zoom/pan on the map; Samsung first-pairing helper; per-client auth (the hub's shared secret is still
+in SharedPreferences; vendor tokens are in secure storage); localization beyond Korean.
 
 ## Run
 
@@ -71,7 +96,7 @@ flutter run -d chrome          # or an iPhone/Android device (see below)
 
 ### Demo mode (example data, no hardware)
 
-Sample devices are served by the **hub**, as a dev-only adapter, so the app goes through its real
+(Hub mode only.) Sample devices are served by the **hub**, as a dev-only adapter, so the app goes through its real
 HTTP/WS code paths:
 
 ```bash

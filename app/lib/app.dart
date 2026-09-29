@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 
 import 'l10n/ko.dart';
 import 'state/hub_state.dart';
+import 'backend/device_backend.dart';
 import 'screens/connect_screen.dart';
+import 'screens/setup_screen.dart';
 import 'screens/device_list_screen.dart';
 
 class HomeIotApp extends StatelessWidget {
@@ -26,7 +28,8 @@ class HomeIotApp extends StatelessWidget {
   );
 }
 
-/// Shows the device list when connected, otherwise the connect screen.
+/// Device list when connected; otherwise onboarding (direct-cloud mode, the
+/// default) or the hub connect screen (hub mode).
 class HomeGate extends StatelessWidget {
   const HomeGate({super.key});
 
@@ -34,9 +37,10 @@ class HomeGate extends StatelessWidget {
   Widget build(BuildContext context) {
     final hub = context.watch<HubState>();
     if (hub.status == HubStatus.connected) return const DeviceListScreen();
-    if (hub.status == HubStatus.connecting && hub.config == null && hub.settings.loadHub() != null) {
+    if (hub.status == HubStatus.connecting && hub.backend == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    return ConnectScreen(initial: hub.settings.loadHub());
+    if (hub.settings.mode == BackendKind.hub) return ConnectScreen(initial: hub.settings.loadHub());
+    return const SetupScreen();
   }
 }

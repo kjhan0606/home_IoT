@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../api/hub_api.dart';
+import '../backend/device_backend.dart';
 import '../l10n/ko.dart';
 import '../models/device.dart';
 import '../state/hub_state.dart';
 import '../widgets/command.dart';
+import 'cloud_accounts_screen.dart';
 import 'device_detail_screen.dart';
 import 'settings_screen.dart';
 
@@ -27,7 +28,7 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
     try {
       await hub.scan();
       messenger.showSnackBar(SnackBar(content: Text('검색 완료: 기기 ${hub.devices.length}개')));
-    } on HubApiException catch (e) {
+    } on BackendException catch (e) {
       messenger.showSnackBar(SnackBar(content: Text('검색 실패: ${e.message}')));
     }
   }
@@ -35,7 +36,7 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
   Future<void> _reload() async {
     try {
       await context.read<HubState>().reload();
-    } on HubApiException catch (e) {
+    } on BackendException catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
     }
   }
@@ -61,11 +62,11 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
             const Text(Ko.appTitle),
             Row(
               children: [
-                Icon(Icons.circle, size: 8, color: hub.liveConnected ? Colors.green : Colors.orange),
+                Icon(Icons.circle, size: 8, color: _statusColor(hub)),
                 const SizedBox(width: 4),
                 Flexible(
                   child: Text(
-                    '${hub.hubName ?? '허브'} · ${hub.config?.label ?? ''}${hub.liveConnected ? '' : ' (실시간 연결 대기)'}',
+                    _statusLine(hub),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodySmall,
@@ -97,6 +98,30 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.only(bottom: 24),
           children: [
+            for (final e in hub.warnings.entries)
+              _Banner(
+                key: Key('warning-${e.key}'),
+                icon: Icons.warning_amber_rounded,
+                text: e.value,
+                action: TextButton(
+                  onPressed: () =>
+                      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CloudAccountsScreen())),
+                  child: const Text('토큰 설정'),
+                ),
+              ),
+            if (hub.mode == BackendKind.directCloud &&
+                hub.smartThingsLikelyExpired &&
+                !hub.warnings.containsKey('smartthings'))
+              _Banner(
+                key: const Key('st-expired-banner'),
+                icon: Icons.schedule,
+                text: 'SmartThings 토큰은 24시간 뒤 만료됩니다. 입력한 지 24시간이 지났으니 새 토큰이 필요할 수 있습니다.',
+                action: TextButton(
+                  onPressed: () =>
+                      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CloudAccountsScreen())),
+                  child: const Text('토큰 설정'),
+                ),
+              ),
             if (hasExample) const _Banner(icon: Icons.science_outlined, text: '허브가 데모 모드입니다. 표시된 기기는 예시 데이터입니다.'),
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
@@ -148,6 +173,23 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
   }
 }
 
+Color _statusColor(HubState hub) {
+  final b = hub.backend;
+  if (b == null) return Colors.grey;
+  if (b.hasEventStream) return hub.liveConnected ? Colors.green : Colors.orange;
+  return hub.warnings.isEmpty && hub.error == null ? Colors.green : Colors.orange;
+}
+
+String _statusLine(HubState hub) {
+  final b = hub.backend;
+  if (b == null) return '';
+  final parts = [b.title, if (b.subtitle != null && b.subtitle!.isNotEmpty) b.subtitle!];
+  final line = parts.join(' · ');
+  if (b.hasEventStream && !hub.liveConnected) return '$line (실시간 연결 대기)';
+  if (!b.hasEventStream && hub.error != null) return '$line (불러오기 실패)';
+  return line;
+}
+
 class _Header extends StatelessWidget {
   const _Header(this.title, this.count);
   final String title;
@@ -164,9 +206,10 @@ class _Header extends StatelessWidget {
 }
 
 class _Banner extends StatelessWidget {
-  const _Banner({required this.icon, required this.text});
+  const _Banner({super.key, required this.icon, required this.text, this.action});
   final IconData icon;
   final String text;
+  final Widget? action;
 
   @override
   Widget build(BuildContext context) {
@@ -182,6 +225,7 @@ class _Banner extends StatelessWidget {
           Expanded(
             child: Text(text, style: TextStyle(color: cs.onTertiaryContainer)),
           ),
+          ?action,
         ],
       ),
     );
