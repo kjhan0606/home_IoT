@@ -30,6 +30,7 @@ SMARTTHINGS_MAP: dict[str, str | None] = {
     cap.WASHER: "washerOperatingState",
     cap.DRYER: "dryerOperatingState",
     cap.REFRIGERATION: "refrigeration",
+    cap.CURTAIN: "windowShade",
     cap.ROOM_CLEANING: None,       # no standard ST capability (Samsung uses samsungce.* map extensions)
     cap.ZONE_CLEANING: None,
     cap.GO_TO: None,
@@ -53,6 +54,7 @@ SMARTTHINGS_EXTRA: dict[str, list[str]] = {
     cap.VIDEO_STREAM: ["imageCapture"],
     cap.WASHER: ["remoteControlStatus", "samsungce.washerOperatingState"],
     cap.DRYER: ["remoteControlStatus", "samsungce.dryerOperatingState"],
+    cap.CURTAIN: ["windowShadeLevel"],
     cap.REFRIGERATION: [
         "temperatureMeasurement",
         "thermostatCoolingSetpoint",
@@ -78,6 +80,7 @@ MATTER_MAP: dict[str, tuple[str, int] | None] = {
     cap.WASHER: ("OperationalState", 0x0060),       # + LaundryWasherControls 0x0053
     cap.DRYER: ("OperationalState", 0x0060),        # + LaundryDryerControls 0x004A
     cap.REFRIGERATION: ("TemperatureControl", 0x0056),  # per-cabinet endpoint; + RefrigeratorAlarm 0x0057
+    cap.CURTAIN: ("WindowCovering", 0x0102),           # UpOrOpen / DownOrClose / GoToLiftPercentage
     cap.ROOM_CLEANING: ("ServiceArea", 0x0150),        # SelectAreas + RvcRunMode cleaning
     cap.ZONE_CLEANING: None,                           # Matter has no free-form zones
     cap.GO_TO: None,

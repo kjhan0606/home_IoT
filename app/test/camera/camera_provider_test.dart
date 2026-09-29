@@ -7,6 +7,7 @@ import 'package:homeiot/backend/direct/direct_cloud_backend.dart';
 import 'package:homeiot/camera/camera_models.dart';
 import 'package:homeiot/camera/camera_store.dart';
 import 'package:homeiot/state/credentials_store.dart';
+import 'package:homeiot/summary/home_summary.dart';
 
 import 'onvif_fixtures.dart';
 
@@ -116,6 +117,24 @@ void main() {
     final p = provider(cam, mem);
     final d = await p.add(const NewCamera(protocol: CameraProtocol.rtsp, name: 'x', url: 'rtsp://192.168.0.70/x'));
     await expectLater(p.execute(d, 'ptz', 'stop', {}), throwsA(isA<BackendException>().having((e) => e.statusCode, 's', 400)));
+  });
+
+  test('demo cameras supply visitorCount/motion so the Home Summary camera line works', () async {
+    final p = provider(cam, mem);
+    await p.add(const NewCamera(protocol: CameraProtocol.demo, name: '거실 카메라', url: 'living'));
+    await p.add(const NewCamera(protocol: CameraProtocol.demo, name: '현관 카메라', url: 'door'));
+    final devices = await p.listDevices();
+    for (final d in devices) {
+      final r = d.cap('sensor')!.state['readings'] as Map;
+      expect(r['visitorCount'], isA<int>());
+      expect(r['motion'], isA<int>());
+    }
+    final s = buildHomeSummary(devices, now: DateTime.utc(2026, 9, 29, 12));
+    expect(s.attention.map((i) => i.title), contains('현관 카메라 방문자 2명'));
+    expect(s.items.where((i) => i.icon == SummaryIcon.camera).length, 2);
+    // a real (non-demo) camera has no readings and stays "이상 없음"
+    final real = await p.add(const NewCamera(protocol: CameraProtocol.onvif, name: '실제', address: '192.168.0.50', username: 'a', password: 'b'));
+    expect(real.cap('sensor'), isNull);
   });
 
   test('demo cameras: bundled pictures, PTZ changes the picture, no network', () async {

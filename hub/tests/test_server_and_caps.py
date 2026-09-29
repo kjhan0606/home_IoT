@@ -48,3 +48,13 @@ def test_cloud_scan_and_remote_disabled_is_403(client, monkeypatch):
     assert ids == ["smartthings:dryer-1"]
     r = client.post("/devices/smartthings:dryer-1/commands", json={"capability": "dryer", "action": "start"})
     assert r.status_code == 403 and "Remote Start" in r.json()["detail"]
+
+
+def test_curtain_capability_is_canonical_and_mapped():
+    assert cap.CURTAIN in cap.CANONICAL
+    spec = cap.CANONICAL[cap.CURTAIN]
+    assert set(spec.actions) == {"open", "close", "stop", "setPosition"} and spec.ui_hint == "curtain-controls"
+    cap.validate_action(cap.CURTAIN, "setPosition")
+    d = mappings.describe(cap.CURTAIN)
+    assert d["smartthings"] == "windowShade" and d["smartthingsExtra"] == ["windowShadeLevel"]
+    assert d["matter"] == {"cluster": "WindowCovering", "id": "0x102"}

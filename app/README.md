@@ -90,6 +90,13 @@ State management is plain `provider` + one `ChangeNotifier`. Nothing more is nee
 zoom/pan on the map; Samsung first-pairing helper; per-client auth (the hub's shared secret is still
 in SharedPreferences; vendor tokens are in secure storage); localization beyond Korean.
 
+### Home summary, rules, 휴가 모드
+
+Top card on the device list = 집 전체 요약 (`docs/home-summary.md`); the 자동화 button (open-automation) in the app bar opens
+자동화 규칙 (list, templates, on/off, run log; `docs/home-automation.md`) including 휴가/장기 외출 모드.
+Local notifications use `flutter_local_notifications` and only fire while the app runs.
+Tests: `test/summary_test.dart`, `test/automation_test.dart`, `test/away_test.dart`, `test/home_ui_test.dart`.
+
 ## Run
 
 ```bash

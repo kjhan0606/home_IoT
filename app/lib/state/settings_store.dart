@@ -20,6 +20,7 @@ class SettingsStore {
   static const _kHub = 'lastHub';
   static const _kGroup = 'groupBy';
   static const _kMode = 'backendMode';
+  static const _kNotify = 'notifySummary';
 
   /// Chosen backend. New installs default to [BackendKind.directCloud] (no
   /// server needed); an install that already remembers a hub keeps using it.
@@ -45,6 +46,10 @@ class SettingsStore {
 
   Future<void> saveHub(HubConfig c) => _prefs.setString(_kHub, jsonEncode(c.toJson()));
   Future<void> clearHub() => _prefs.remove(_kHub);
+
+  /// Local notifications for the home summary (only while the app runs). Default on.
+  bool get notifySummary => _prefs.getBool(_kNotify) ?? true;
+  Future<void> setNotifySummary(bool v) => _prefs.setBool(_kNotify, v);
 
   String get groupBy => _prefs.getString(_kGroup) ?? 'kind';
   Future<void> setGroupBy(String v) => _prefs.setString(_kGroup, v);

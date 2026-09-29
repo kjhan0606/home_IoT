@@ -9,10 +9,17 @@ import '../camera/camera_store.dart';
 import '../models/capability_spec.dart';
 import '../models/device.dart';
 import '../models/hub_config.dart';
+import '../automation/away.dart';
+import '../summary/home_summary.dart';
 import 'credentials_store.dart';
 import 'settings_store.dart';
 
 typedef HubApiFactory = HubApi Function(HubConfig config);
+
+/// Called after every change to the device list with the previous snapshot (null on the first load
+/// or after a mode switch) and the current one. Used by the home summary notifier and the app-side
+/// automation engine.
+typedef DevicesListener = void Function(Map<String, Device>? prev, Map<String, Device> cur);
 
 enum HubStatus { disconnected, connecting, connected, error }
 
@@ -41,6 +48,31 @@ class HubState extends ChangeNotifier {
   final DirectBackendFactory directFactory;
   final DateTime Function() _now;
 
+  /// Wall clock used by the summary and the app-side rules (tests inject a fake).
+  DateTime now() => _now();
+
+  /// Remembers when door-open / laundry-done conditions were first seen (see `SummaryTracker`).
+  final SummaryTracker summaryTracker = SummaryTracker();
+  final List<DevicesListener> _deviceListeners = [];
+  bool _hadDevices = false;
+
+  void addDevicesListener(DevicesListener l) => _deviceListeners.add(l);
+  void removeDevicesListener(DevicesListener l) => _deviceListeners.remove(l);
+
+  /// The current 휴가 모드 plan (set by the automation controller) so the summary can show "휴가 모드 켜짐, 3일째".
+  AwayPlan? awayPlan;
+  bool awayStopped = false;
+
+  void setAway(AwayPlan? plan, {bool stopped = false}) {
+    awayPlan = plan;
+    awayStopped = stopped;
+    if (!_disposed) notifyListeners();
+  }
+
+  /// Brand-neutral summary of the whole home right now.
+  HomeSummary get summary =>
+      buildHomeSummary(devices, now: _now(), tracker: summaryTracker, away: awayStopped ? null : awayPlan);
+
   DeviceBackend? _backend;
   DeviceBackend? get backend => _backend;
 
@@ -68,6 +100,9 @@ class HubState extends ChangeNotifier {
   HubConfig? get config => api?.config;
   List<Device> get devices => _devices.values.toList()..sort((a, b) => a.name.compareTo(b.name));
   Device? device(String id) => _devices[id];
+
+  /// Read-only snapshot keyed by device id (rules engine, summary).
+  Map<String, Device> get devicesById => Map.unmodifiable(_devices);
 
   /// Per-integration problems from the last sync (id -> Korean message).
   Map<String, String> get warnings => _backend?.warnings ?? const {};
@@ -149,6 +184,23 @@ class HubState extends ChangeNotifier {
     }
     return startDirect();
   }
+
+  // ------------------------------------------------------------- testing ----
+  /// Test seam: replaces the device list without a backend.
+  @visibleForTesting
+  void debugSetDevices(List<Device> list, {bool notifyListeners = true}) {
+    if (notifyListeners) {
+      _setDevices(list);
+    } else {
+      _devices
+        ..clear()
+        ..addEntries(list.map((d) => MapEntry(d.id, d)));
+    }
+  }
+
+  /// Test seam: intercepts [command] (no backend needed).
+  @visibleForTesting
+  Future<void> Function(String id, String capability, String action, Map<String, dynamic> params)? debugCommandHook;
 
   // ---------------------------------------------------------------- hub ----
   /// Connects to [c] (verifies `/health`), loads catalog + devices, opens `/ws`.
@@ -232,7 +284,7 @@ class HubState extends ChangeNotifier {
     final b = _backend;
     if (b == null) return null;
     final d = await b.refresh(id);
-    _devices[d.id] = d;
+    _putDevice(d);
     _notify();
     return d;
   }
@@ -245,12 +297,17 @@ class HubState extends ChangeNotifier {
     String action, [
     Map<String, dynamic> params = const {},
   ]) async {
+    final hook = debugCommandHook;
+    if (hook != null) {
+      await hook(id, capability, action, params);
+      return const {'ok': true};
+    }
     final b = _backend;
     if (b == null) throw const BackendException(0, '연결되어 있지 않습니다.');
     final res = await b.command(id, capability, action, params);
     try {
       final d = await b.device(id);
-      _devices[d.id] = d;
+      _putDevice(d);
       _notify();
     } catch (_) {}
     return res;
@@ -302,7 +359,7 @@ class HubState extends ChangeNotifier {
       _setDevices((e.data['devices'] as List).map((d) => Device.fromJson(Map<String, dynamic>.from(d))).toList());
     } else if (e.type == 'command' && e.data['device'] is Map) {
       final d = Device.fromJson(Map<String, dynamic>.from(e.data['device']));
-      _devices[d.id] = d;
+      _putDevice(d);
     }
     _notify();
   }
@@ -317,9 +374,32 @@ class HubState extends ChangeNotifier {
   }
 
   void _setDevices(List<Device> list) {
+    final prev = _hadDevices ? Map<String, Device>.of(_devices) : null;
     _devices
       ..clear()
       ..addEntries(list.map((d) => MapEntry(d.id, d)));
+    _hadDevices = true;
+    _emitDevices(prev);
+  }
+
+  /// Single-device update (command result, refresh, push event).
+  void _putDevice(Device d) {
+    final prev = Map<String, Device>.of(_devices);
+    _devices[d.id] = d;
+    _emitDevices(prev);
+  }
+
+  void _emitDevices(Map<String, Device>? prev) {
+    summaryTracker.update(_devices.values, _now());
+    if (_deviceListeners.isEmpty) return;
+    final cur = Map<String, Device>.unmodifiable(_devices);
+    for (final l in List.of(_deviceListeners)) {
+      try {
+        l(prev == null ? null : Map.unmodifiable(prev), cur);
+      } catch (e, st) {
+        debugPrint('devices listener failed: $e\n$st');
+      }
+    }
   }
 
   void _teardown() {
@@ -331,6 +411,7 @@ class HubState extends ChangeNotifier {
     _backend?.close();
     _backend = null;
     liveConnected = false;
+    _hadDevices = false;
   }
 
   void _notify() {

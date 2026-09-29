@@ -44,7 +44,7 @@ home_IoT/
 ├── hub/            Python local gateway (FastAPI). See hub/README.md
 │   └── homehub/    capability model, discovery, adapters, server
 ├── app/            Flutter thin client (iOS/Android; web for dev). See app/README.md
-├── docs/           cloud-integrations.md (tokens, OAuth flow, limits), cameras.md (IP camera / CCTV)
+├── docs/           cloud-integrations.md, cameras.md (IP camera / CCTV), home-summary.md, home-automation.md, home_IoT_scenario.md (현재 상태·시나리오, 한국어), home_IoT_revenue_model.xlsx (수익 모델 초안)
 ├── PROGRESS.md     what's built & verified, decisions log
 └── ROADMAP.md      phased plan toward App Store release
 ```

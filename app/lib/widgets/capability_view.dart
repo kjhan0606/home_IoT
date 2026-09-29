@@ -5,6 +5,7 @@ import '../models/capability_spec.dart';
 import '../models/device.dart';
 import 'capabilities/appliances.dart';
 import 'capabilities/camera.dart';
+import 'capabilities/curtain.dart';
 import 'capabilities/generic.dart';
 import 'capabilities/media.dart';
 import 'capabilities/vacuum.dart';
@@ -16,6 +17,7 @@ const capabilityOrder = [
   'ptz',
   'power',
   'lock',
+  'curtain',
   'washer',
   'dryer',
   'refrigeration',
@@ -56,6 +58,8 @@ Widget capabilityWidget(Device device, CapabilityInstance inst, CapabilitySpec? 
   final hint = spec?.uiHint ?? _defaultHints[inst.key] ?? 'generic';
   final hasMap = device.has('vacuumMap');
   switch (hint) {
+    case 'curtain-controls':
+      return CurtainCard(device: device, inst: inst);
     case 'toggle':
       return ToggleCard(device: device, inst: inst);
     case 'slider+mute':
@@ -106,6 +110,7 @@ Widget capabilityWidget(Device device, CapabilityInstance inst, CapabilitySpec? 
 const _defaultHints = {
   'power': 'toggle',
   'lock': 'toggle',
+  'curtain': 'curtain-controls',
   'volume': 'slider+mute',
   'channel': 'stepper',
   'mediaInput': 'picker',

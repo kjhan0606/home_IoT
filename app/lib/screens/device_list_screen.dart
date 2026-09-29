@@ -11,7 +11,9 @@ import '../widgets/command.dart';
 import 'add_camera_screen.dart';
 import 'camera_screen.dart';
 import 'cloud_accounts_screen.dart';
+import 'automation_screen.dart';
 import 'device_detail_screen.dart';
+import 'home_summary_card.dart';
 import 'settings_screen.dart';
 
 /// Devices grouped by kind or room, with online state and a quick power toggle.
@@ -99,6 +101,12 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
               icon: const Icon(Icons.add_a_photo_outlined),
             ),
           IconButton(
+            key: const Key('open-automation'),
+            tooltip: '자동화 규칙',
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AutomationScreen())),
+            icon: const Icon(Icons.auto_mode),
+          ),
+          IconButton(
             tooltip: '설정',
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen())),
             icon: const Icon(Icons.settings_outlined),
@@ -135,6 +143,7 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
                   child: const Text('토큰 설정'),
                 ),
               ),
+            const HomeSummaryCard(),
             if (hasExample) const _Banner(icon: Icons.science_outlined, text: '허브가 데모 모드입니다. 표시된 기기는 예시 데이터입니다.'),
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),

@@ -7,7 +7,7 @@ from homehub import capabilities as cap
 from homehub.adapters.smartthings import SmartThingsAdapter
 from homehub.cloud.errors import CloudAuthError, CloudNotConfiguredError, RemoteControlDisabledError
 
-from .fixtures import (ST_BASE, ST_DRYER, ST_DRYER_STATUS, ST_FRIDGE, ST_FRIDGE_STATUS, ST_TV,
+from .fixtures import (ST_BASE, st_attr, st_component, ST_DRYER, ST_DRYER_STATUS, ST_FRIDGE, ST_FRIDGE_STATUS, ST_TV,
                        ST_TV_STATUS, ST_VACUUM, ST_VACUUM_STATUS, ST_WASHER, st_washer_status)
 
 
@@ -190,3 +190,102 @@ def test_refresh_updates_state(st):
                       json=st_washer_status("true", machine="pause"))
     st.refresh_state(w)
     assert w.capabilities[cap.WASHER].state["machineState"] == "pause"
+
+
+# ------------------------------------------------ curtain / blind + light --
+ST_CURTAIN = {
+    "deviceId": "cur-1", "label": "Bedroom Blind", "manufacturerName": "SmartThings",
+    "components": [st_component("main", ["windowShade", "windowShadeLevel", "switchLevel"], ["Blind"])],
+}
+
+
+def st_curtain_status(shade="open", level=100, supported=("open", "close", "pause")):
+    return {"components": {"main": {
+        "windowShade": {"windowShade": st_attr(shade), "supportedWindowShadeCommands": st_attr(list(supported))},
+        "windowShadeLevel": {"shadeLevel": st_attr(level, "%")},
+    }}}
+
+
+ST_LEVEL_ONLY = {
+    "deviceId": "cur-2", "label": "Level-only shade", "manufacturerName": "Acme",
+    "components": [st_component("main", ["windowShadeLevel"], ["Curtain"])],
+}
+ST_LIGHT = {
+    "deviceId": "light-1", "label": "Bedroom Light", "manufacturerName": "Acme",
+    "components": [st_component("main", ["switch", "switchLevel"], ["Light"])],
+}
+ST_LEGACY_LIGHT = {
+    "deviceId": "light-2", "label": "Legacy Light", "manufacturerName": "Acme",
+    "components": [st_component("main", ["light"], ["Light"])],
+}
+
+
+@responses.activate
+def test_curtain_mapping_and_commands(st):
+    responses.get(f"{ST_BASE}/devices", json={"items": [ST_CURTAIN, ST_LEVEL_ONLY]})
+    responses.get(f"{ST_BASE}/devices/cur-1/status", json=st_curtain_status("partially open", 40))
+    responses.get(f"{ST_BASE}/devices/cur-2/status",
+                  json={"components": {"main": {"windowShadeLevel": {"shadeLevel": st_attr(0)}}}})
+    devs = _devices(st)
+    c = devs["cur-1"]
+    assert c.kind == "curtain"                       # from the Blind category
+    inst = c.capabilities[cap.CURTAIN]
+    assert set(inst.actions) == {"open", "close", "stop", "setPosition"}
+    assert inst.state == {"position": 40, "status": "partial"}
+
+    for action, params, expected in [
+        ("open", {}, ("windowShade", "open", [])),
+        ("close", {}, ("windowShade", "close", [])),
+        ("stop", {}, ("windowShade", "pause", [])),
+        ("setPosition", {"position": 25}, ("windowShadeLevel", "setShadeLevel", [25])),
+    ]:
+        responses.post(f"{ST_BASE}/devices/cur-1/commands", json={"results": [{"status": "ACCEPTED"}]})
+        st.execute(c, cap.CURTAIN, action, params)
+        cmd = _last_command(responses)
+        assert (cmd["capability"], cmd["command"], cmd["arguments"]) == expected
+    for bad in ({"position": 101}, {"position": -1}, {}, {"position": "x"}):
+        with pytest.raises(ValueError):
+            st.execute(c, cap.CURTAIN, "setPosition", bad)
+
+    # a shade with only windowShadeLevel: open/close are emulated with 100 / 0, kind inferred from caps
+    lvl = devs["cur-2"]
+    assert lvl.kind == "curtain" and lvl.capabilities[cap.CURTAIN].state == {"position": 0, "status": "closed"}
+    responses.post(f"{ST_BASE}/devices/cur-2/commands", json={"results": []})
+    st.execute(lvl, cap.CURTAIN, "open", {})
+    cmd = _last_command(responses)
+    assert (cmd["capability"], cmd["command"], cmd["arguments"]) == ("windowShadeLevel", "setShadeLevel", [100])
+    st.execute(lvl, cap.CURTAIN, "close", {})
+    assert _last_command(responses)["arguments"] == [0]
+
+
+@responses.activate
+def test_curtain_respects_supported_commands_and_refresh(st):
+    responses.get(f"{ST_BASE}/devices", json={"items": [ST_CURTAIN]})
+    responses.get(f"{ST_BASE}/devices/cur-1/status",
+                  json=st_curtain_status("closed", 0, supported=("open", "close")))
+    c = _devices(st)["cur-1"]
+    assert "stop" not in c.capabilities[cap.CURTAIN].actions      # this shade cannot pause
+    responses.replace(responses.GET, f"{ST_BASE}/devices/cur-1/status", json=st_curtain_status("opening", 70))
+    st.refresh_state(c)
+    assert c.capabilities[cap.CURTAIN].state == {"position": 70, "status": "opening"}
+
+
+@responses.activate
+def test_light_and_legacy_light_map_to_power(st):
+    responses.get(f"{ST_BASE}/devices", json={"items": [ST_LIGHT, ST_LEGACY_LIGHT]})
+    responses.get(f"{ST_BASE}/devices/light-1/status", json={"components": {"main": {
+        "switch": {"switch": st_attr("on")}, "switchLevel": {"level": st_attr(80)}}}})
+    responses.get(f"{ST_BASE}/devices/light-2/status", json={"components": {"main": {
+        "light": {"switch": st_attr("off")}}}})
+    devs = _devices(st)
+    assert devs["light-1"].kind == "light" and devs["light-1"].capabilities[cap.POWER].state == {"switch": "on"}
+    assert cap.BRIGHTNESS in devs["light-1"].capabilities
+    legacy = devs["light-2"]
+    assert legacy.capabilities[cap.POWER].state == {"switch": "off"}
+    responses.post(f"{ST_BASE}/devices/light-2/commands", json={"results": []})
+    st.execute(legacy, cap.POWER, "turnOn", {})
+    cmd = _last_command(responses)
+    assert (cmd["capability"], cmd["command"]) == ("light", "on")     # legacy capability keeps its own name
+    responses.post(f"{ST_BASE}/devices/light-1/commands", json={"results": []})
+    st.execute(devs["light-1"], cap.POWER, "turnOff", {})
+    assert (_last_command(responses)["capability"], _last_command(responses)["command"]) == ("switch", "off")

@@ -513,3 +513,15 @@ def test_demo_frame_generator_is_endless_and_valid(demo_hub):
     gen = a.mjpeg_frames(dev, fps=100)
     assert next(gen)[:2] == b"\xff\xd8" and next(gen)[:2] == b"\xff\xd8"
     gen.close()
+
+
+def test_demo_cameras_supply_visitor_and_motion_readings_for_home_summary(demo_hub):
+    """The Home Summary camera line reads sensor.readings.visitorCount / motion (docs/home-summary.md)."""
+    devs = {d["id"]: d for d in demo_hub.get("/devices").json()["devices"]}
+    assert "demo:cam-entrance" not in devs                     # duplicate of demo:cam-door, dropped on merge
+    cams = [d for d in devs.values() if d["kind"] == "camera"]
+    assert {c["id"] for c in cams} == {"demo:cam-living", "demo:cam-door"}
+    for c in cams:
+        readings = c["capabilities"]["sensor"]["state"]["readings"]
+        assert isinstance(readings["visitorCount"], int) and readings["motion"] in (0, 1)
+    assert devs["demo:cam-door"]["capabilities"]["sensor"]["state"]["readings"]["visitorCount"] == 2

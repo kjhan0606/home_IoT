@@ -17,7 +17,10 @@ The Flutter app is a thin client over this:
   GET  /cameras/discover            ONVIF WS-Discovery on the LAN
   GET  /cameras                     configured cameras (password never returned)
   POST /cameras                     add {protocol: onvif|rtsp|http, ...};  DELETE /cameras/{id}
-  WS   /ws                    live device/event push
+  GET/POST /automation/rules, PUT/DELETE /automation/rules/{id}, POST .../{id}/enable
+  GET/DELETE /automation/log, POST /automation/events/{name}   rules engine (docs/home-automation.md)
+  GET/PUT/DELETE /automation/away   휴가/장기 외출 모드 (lights + curtains only)
+  WS   /ws                    live device/event push (+ {"type":"automation"} when a rule fires)
 
 The hub advertises itself via Bonjour (_homehub._tcp) so the app auto-discovers
 it on the LAN.
@@ -50,11 +53,18 @@ from .adapters import registry
 from .camera import media as cam_media
 from .camera import onvif as cam_onvif
 from .camera import store as cam_store
+from .automation.service import AutomationService
 from .cloud.errors import CloudAPIError, CloudNotConfiguredError
 from .manager import DeviceManager
 from .netutil import lan_ip
 
 manager = DeviceManager()
+automation = AutomationService(manager)
+
+
+def auto() -> AutomationService:
+    automation.manager = manager          # tests swap the manager; keep the service pointing at it
+    return automation
 
 
 # --- auth ---------------------------------------------------------------------
@@ -122,9 +132,17 @@ async def lifespan(app: FastAPI):
         with contextlib.suppress(Exception):
             await asyncio.to_thread(manager.sync_adapter, "camera")
     zc, info = _register_bonjour()
+    loop = asyncio.get_running_loop()
+    auto().on_fire = lambda entry: asyncio.run_coroutine_threadsafe(
+        ws_hub.broadcast({"type": "automation", "entry": entry}), loop)
+    auto_task = asyncio.create_task(automation.run_forever()) if config.AUTOMATION_ENABLED else None
     try:
         yield
     finally:
+        if auto_task:
+            auto_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError, Exception):
+                await auto_task
         if zc and info:
             with contextlib.suppress(Exception):
                 zc.unregister_service(info)
@@ -173,6 +191,10 @@ class CommandBody(BaseModel):
 
 
 # --- routes -------------------------------------------------------------------
+class EnabledBody(BaseModel):
+    enabled: bool
+
+
 @app.get("/health")
 def health() -> dict[str, Any]:
     return {
@@ -365,6 +387,91 @@ def _map_or_http(device_id: str) -> tuple[bytes | None, dict[str, Any]]:
         raise HTTPException(400, str(e)) from e
     except Exception as e:  # noqa: BLE001
         raise HTTPException(502, str(e)) from e
+
+
+# --- automation rules (declared before the greedy /devices/{id:path} route is irrelevant here) ---
+@app.get("/automation/rules")
+def automation_rules() -> dict[str, Any]:
+    return {"rules": auto().list_rules(), "timezone": config.TIMEZONE or None}
+
+
+@app.post("/automation/rules", dependencies=[Depends(require_token)])
+def automation_create(body: dict[str, Any]) -> dict[str, Any]:
+    try:
+        return auto().upsert(body)
+    except ValueError as e:
+        raise HTTPException(400, str(e)) from None
+
+
+@app.put("/automation/rules/{rule_id}", dependencies=[Depends(require_token)])
+def automation_update(rule_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    try:
+        return auto().upsert(body, rule_id)
+    except KeyError:
+        raise HTTPException(404, "rule not found") from None
+    except ValueError as e:
+        raise HTTPException(400, str(e)) from None
+
+
+@app.post("/automation/rules/{rule_id}/enable", dependencies=[Depends(require_token)])
+def automation_enable(rule_id: str, body: EnabledBody) -> dict[str, Any]:
+    try:
+        return auto().set_enabled(rule_id, body.enabled)
+    except KeyError:
+        raise HTTPException(404, "rule not found") from None
+
+
+@app.delete("/automation/rules/{rule_id}", dependencies=[Depends(require_token)])
+def automation_delete(rule_id: str) -> dict[str, Any]:
+    try:
+        auto().delete(rule_id)
+    except KeyError:
+        raise HTTPException(404, "rule not found") from None
+    return {"ok": True}
+
+
+# --- 휴가/장기 외출 모드 (away / presence simulation; lights + curtains only) ---
+@app.get("/automation/away")
+def automation_away() -> dict[str, Any]:
+    return auto().get_away()
+
+
+@app.put("/automation/away", dependencies=[Depends(require_token)])
+def automation_away_set(body: dict[str, Any]) -> dict[str, Any]:
+    try:
+        return auto().set_away(body)
+    except ValueError as e:
+        raise HTTPException(400, str(e)) from e
+
+
+@app.delete("/automation/away", dependencies=[Depends(require_token)])
+async def automation_away_stop() -> dict[str, Any]:
+    """Ends the mode now (you are back): lights it turned on go off, the plan is removed."""
+    entries = await asyncio.to_thread(auto().stop_away)
+    return {"ok": True, "log": entries}
+
+
+@app.get("/automation/log")
+def automation_log(limit: int = 50) -> dict[str, Any]:
+    return {"log": auto().run_log(max(1, min(limit, 200)))}
+
+
+@app.delete("/automation/log", dependencies=[Depends(require_token)])
+def automation_clear_log() -> dict[str, Any]:
+    auto().clear_log()
+    return {"ok": True}
+
+
+@app.post("/automation/events/{name}", dependencies=[Depends(require_token)])
+async def automation_event(name: str) -> dict[str, Any]:
+    """Named events for rules with an ``event`` trigger: 'leaving', 'arriving', 'wake', 'alarm', ...
+    Meant to be called by phone automations (iOS Shortcuts, Tasker) or the app's buttons."""
+    try:
+        auto().emit_event(name)
+    except ValueError as e:
+        raise HTTPException(400, str(e)) from None
+    entries = await asyncio.to_thread(automation.tick)      # act now, don't wait for the next tick
+    return {"ok": True, "fired": entries}
 
 
 @app.get("/devices/{device_id:path}/map.png")

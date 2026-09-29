@@ -404,4 +404,113 @@ void main() {
     await c.listDevices();
     expect(cloud.calls.map((r) => r.headers['Authorization']), ['Bearer old', 'Bearer new']);
   });
+
+  group('curtain / blind + light (same mapping as the Python hub)', () {
+    void registerHome() {
+      cloud.on('GET', '$stBase/devices', {
+        'items': [stCurtain, stLevelOnly, stLight, stLegacyLight],
+      });
+      cloud.on('GET', '$stBase/devices/cur-1/status', stCurtainStatus(shade: 'partially open', level: 40));
+      cloud.on('GET', '$stBase/devices/cur-2/status', {
+        'components': {
+          'main': {
+            'windowShadeLevel': {'shadeLevel': stAttr(0)},
+          },
+        },
+      });
+      cloud.on('GET', '$stBase/devices/light-1/status', {
+        'components': {
+          'main': {
+            'switch': {'switch': stAttr('on')},
+            'switchLevel': {'level': stAttr(80)},
+          },
+        },
+      });
+      cloud.on('GET', '$stBase/devices/light-2/status', {
+        'components': {
+          'main': {
+            'light': {'switch': stAttr('off')},
+          },
+        },
+      });
+      for (final id in ['cur-1', 'cur-2', 'light-1', 'light-2']) {
+        cloud.on('POST', '$stBase/devices/$id/commands', {'results': []});
+      }
+    }
+
+    test('windowShade maps to the canonical curtain capability (kind from category)', () async {
+      registerHome();
+      final devs = await devices();
+      final c = devs['cur-1']!;
+      expect(c.kind, 'curtain');
+      final inst = c.cap('curtain')!;
+      expect(inst.actions.toSet(), {'open', 'close', 'stop', 'setPosition'});
+      expect(inst.state['position'], 40);
+      expect(inst.state['status'], 'partial');
+      final lvl = devs['cur-2']!;
+      expect(lvl.kind, 'curtain');
+      expect(lvl.cap('curtain')!.state['status'], 'closed');
+    });
+
+    test('commands: open/close/stop/setPosition, validation, level-only emulation', () async {
+      registerHome();
+      final devs = await devices();
+      final c = devs['cur-1']!;
+      for (final (action, params, cap, cmd, args) in [
+        ('open', <String, dynamic>{}, 'windowShade', 'open', <Object>[]),
+        ('close', <String, dynamic>{}, 'windowShade', 'close', <Object>[]),
+        ('stop', <String, dynamic>{}, 'windowShade', 'pause', <Object>[]),
+        ('setPosition', <String, dynamic>{'position': 25}, 'windowShadeLevel', 'setShadeLevel', <Object>[25]),
+      ]) {
+        await st.execute(c, 'curtain', action, params);
+        final sent = lastCommand();
+        expect([sent['capability'], sent['command'], sent['arguments']], [cap, cmd, args], reason: action);
+      }
+      for (final bad in [
+        {'position': 101},
+        {'position': -1},
+        <String, dynamic>{},
+        {'position': 'x'},
+      ]) {
+        await expectLater(st.execute(c, 'curtain', 'setPosition', bad), throwsA(isA<BackendException>()));
+      }
+      final lvl = devs['cur-2']!;
+      await st.execute(lvl, 'curtain', 'open', {});
+      expect(
+        [lastCommand()['capability'], lastCommand()['command'], lastCommand()['arguments']],
+        [
+          'windowShadeLevel',
+          'setShadeLevel',
+          [100],
+        ],
+      );
+      await st.execute(lvl, 'curtain', 'close', {});
+      expect(lastCommand()['arguments'], [0]);
+    });
+
+    test('a shade that cannot pause does not offer stop', () async {
+      cloud.on('GET', '$stBase/devices', {
+        'items': [stCurtain],
+      });
+      cloud.on(
+        'GET',
+        '$stBase/devices/cur-1/status',
+        stCurtainStatus(shade: 'closed', level: 0, supported: ['open', 'close']),
+      );
+      expect((await devices())['cur-1']!.cap('curtain')!.actions, isNot(contains('stop')));
+    });
+
+    test('switch and legacy light both become power; legacy keeps its own capability name on the wire', () async {
+      registerHome();
+      final devs = await devices();
+      expect(devs['light-1']!.kind, 'light');
+      expect(devs['light-1']!.powerOn, isTrue);
+      expect(devs['light-1']!.has('brightness'), isTrue);
+      expect(devs['light-2']!.powerOn, isFalse);
+      await st.execute(devs['light-2']!, 'power', 'turnOn', {});
+      expect([lastCommand()['capability'], lastCommand()['command']], ['light', 'on']);
+      await st.execute(devs['light-1']!, 'power', 'turnOff', {});
+      expect([lastCommand()['capability'], lastCommand()['command']], ['switch', 'off']);
+    });
+  });
 }

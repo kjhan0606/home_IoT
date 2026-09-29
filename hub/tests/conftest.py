@@ -12,6 +12,7 @@ import pytest  # noqa: E402
 
 @pytest.fixture(autouse=True)
 def _clean_env(monkeypatch, tmp_path):
+    monkeypatch.setattr("homehub.config.AUTOMATION_ENABLED", False)   # no background tick loop in tests
     for var in ("SMARTTHINGS_TOKEN", "LG_THINQ_TOKEN", "LG_THINQ_COUNTRY", "LG_THINQ_API_BASE",
                 "LG_THINQ_CLIENT_ID", "SMARTTHINGS_API_BASE", "HOMEHUB_TOKEN"):
         monkeypatch.delenv(var, raising=False)

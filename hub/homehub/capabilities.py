@@ -29,6 +29,9 @@ SENSOR = "sensor"
 WASHER = "washer"
 DRYER = "dryer"
 REFRIGERATION = "refrigeration"
+# Curtain / blind / shade (open, close, stop, position). Lights need no capability of their
+# own: a light is `kind == "light"` + `power` (+ `brightness`/`color`) -- see docs/home-automation.md.
+CURTAIN = "curtain"
 # Robot-vacuum extensions (brand-neutral; coordinates are the device's *map*
 # coordinates — GET /devices/{id}/map returns the pixel<->map transform).
 ROOM_CLEANING = "roomCleaning"
@@ -196,6 +199,20 @@ CANONICAL: dict[str, CapabilitySpec] = {
             "rapidFreezing": "bool|null",
         },
         ui_hint="fridge-panel",
+    ),
+    CURTAIN: CapabilitySpec(
+        key=CURTAIN,
+        actions={
+            "open": {},
+            "close": {},
+            "stop": {},
+            "setPosition": {"position": "int 0..100 (100 = fully open, 0 = fully closed)"},
+        },
+        state={
+            "position": "int 0..100|null (100 = fully open, 0 = fully closed; null = unknown)",
+            "status": "open|closed|opening|closing|partial|unknown",
+        },
+        ui_hint="curtain-controls",
     ),
     ROOM_CLEANING: CapabilitySpec(
         key=ROOM_CLEANING,

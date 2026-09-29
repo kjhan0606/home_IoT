@@ -158,11 +158,16 @@ def _sample_devices() -> list[Device]:
             cap.PTZ: C(cap.PTZ, ["move", "stop", "gotoPreset"], {
                 "panTilt": True, "zoom": True,
                 "presets": [{"token": "1", "name": "소파"}, {"token": "2", "name": "현관 쪽"}]}),
+            # Home Summary camera line reads these (docs/home-summary.md, "Camera contract").
+            cap.SENSOR: C(cap.SENSOR, [], {"readings": {"visitorCount": 0, "motion": 0}}),
         })
     cam_door = Device(
         id="demo:cam-door", name="현관 카메라 (예시)", adapter="demo", kind="camera", vendor="Example",
         reachable=True, controllable=True, meta={"demo": True, "room": "현관", "scene": "door"},
-        capabilities={cap.VIDEO_STREAM: C(cap.VIDEO_STREAM, [], dict(stream))})
+        capabilities={
+            cap.VIDEO_STREAM: C(cap.VIDEO_STREAM, [], dict(stream)),
+            cap.SENSOR: C(cap.SENSOR, [], {"readings": {"visitorCount": 2, "motion": 0}}),
+        })
     return [tv, washer, fridge, vacuum, light, lock, cam_living, cam_door]
 
 
@@ -202,13 +207,49 @@ def render_camera_jpeg(scene: str, pan: float = 0.0, tilt: float = 0.0, tick: in
     return buf.getvalue()
 
 
+def _home_devices() -> list[Device]:
+    """Extra sample devices for the home summary + automation demos (lights, curtains). Kept apart from
+    ``_sample_devices``. The demo cameras (``demo:cam-living`` / ``demo:cam-door``) carry the
+    ``sensor`` readings the Home Summary camera line reads."""
+    living_light = Device(
+        id="demo:light-living", name="거실 조명 (예시)", adapter="demo", kind="light", vendor="Example",
+        reachable=True, controllable=True, meta={"demo": True, "room": "거실"},
+        capabilities={
+            cap.POWER: C(cap.POWER, ["turnOn", "turnOff", "toggle"], {"switch": "on"}),
+            cap.BRIGHTNESS: C(cap.BRIGHTNESS, ["setLevel"], {"level": 100}),
+        })
+    kitchen_light = Device(
+        id="demo:light-kitchen", name="주방 조명 (예시)", adapter="demo", kind="light", vendor="Example",
+        reachable=True, controllable=True, meta={"demo": True, "room": "주방"},
+        capabilities={cap.POWER: C(cap.POWER, ["turnOn", "turnOff", "toggle"], {"switch": "off"})})
+    bath_light = Device(
+        id="demo:light-bath", name="욕실 조명 (예시)", adapter="demo", kind="light", vendor="Example",
+        reachable=True, controllable=True, meta={"demo": True, "room": "욕실"},
+        capabilities={cap.POWER: C(cap.POWER, ["turnOn", "turnOff", "toggle"], {"switch": "off"})})
+    bed_curtain = Device(
+        id="demo:curtain-bedroom", name="침실 커튼 (예시)", adapter="demo", kind="curtain", vendor="Example",
+        reachable=True, controllable=True, meta={"demo": True, "room": "침실"},
+        capabilities={
+            cap.CURTAIN: C(cap.CURTAIN, ["open", "close", "stop", "setPosition"],
+                           {"position": 100, "status": "open"}),
+        })
+    living_curtain = Device(
+        id="demo:curtain-living", name="거실 커튼 (예시)", adapter="demo", kind="curtain", vendor="Example",
+        reachable=True, controllable=True, meta={"demo": True, "room": "거실"},
+        capabilities={
+            cap.CURTAIN: C(cap.CURTAIN, ["open", "close", "stop", "setPosition"],
+                           {"position": 60, "status": "partial"}),
+        })
+    return [living_light, kitchen_light, bath_light, bed_curtain, living_curtain]
+
+
 class DemoAdapter(CloudAdapter):
     id = "demo"
     name = "Demo devices (example data)"
 
     def __init__(self) -> None:
         self._lock = threading.Lock()
-        self._devices: dict[str, Device] = {d.id: d for d in _sample_devices()}
+        self._devices: dict[str, Device] = {d.id: d for d in [*_sample_devices(), *_home_devices()]}
 
     def enabled(self) -> bool:
         return enabled_by_env()
@@ -269,6 +310,15 @@ class DemoAdapter(CloudAdapter):
                 st["kelvin"] = _clamp(_num(p, "kelvin"), 1500, 9000)
         elif capability == cap.LOCK:
             st["locked"] = action == "lock"
+        elif capability == cap.CURTAIN:
+            if action == "setPosition":
+                pos = int(_clamp(_num(p, "position"), 0, 100))
+            elif action == "stop":
+                pos = st.get("position")
+            else:
+                pos = 100 if action == "open" else 0
+            st["position"] = pos
+            st["status"] = "unknown" if pos is None else "closed" if pos <= 0 else "open" if pos >= 100 else "partial"
         elif capability in (cap.WASHER, cap.DRYER):
             if action == "start":
                 self.require_remote_start(st.get("remoteControlEnabled"), dev)

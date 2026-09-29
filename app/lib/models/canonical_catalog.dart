@@ -217,6 +217,22 @@ const Map<String, CapabilitySpec> canonicalCatalog = {
       'rapidFreezing': 'bool|null',
     },
   ),
+  'curtain': CapabilitySpec(
+    key: 'curtain',
+    uiHint: 'curtain-controls',
+    actions: {
+      'open': {},
+      'close': {},
+      'stop': {},
+      'setPosition': {
+          'position': 'int 0..100 (100 = fully open, 0 = fully closed)',
+        },
+    },
+    state: {
+      'position': 'int 0..100|null (100 = fully open, 0 = fully closed; null = unknown)',
+      'status': 'open|closed|opening|closing|partial|unknown',
+    },
+  ),
   'roomCleaning': CapabilitySpec(
     key: 'roomCleaning',
     uiHint: 'room-picker',

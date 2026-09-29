@@ -140,6 +140,16 @@ class CameraConfig {
           actions: ['move', 'stop', if (presets.isNotEmpty) 'gotoPreset'],
           state: {'panTilt': ptzPanTilt, 'zoom': ptzZoom, 'presets': presets},
         ),
+      // Demo cameras report readings like the hub's demo cameras, so the Home Summary camera line
+      // (visitorCount / motion, see docs/home-summary.md) works in direct mode too.
+      if (demoScene != null)
+        'sensor': CapabilityInstance(
+          key: 'sensor',
+          actions: const [],
+          state: {
+            'readings': {'visitorCount': demoScene == 'door' ? 2 : 0, 'motion': 0},
+          },
+        ),
     };
     return Device(
       id: id,
