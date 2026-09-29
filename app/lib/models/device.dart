@@ -53,6 +53,19 @@ class Device {
   final Map<String, CapabilityInstance> capabilities;
   final Map<String, dynamic> meta;
 
+  Device copyWith({bool? reachable, Map<String, CapabilityInstance>? capabilities, Map<String, dynamic>? meta}) =>
+      Device(
+        id: id,
+        name: name,
+        kind: kind,
+        adapter: adapter,
+        ip: ip,
+        reachable: reachable ?? this.reachable,
+        controllable: controllable,
+        capabilities: capabilities ?? this.capabilities,
+        meta: meta ?? this.meta,
+      );
+
   CapabilityInstance? cap(String key) => capabilities[key];
   bool has(String key) => capabilities.containsKey(key);
 
