@@ -355,3 +355,49 @@ class MockCloud {
     return fn(rec);
   });
 }
+
+// ---- curtain / blind + light (mirrors hub/tests/test_smartthings.py) ----
+final stCurtain = <String, dynamic>{
+  'deviceId': 'cur-1',
+  'label': 'Bedroom Blind',
+  'manufacturerName': 'SmartThings',
+  'components': [
+    stComponent('main', ['windowShade', 'windowShadeLevel', 'switchLevel'], ['Blind']),
+  ],
+};
+Map<String, dynamic> stCurtainStatus({
+  String shade = 'open',
+  num level = 100,
+  List<String> supported = const ['open', 'close', 'pause'],
+}) => {
+  'components': {
+    'main': {
+      'windowShade': {'windowShade': stAttr(shade), 'supportedWindowShadeCommands': stAttr(supported)},
+      'windowShadeLevel': {'shadeLevel': stAttr(level, '%')},
+    },
+  },
+};
+final stLevelOnly = <String, dynamic>{
+  'deviceId': 'cur-2',
+  'label': 'Level-only shade',
+  'manufacturerName': 'Acme',
+  'components': [
+    stComponent('main', ['windowShadeLevel'], ['Curtain']),
+  ],
+};
+final stLight = <String, dynamic>{
+  'deviceId': 'light-1',
+  'label': 'Bedroom Light',
+  'manufacturerName': 'Acme',
+  'components': [
+    stComponent('main', ['switch', 'switchLevel'], ['Light']),
+  ],
+};
+final stLegacyLight = <String, dynamic>{
+  'deviceId': 'light-2',
+  'label': 'Legacy Light',
+  'manufacturerName': 'Acme',
+  'components': [
+    stComponent('main', ['light'], ['Light']),
+  ],
+};

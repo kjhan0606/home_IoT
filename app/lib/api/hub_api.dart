@@ -29,6 +29,22 @@ abstract class HubApi implements DeviceBackend {
   Future<Map<String, dynamic>> roborockRequestCode(String email);
   Future<Map<String, dynamic>> roborockLogin(String email, {String? code, String? password});
   Future<Map<String, dynamic>> roborockUnlink();
+
+  // ---- automation rules: the hub is the always-on rules engine (hub mode only) ----
+  Future<List<Map<String, dynamic>>> automationRules();
+  Future<Map<String, dynamic>> saveAutomationRule(Map<String, dynamic> rule, {String? id});
+  Future<void> deleteAutomationRule(String id);
+  Future<Map<String, dynamic>> setAutomationRuleEnabled(String id, bool enabled);
+  Future<List<Map<String, dynamic>>> automationLog({int limit = 50});
+  Future<void> clearAutomationLog();
+
+  /// 휴가/장기 외출 모드 (away plan, lights + curtains only). `plan` is null when none is set.
+  Future<Map<String, dynamic>> awayGet();
+  Future<Map<String, dynamic>> awaySet(Map<String, dynamic> plan);
+  Future<void> awayStop();
+
+  /// Fires a named event ('leaving', 'arriving', 'wake', 'alarm', ...) and returns the log entries it produced.
+  Future<List<Map<String, dynamic>>> emitAutomationEvent(String name);
 }
 
 class HttpHubApi implements HubApi {
@@ -168,6 +184,57 @@ class HttpHubApi implements HubApi {
   @override
   Future<Map<String, dynamic>> roborockUnlink() async =>
       _map(await _send('POST', '/integrations/roborock/unlink', timeout: const Duration(seconds: 60)));
+
+  List<Map<String, dynamic>> _maps(dynamic d, String key) =>
+      ((_map(d)[key] as List?) ?? const []).map((e) => Map<String, dynamic>.from(e as Map)).toList();
+
+  @override
+  Future<List<Map<String, dynamic>>> automationRules() async => _maps(await _send('GET', '/automation/rules'), 'rules');
+
+  @override
+  Future<Map<String, dynamic>> saveAutomationRule(Map<String, dynamic> rule, {String? id}) async => _map(
+    await _send(
+      id == null ? 'POST' : 'PUT',
+      id == null ? '/automation/rules' : '/automation/rules/${Uri.encodeComponent(id)}',
+      body: rule,
+    ),
+  );
+
+  @override
+  Future<void> deleteAutomationRule(String id) async {
+    await _send('DELETE', '/automation/rules/${Uri.encodeComponent(id)}');
+  }
+
+  @override
+  Future<Map<String, dynamic>> setAutomationRuleEnabled(String id, bool enabled) async =>
+      _map(await _send('POST', '/automation/rules/${Uri.encodeComponent(id)}/enable', body: {'enabled': enabled}));
+
+  @override
+  Future<List<Map<String, dynamic>>> automationLog({int limit = 50}) async =>
+      _maps(await _send('GET', '/automation/log', query: {'limit': '$limit'}), 'log');
+
+  @override
+  Future<void> clearAutomationLog() async {
+    await _send('DELETE', '/automation/log');
+  }
+
+  @override
+  Future<Map<String, dynamic>> awayGet() async => _map(await _send('GET', '/automation/away'));
+
+  @override
+  Future<Map<String, dynamic>> awaySet(Map<String, dynamic> plan) async =>
+      _map(await _send('PUT', '/automation/away', body: plan));
+
+  @override
+  Future<void> awayStop() async {
+    await _send('DELETE', '/automation/away', timeout: const Duration(seconds: 60));
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> emitAutomationEvent(String name) async => _maps(
+    await _send('POST', '/automation/events/${Uri.encodeComponent(name)}', timeout: const Duration(seconds: 60)),
+    'fired',
+  );
 
   @override
   Stream<HubEvent> events() {

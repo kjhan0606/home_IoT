@@ -104,6 +104,15 @@ cd hub && source .venv/bin/activate && python ../app/tool/gen_canonical_catalog.
 
 A test compares it against the hub fixture (`app/test/fixtures/capabilities.json`).
 
+## Home summary and automation across backends
+
+`HubState` feeds every backend's devices into the same brand-neutral engines: `buildHomeSummary`
+(docs/home-summary.md) and the rules engine (docs/home-automation.md). Hub mode: rules and the 휴가 모드
+plan live on the hub (the app edits them through `HubApi`); direct-cloud mode: they live on the phone
+(`RuleStore`) and run only while the app is open. A future relay backend would run the same engine
+server side. The SmartThings client also exposes the Rules API (`createRule`/`deleteRule`/`listRules`)
+for the optional "Samsung 클라우드에 등록" export.
+
 ## Unverified
 
 Everything above is covered by unit tests with mocked HTTP only. No real SmartThings/LG token, device

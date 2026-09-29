@@ -44,6 +44,9 @@ class DirectCloudBackend implements DeviceBackend {
   @override
   Map<String, String> get warnings => Map.unmodifiable(_warnings);
 
+  /// The SmartThings provider, if a SmartThings token is configured (used for the Rules API).
+  CloudProvider? provider(String id) => _providers[id];
+
   /// Ids of the configured providers.
   Iterable<String> get providerIds => _providers.keys;
 

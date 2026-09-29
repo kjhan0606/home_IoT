@@ -20,7 +20,7 @@ import 'cloud_provider.dart';
 /// a client secret and therefore a small relay -- see docs/app-backends.md.
 ///
 /// Translation SmartThings -> canonical capabilities (per component):
-///   switch -> power; audioVolume+audioMute -> volume; tvChannel -> channel;
+///   switch | light -> power; windowShade(+windowShadeLevel) -> curtain; audioVolume+audioMute -> volume; tvChannel -> channel;
 ///   (samsungvd.)mediaInputSource -> mediaInput; mediaPlayback(+mediaTrackControl)
 ///   -> mediaPlayback; switchLevel -> brightness; lock -> lock;
 ///   washer/dryerOperatingState(+remoteControlStatus, samsungce.*) -> washer/dryer;
@@ -60,6 +60,8 @@ class SmartThingsClient implements CloudProvider {
     'kimchirefrigerator': 'refrigerator',
     'robotcleaner': 'vacuum',
     'light': 'light',
+    'curtain': 'curtain',
+    'blind': 'curtain',
     'switch': 'switch',
     'smartplug': 'switch',
     'smartlock': 'lock',
@@ -84,6 +86,25 @@ class SmartThingsClient implements CloudProvider {
     'reserve': 'idle',
     'powerOff': 'idle',
   };
+
+  /// windowShade attribute value -> canonical curtain.status
+  static const _shadeStatus = {
+    'open': 'open',
+    'closed': 'closed',
+    'opening': 'opening',
+    'closing': 'closing',
+    'partially open': 'partial',
+    'unknown': 'unknown',
+  };
+
+  static String _shadeStatusFromLevel(Object? level) {
+    if (level is! num) return 'unknown';
+    return level <= 0
+        ? 'closed'
+        : level >= 100
+        ? 'open'
+        : 'partial';
+  }
 
   /// Enum from the robotCleanerCleaningMode capability definition.
   static const cleaningModes = ['auto', 'part', 'repeat', 'manual', 'stop', 'map'];
@@ -168,6 +189,39 @@ class SmartThingsClient implements CloudProvider {
       'response': resp['results'] ?? resp,
     };
   }
+
+  // ------------------------------------------------- Rules API (Samsung cloud) --
+  // Rules registered here run in SmartThings' own cloud (or locally on a Samsung hub) even when
+  // this app is closed and without any server of ours. PAT scopes needed: r:rules:*, w:rules:*,
+  // x:rules:* (plus devices/locations read). Unverified against a real account.
+
+  /// The account's locations: `[{locationId, name, ...}]`.
+  Future<List<Map<String, dynamic>>> locations() async =>
+      asList((await _request('GET', '/locations'))['items']).map(asMap).toList();
+
+  /// IANA time zone id of a location (rule times are interpreted in it), or null.
+  Future<String?> locationTimeZone(String locationId) async {
+    try {
+      return asMap(await _request('GET', '/locations/$locationId'))['timeZoneId'] as String?;
+    } on BackendException {
+      return null;
+    }
+  }
+
+  /// Registers [rule] (a Rules API JSON document). Returns the created rule's id.
+  Future<String> createRule(String locationId, Map<String, dynamic> rule) async {
+    final res = await _request('POST', '/rules?locationId=$locationId', body: rule);
+    final id = res['id'];
+    if (id is! String || id.isEmpty) throw const BackendException(502, 'SmartThings가 규칙 id를 돌려주지 않았습니다.');
+    return id;
+  }
+
+  Future<void> deleteRule(String locationId, String ruleId) async {
+    await _request('DELETE', '/rules/$ruleId?locationId=$locationId');
+  }
+
+  Future<List<Map<String, dynamic>>> listRules(String locationId) async =>
+      asList((await _request('GET', '/rules?locationId=$locationId'))['items']).map(asMap).toList();
 
   // ------------------------------------------------------------ discovery --
   @override
@@ -281,7 +335,8 @@ class SmartThingsClient implements CloudProvider {
     }
     if (all.contains('robotCleanerMovement')) return 'vacuum';
     if (all.contains('tvChannel')) return 'tv';
-    if (all.contains('switch')) return 'switch';
+    if (all.contains('windowShade') || all.contains('windowShadeLevel')) return 'curtain';
+    if (all.contains('switch') || all.contains('light')) return 'switch';
     return 'unknown';
   }
 
@@ -321,6 +376,32 @@ class SmartThingsClient implements CloudProvider {
 
     if (main.contains('switch')) {
       add('power', ['turnOn', 'turnOff', 'toggle'], {'switch': val('main', 'switch', 'switch', 'unknown')});
+    } else if (main.contains('light')) {
+      // Legacy ST "light" capability: same on/off commands and `switch` attribute.
+      add('power', ['turnOn', 'turnOff', 'toggle'], {'switch': val('main', 'light', 'switch', 'unknown')});
+      comps['power.st'] = 'light';
+    }
+
+    // ---- curtain / blind -------------------------------------------------
+    if (main.contains('windowShade') || main.contains('windowShadeLevel')) {
+      final acts = <String>[];
+      if (main.contains('windowShade')) {
+        final sup = val('main', 'windowShade', 'supportedWindowShadeCommands');
+        final supported = (sup is List && sup.isNotEmpty ? sup : ['open', 'close', 'pause']).map((e) => '$e').toSet();
+        for (final (a, c) in const [('open', 'open'), ('close', 'close'), ('stop', 'pause')]) {
+          if (supported.contains(c)) acts.add(a);
+        }
+      }
+      if (main.contains('windowShadeLevel')) {
+        acts.add('setPosition');
+        if (!acts.contains('open') && !acts.contains('close')) acts.addAll(['open', 'close']); // emulate with 100 / 0
+      }
+      final level = main.contains('windowShadeLevel') ? val('main', 'windowShadeLevel', 'shadeLevel') : null;
+      final stateStr = main.contains('windowShade') ? val('main', 'windowShade', 'windowShade') : null;
+      add('curtain', acts, {
+        'position': level is num ? level.toInt() : null,
+        'status': _shadeStatus[stateStr] ?? _shadeStatusFromLevel(level),
+      });
     }
 
     if (main.contains('audioVolume') || main.contains('audioMute')) {
@@ -493,7 +574,18 @@ class SmartThingsClient implements CloudProvider {
           final cur = device.capabilities['power']?.state['switch'];
           a = cur == 'on' ? 'turnOff' : 'turnOn';
         }
-        return _send(device, comp, 'switch', a == 'turnOn' ? 'on' : 'off');
+        return _send(device, comp, (compMap['power.st'] as String?) ?? 'switch', a == 'turnOn' ? 'on' : 'off');
+
+      case 'curtain':
+        final hasShade = stCaps.contains('windowShade');
+        final hasLevel = stCaps.contains('windowShadeLevel');
+        if (action == 'setPosition') {
+          return _send(device, comp, 'windowShadeLevel', 'setShadeLevel', [intParam(params, 'position', 0, 100)]);
+        }
+        if ((action == 'open' || action == 'close') && !hasShade && hasLevel) {
+          return _send(device, comp, 'windowShadeLevel', 'setShadeLevel', [action == 'open' ? 100 : 0]);
+        }
+        return _send(device, comp, 'windowShade', const {'open': 'open', 'close': 'close', 'stop': 'pause'}[action]!);
 
       case 'volume':
         if (action == 'setLevel') {

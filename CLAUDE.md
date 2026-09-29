@@ -64,9 +64,14 @@ hub/homehub/
                        smartthings, lg_thinq, roborock   server.py  FastAPI + WS + Bonjour
   cloud/               auth (TokenProvider), errors, roborock_backend   linking.py  LAN<->cloud dedup
   secret_store.py      0600 per-integration secrets   vacuum_map.py  map metadata/transform
+hub/homehub/automation/  rules engine (rules.py, engine.py, service.py) + 휴가 모드 (away.py)
 hub/tests/             pytest (mocked vendor HTTP): `pytest` from hub/
 docs/cloud-integrations.md  tokens, OAuth flow, limits, assumptions
+docs/home-summary.md   집 전체 요약 (summary engine, local notifications, camera contract)
+docs/home-automation.md  rules, curtain/light capabilities, 휴가 모드, SmartThings Rules export, tier suggestion
 app/                   Flutter app: lib/{backend,api,models,state,screens,widgets}, test/
+                       (summary/ = home summary engine; automation/ = Dart rules engine + away mode;
+                        tests share app/test/fixtures/{automation,away}_scenarios.json with hub pytest)
                        (backend/direct = Dart ports of the SmartThings/LG adapters; see docs/app-backends.md)
                        (fake API + fixtures captured from the hub), ci/ (iOS template)
 hub/homehub/adapters/demo.py   dev-only sample devices (HOMEHUB_FAKE_DEVICES=1)
@@ -74,6 +79,13 @@ PROGRESS.md ROADMAP.md README.md
 ```
 
 ## Constraints & gotchas
+
+- **Automation engines exist twice** (Python hub, Dart app) and must stay identical: change
+  `engine.py`/`away.py` and the Dart port together, regenerate the fixtures
+  (`app/tool/gen_automation_scenarios.py`, `app/tool/gen_away_scenarios.py`) and run both test suites.
+  The away mode may only ever control lights + curtains (allow-list in `AutomationService._away_step`
+  and `AutomationController._awayStep`) – never widen it.
+- Direct-mode automation and local notifications only work while the app runs; say so, never promise more.
 
 - **Different network now.** Device IPs/MACs in PROGRESS.md (e.g. `192.168.45.x`,
   the TV's MAC) are from the *original* home LAN. On this machine, **re-scan** —

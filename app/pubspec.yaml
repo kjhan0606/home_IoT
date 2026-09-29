@@ -40,6 +40,7 @@ dependencies:
   shared_preferences: ^2.5.5
   bonsoir: ^7.1.5
   flutter_secure_storage: ^11.2.0
+  flutter_local_notifications: ^22.3.1
 
 dev_dependencies:
   flutter_test:

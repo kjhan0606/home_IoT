@@ -1,0 +1,5538 @@
+{
+ "scenarios": [
+  {
+   "name": "random: before the first evening nothing is touched",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "random",
+    "seed": 42,
+    "windowStart": "18:30",
+    "windowEnd": "23:00",
+    "lights": {
+     "rooms": [
+      "거실",
+      "주방",
+      "욕실",
+      "침실",
+      "현관"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": false,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "devices": [
+    {
+     "id": "l-living",
+     "name": "l-living",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-kitchen",
+     "name": "l-kitchen",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "주방"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bath",
+     "name": "l-bath",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "욕실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bed",
+     "name": "l-bed",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-door",
+     "name": "l-door",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "현관"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-off",
+     "name": "l-off",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "heater",
+     "name": "heater",
+     "kind": "heater",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-bed",
+     "name": "c-bed",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-living",
+     "name": "c-living",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   ],
+   "now": "2026-10-01T12:00:00",
+   "status": {
+    "state": "active",
+    "day": 1,
+    "days": 5
+   },
+   "wants": []
+  },
+  {
+   "name": "random: first evening, before the window opens nothing is touched",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "random",
+    "seed": 42,
+    "windowStart": "18:30",
+    "windowEnd": "23:00",
+    "lights": {
+     "rooms": [
+      "거실",
+      "주방",
+      "욕실",
+      "침실",
+      "현관"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": false,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "devices": [
+    {
+     "id": "l-living",
+     "name": "l-living",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-kitchen",
+     "name": "l-kitchen",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "주방"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bath",
+     "name": "l-bath",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "욕실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bed",
+     "name": "l-bed",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-door",
+     "name": "l-door",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "현관"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-off",
+     "name": "l-off",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "heater",
+     "name": "heater",
+     "kind": "heater",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-bed",
+     "name": "c-bed",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-living",
+     "name": "c-living",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   ],
+   "now": "2026-10-01T18:00:00",
+   "status": {
+    "state": "active",
+    "day": 1,
+    "days": 5
+   },
+   "wants": []
+  },
+  {
+   "name": "random: first evening, inside the window",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "random",
+    "seed": 42,
+    "windowStart": "18:30",
+    "windowEnd": "23:00",
+    "lights": {
+     "rooms": [
+      "거실",
+      "주방",
+      "욕실",
+      "침실",
+      "현관"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": false,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "devices": [
+    {
+     "id": "l-living",
+     "name": "l-living",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-kitchen",
+     "name": "l-kitchen",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "주방"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bath",
+     "name": "l-bath",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "욕실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bed",
+     "name": "l-bed",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-door",
+     "name": "l-door",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "현관"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-off",
+     "name": "l-off",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "heater",
+     "name": "heater",
+     "kind": "heater",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-bed",
+     "name": "c-bed",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-living",
+     "name": "c-living",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   ],
+   "now": "2026-10-01T20:00:00",
+   "status": {
+    "state": "active",
+    "day": 1,
+    "days": 5
+   },
+   "wants": [
+    {
+     "deviceId": "l-bath",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-bed",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-door",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-kitchen",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-living",
+     "action": "turnOn"
+    }
+   ]
+  },
+  {
+   "name": "random: day 2, 21:00",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "random",
+    "seed": 42,
+    "windowStart": "18:30",
+    "windowEnd": "23:00",
+    "lights": {
+     "rooms": [
+      "거실",
+      "주방",
+      "욕실",
+      "침실",
+      "현관"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": false,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "devices": [
+    {
+     "id": "l-living",
+     "name": "l-living",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-kitchen",
+     "name": "l-kitchen",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "주방"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bath",
+     "name": "l-bath",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "욕실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bed",
+     "name": "l-bed",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-door",
+     "name": "l-door",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "현관"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-off",
+     "name": "l-off",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "heater",
+     "name": "heater",
+     "kind": "heater",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-bed",
+     "name": "c-bed",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-living",
+     "name": "c-living",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   ],
+   "now": "2026-10-02T21:00:00",
+   "status": {
+    "state": "active",
+    "day": 2,
+    "days": 5
+   },
+   "wants": [
+    {
+     "deviceId": "l-bath",
+     "action": "turnOn"
+    },
+    {
+     "deviceId": "l-bed",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-door",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-kitchen",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-living",
+     "action": "turnOn"
+    }
+   ]
+  },
+  {
+   "name": "random: day 3, 22:30",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "random",
+    "seed": 42,
+    "windowStart": "18:30",
+    "windowEnd": "23:00",
+    "lights": {
+     "rooms": [
+      "거실",
+      "주방",
+      "욕실",
+      "침실",
+      "현관"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": false,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "devices": [
+    {
+     "id": "l-living",
+     "name": "l-living",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-kitchen",
+     "name": "l-kitchen",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "주방"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bath",
+     "name": "l-bath",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "욕실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bed",
+     "name": "l-bed",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-door",
+     "name": "l-door",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "현관"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-off",
+     "name": "l-off",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "heater",
+     "name": "heater",
+     "kind": "heater",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-bed",
+     "name": "c-bed",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-living",
+     "name": "c-living",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   ],
+   "now": "2026-10-03T22:30:00",
+   "status": {
+    "state": "active",
+    "day": 3,
+    "days": 5
+   },
+   "wants": [
+    {
+     "deviceId": "l-bath",
+     "action": "turnOn"
+    },
+    {
+     "deviceId": "l-bed",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-door",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-kitchen",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-living",
+     "action": "turnOff"
+    }
+   ]
+  },
+  {
+   "name": "random: day 3 after the window everything is off",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "random",
+    "seed": 42,
+    "windowStart": "18:30",
+    "windowEnd": "23:00",
+    "lights": {
+     "rooms": [
+      "거실",
+      "주방",
+      "욕실",
+      "침실",
+      "현관"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": false,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "devices": [
+    {
+     "id": "l-living",
+     "name": "l-living",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-kitchen",
+     "name": "l-kitchen",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "주방"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bath",
+     "name": "l-bath",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "욕실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bed",
+     "name": "l-bed",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-door",
+     "name": "l-door",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "현관"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-off",
+     "name": "l-off",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "heater",
+     "name": "heater",
+     "kind": "heater",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-bed",
+     "name": "c-bed",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-living",
+     "name": "c-living",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   ],
+   "now": "2026-10-03T23:30:00",
+   "status": {
+    "state": "active",
+    "day": 3,
+    "days": 5
+   },
+   "wants": [
+    {
+     "deviceId": "l-bath",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-bed",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-door",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-kitchen",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-living",
+     "action": "turnOff"
+    }
+   ]
+  },
+  {
+   "name": "random: next morning lights stay off",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "random",
+    "seed": 42,
+    "windowStart": "18:30",
+    "windowEnd": "23:00",
+    "lights": {
+     "rooms": [
+      "거실",
+      "주방",
+      "욕실",
+      "침실",
+      "현관"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": false,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "devices": [
+    {
+     "id": "l-living",
+     "name": "l-living",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-kitchen",
+     "name": "l-kitchen",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "주방"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bath",
+     "name": "l-bath",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "욕실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bed",
+     "name": "l-bed",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-door",
+     "name": "l-door",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "현관"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-off",
+     "name": "l-off",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "heater",
+     "name": "heater",
+     "kind": "heater",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-bed",
+     "name": "c-bed",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-living",
+     "name": "c-living",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   ],
+   "now": "2026-10-04T09:00:00",
+   "status": {
+    "state": "active",
+    "day": 4,
+    "days": 5
+   },
+   "wants": [
+    {
+     "deviceId": "l-bath",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-bed",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-door",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-kitchen",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-living",
+     "action": "turnOff"
+    }
+   ]
+  },
+  {
+   "name": "random: last evening 20:15",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "random",
+    "seed": 42,
+    "windowStart": "18:30",
+    "windowEnd": "23:00",
+    "lights": {
+     "rooms": [
+      "거실",
+      "주방",
+      "욕실",
+      "침실",
+      "현관"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": false,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "devices": [
+    {
+     "id": "l-living",
+     "name": "l-living",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-kitchen",
+     "name": "l-kitchen",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "주방"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bath",
+     "name": "l-bath",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "욕실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bed",
+     "name": "l-bed",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-door",
+     "name": "l-door",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "현관"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-off",
+     "name": "l-off",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "heater",
+     "name": "heater",
+     "kind": "heater",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-bed",
+     "name": "c-bed",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-living",
+     "name": "c-living",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   ],
+   "now": "2026-10-05T20:15:00",
+   "status": {
+    "state": "active",
+    "day": 5,
+    "days": 5
+   },
+   "wants": [
+    {
+     "deviceId": "l-bath",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-bed",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-door",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-kitchen",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-living",
+     "action": "turnOn"
+    }
+   ]
+  },
+  {
+   "name": "random: after the last window the plan is finished (nothing to do)",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "random",
+    "seed": 42,
+    "windowStart": "18:30",
+    "windowEnd": "23:00",
+    "lights": {
+     "rooms": [
+      "거실",
+      "주방",
+      "욕실",
+      "침실",
+      "현관"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": false,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "devices": [
+    {
+     "id": "l-living",
+     "name": "l-living",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-kitchen",
+     "name": "l-kitchen",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "주방"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bath",
+     "name": "l-bath",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "욕실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bed",
+     "name": "l-bed",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-door",
+     "name": "l-door",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "현관"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-off",
+     "name": "l-off",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "heater",
+     "name": "heater",
+     "kind": "heater",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-bed",
+     "name": "c-bed",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-living",
+     "name": "c-living",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   ],
+   "now": "2026-10-05T23:05:00",
+   "status": {
+    "state": "finished",
+    "day": 5,
+    "days": 5
+   },
+   "wants": []
+  },
+  {
+   "name": "random + curtains: morning opens",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "random",
+    "seed": 42,
+    "windowStart": "18:30",
+    "windowEnd": "23:00",
+    "lights": {
+     "rooms": [
+      "거실",
+      "주방",
+      "욕실",
+      "침실",
+      "현관"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": true,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "devices": [
+    {
+     "id": "l-living",
+     "name": "l-living",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-kitchen",
+     "name": "l-kitchen",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "주방"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bath",
+     "name": "l-bath",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "욕실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bed",
+     "name": "l-bed",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-door",
+     "name": "l-door",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "현관"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-off",
+     "name": "l-off",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "heater",
+     "name": "heater",
+     "kind": "heater",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-bed",
+     "name": "c-bed",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-living",
+     "name": "c-living",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   ],
+   "now": "2026-10-02T09:00:00",
+   "status": {
+    "state": "active",
+    "day": 2,
+    "days": 5
+   },
+   "wants": [
+    {
+     "deviceId": "l-bath",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-bed",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-door",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-kitchen",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-living",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "c-bed",
+     "action": "open"
+    },
+    {
+     "deviceId": "c-living",
+     "action": "open"
+    }
+   ]
+  },
+  {
+   "name": "random + curtains: dusk closes",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "random",
+    "seed": 42,
+    "windowStart": "18:30",
+    "windowEnd": "23:00",
+    "lights": {
+     "rooms": [
+      "거실",
+      "주방",
+      "욕실",
+      "침실",
+      "현관"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": true,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "devices": [
+    {
+     "id": "l-living",
+     "name": "l-living",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-kitchen",
+     "name": "l-kitchen",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "주방"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bath",
+     "name": "l-bath",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "욕실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bed",
+     "name": "l-bed",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-door",
+     "name": "l-door",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "현관"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-off",
+     "name": "l-off",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "heater",
+     "name": "heater",
+     "kind": "heater",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-bed",
+     "name": "c-bed",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-living",
+     "name": "c-living",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   ],
+   "now": "2026-10-02T19:30:00",
+   "status": {
+    "state": "active",
+    "day": 2,
+    "days": 5
+   },
+   "wants": [
+    {
+     "deviceId": "l-bath",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-bed",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-door",
+     "action": "turnOn"
+    },
+    {
+     "deviceId": "l-kitchen",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-living",
+     "action": "turnOn"
+    },
+    {
+     "deviceId": "c-bed",
+     "action": "close"
+    },
+    {
+     "deviceId": "c-living",
+     "action": "close"
+    }
+   ]
+  },
+  {
+   "name": "random + curtains: midday still open",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "random",
+    "seed": 42,
+    "windowStart": "18:30",
+    "windowEnd": "23:00",
+    "lights": {
+     "rooms": [
+      "거실",
+      "주방",
+      "욕실",
+      "침실",
+      "현관"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": true,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "devices": [
+    {
+     "id": "l-living",
+     "name": "l-living",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-kitchen",
+     "name": "l-kitchen",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "주방"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bath",
+     "name": "l-bath",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "욕실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bed",
+     "name": "l-bed",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-door",
+     "name": "l-door",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "현관"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-off",
+     "name": "l-off",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "heater",
+     "name": "heater",
+     "kind": "heater",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-bed",
+     "name": "c-bed",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-living",
+     "name": "c-living",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   ],
+   "now": "2026-10-03T13:00:00",
+   "status": {
+    "state": "active",
+    "day": 3,
+    "days": 5
+   },
+   "wants": [
+    {
+     "deviceId": "l-bath",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-bed",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-door",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-kitchen",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-living",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "c-bed",
+     "action": "open"
+    },
+    {
+     "deviceId": "c-living",
+     "action": "open"
+    }
+   ]
+  },
+  {
+   "name": "random + curtains: night closed",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "random",
+    "seed": 42,
+    "windowStart": "18:30",
+    "windowEnd": "23:00",
+    "lights": {
+     "rooms": [
+      "거실",
+      "주방",
+      "욕실",
+      "침실",
+      "현관"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": true,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "devices": [
+    {
+     "id": "l-living",
+     "name": "l-living",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-kitchen",
+     "name": "l-kitchen",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "주방"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bath",
+     "name": "l-bath",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "욕실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bed",
+     "name": "l-bed",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-door",
+     "name": "l-door",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "현관"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-off",
+     "name": "l-off",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "heater",
+     "name": "heater",
+     "kind": "heater",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-bed",
+     "name": "c-bed",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-living",
+     "name": "c-living",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   ],
+   "now": "2026-10-03T23:50:00",
+   "status": {
+    "state": "active",
+    "day": 3,
+    "days": 5
+   },
+   "wants": [
+    {
+     "deviceId": "l-bath",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-bed",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-door",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-kitchen",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "l-living",
+     "action": "turnOff"
+    },
+    {
+     "deviceId": "c-bed",
+     "action": "close"
+    },
+    {
+     "deviceId": "c-living",
+     "action": "close"
+    }
+   ]
+  },
+  {
+   "name": "fixed: lights stay on for the whole window",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "fixed",
+    "seed": 42,
+    "windowStart": "17:45",
+    "windowEnd": "23:00",
+    "lights": {
+     "rooms": [],
+     "devices": [
+      "l-living",
+      "heater",
+      "c-bed"
+     ]
+    },
+    "curtains": {
+     "enabled": false,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "devices": [
+    {
+     "id": "l-living",
+     "name": "l-living",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-kitchen",
+     "name": "l-kitchen",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "주방"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bath",
+     "name": "l-bath",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "욕실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bed",
+     "name": "l-bed",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-door",
+     "name": "l-door",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "현관"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-off",
+     "name": "l-off",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "heater",
+     "name": "heater",
+     "kind": "heater",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-bed",
+     "name": "c-bed",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-living",
+     "name": "c-living",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   ],
+   "now": "2026-10-02T20:00:00",
+   "status": {
+    "state": "active",
+    "day": 2,
+    "days": 5
+   },
+   "wants": [
+    {
+     "deviceId": "l-living",
+     "action": "turnOn"
+    }
+   ]
+  },
+  {
+   "name": "fixed: only lights and curtains are ever chosen (a heater listed by id is ignored)",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "fixed",
+    "seed": 42,
+    "windowStart": "17:45",
+    "windowEnd": "23:00",
+    "lights": {
+     "rooms": [],
+     "devices": [
+      "l-living",
+      "heater",
+      "c-bed"
+     ]
+    },
+    "curtains": {
+     "enabled": false,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "devices": [
+    {
+     "id": "l-living",
+     "name": "l-living",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-kitchen",
+     "name": "l-kitchen",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "주방"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bath",
+     "name": "l-bath",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "욕실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bed",
+     "name": "l-bed",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-door",
+     "name": "l-door",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "현관"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-off",
+     "name": "l-off",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "heater",
+     "name": "heater",
+     "kind": "heater",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-bed",
+     "name": "c-bed",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-living",
+     "name": "c-living",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   ],
+   "now": "2026-10-02T23:00:00",
+   "status": {
+    "state": "active",
+    "day": 2,
+    "days": 5
+   },
+   "wants": [
+    {
+     "deviceId": "l-living",
+     "action": "turnOff"
+    }
+   ]
+  },
+  {
+   "name": "fixed: window that crosses midnight, 23:30 on day 2 (on)",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "fixed",
+    "seed": 42,
+    "windowStart": "22:00",
+    "windowEnd": "02:00",
+    "lights": {
+     "rooms": [
+      "거실"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": false,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "devices": [
+    {
+     "id": "l-living",
+     "name": "l-living",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-kitchen",
+     "name": "l-kitchen",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "주방"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bath",
+     "name": "l-bath",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "욕실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bed",
+     "name": "l-bed",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-door",
+     "name": "l-door",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "현관"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-off",
+     "name": "l-off",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "heater",
+     "name": "heater",
+     "kind": "heater",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-bed",
+     "name": "c-bed",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-living",
+     "name": "c-living",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   ],
+   "now": "2026-10-02T23:30:00",
+   "status": {
+    "state": "active",
+    "day": 2,
+    "days": 5
+   },
+   "wants": [
+    {
+     "deviceId": "l-living",
+     "action": "turnOn"
+    }
+   ]
+  },
+  {
+   "name": "fixed: window that crosses midnight, 01:30 the next day (still on)",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "fixed",
+    "seed": 42,
+    "windowStart": "22:00",
+    "windowEnd": "02:00",
+    "lights": {
+     "rooms": [
+      "거실"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": false,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "devices": [
+    {
+     "id": "l-living",
+     "name": "l-living",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-kitchen",
+     "name": "l-kitchen",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "주방"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bath",
+     "name": "l-bath",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "욕실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bed",
+     "name": "l-bed",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-door",
+     "name": "l-door",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "현관"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-off",
+     "name": "l-off",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "heater",
+     "name": "heater",
+     "kind": "heater",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-bed",
+     "name": "c-bed",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-living",
+     "name": "c-living",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   ],
+   "now": "2026-10-03T01:30:00",
+   "status": {
+    "state": "active",
+    "day": 3,
+    "days": 5
+   },
+   "wants": [
+    {
+     "deviceId": "l-living",
+     "action": "turnOn"
+    }
+   ]
+  },
+  {
+   "name": "fixed: window that crosses midnight, 02:00 (off)",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "fixed",
+    "seed": 42,
+    "windowStart": "22:00",
+    "windowEnd": "02:00",
+    "lights": {
+     "rooms": [
+      "거실"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": false,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "devices": [
+    {
+     "id": "l-living",
+     "name": "l-living",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-kitchen",
+     "name": "l-kitchen",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "주방"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bath",
+     "name": "l-bath",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "욕실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bed",
+     "name": "l-bed",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-door",
+     "name": "l-door",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "현관"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-off",
+     "name": "l-off",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "heater",
+     "name": "heater",
+     "kind": "heater",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-bed",
+     "name": "c-bed",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-living",
+     "name": "c-living",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   ],
+   "now": "2026-10-03T02:00:00",
+   "status": {
+    "state": "active",
+    "day": 3,
+    "days": 5
+   },
+   "wants": [
+    {
+     "deviceId": "l-living",
+     "action": "turnOff"
+    }
+   ]
+  },
+  {
+   "name": "fixed: the last night's window ends after midnight, still active at 01:00 on the day after endDate",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "fixed",
+    "seed": 42,
+    "windowStart": "22:00",
+    "windowEnd": "02:00",
+    "lights": {
+     "rooms": [
+      "거실"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": false,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "devices": [
+    {
+     "id": "l-living",
+     "name": "l-living",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-kitchen",
+     "name": "l-kitchen",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "주방"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bath",
+     "name": "l-bath",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "욕실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bed",
+     "name": "l-bed",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-door",
+     "name": "l-door",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "현관"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-off",
+     "name": "l-off",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "heater",
+     "name": "heater",
+     "kind": "heater",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-bed",
+     "name": "c-bed",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-living",
+     "name": "c-living",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   ],
+   "now": "2026-10-06T01:00:00",
+   "status": {
+    "state": "active",
+    "day": 5,
+    "days": 5
+   },
+   "wants": [
+    {
+     "deviceId": "l-living",
+     "action": "turnOn"
+    }
+   ]
+  },
+  {
+   "name": "disabled plan does nothing",
+   "plan": {
+    "enabled": false,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "random",
+    "seed": 42,
+    "windowStart": "18:30",
+    "windowEnd": "23:00",
+    "lights": {
+     "rooms": [
+      "거실",
+      "주방",
+      "욕실",
+      "침실",
+      "현관"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": false,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "devices": [
+    {
+     "id": "l-living",
+     "name": "l-living",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-kitchen",
+     "name": "l-kitchen",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "주방"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bath",
+     "name": "l-bath",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "욕실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-bed",
+     "name": "l-bed",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-door",
+     "name": "l-door",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "현관"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "l-off",
+     "name": "l-off",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "heater",
+     "name": "heater",
+     "kind": "heater",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-bed",
+     "name": "c-bed",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    {
+     "id": "c-living",
+     "name": "c-living",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   ],
+   "now": "2026-10-02T20:00:00",
+   "status": {
+    "state": "active",
+    "day": 2,
+    "days": 5
+   },
+   "wants": []
+  }
+ ],
+ "schedules": [
+  {
+   "seed": 7,
+   "date": "2026-10-02",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "random",
+    "seed": 7,
+    "windowStart": "18:30",
+    "windowEnd": "23:00",
+    "lights": {
+     "rooms": [
+      "거실",
+      "주방",
+      "욕실",
+      "침실",
+      "현관"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": false,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "lights": {
+    "l-living": [
+     [
+      "2026-10-02T18:53",
+      "2026-10-02T21:57"
+     ]
+    ],
+    "l-kitchen": [
+     [
+      "2026-10-02T19:00",
+      "2026-10-02T19:35"
+     ],
+     [
+      "2026-10-02T20:07",
+      "2026-10-02T20:25"
+     ]
+    ],
+    "l-bath": [
+     [
+      "2026-10-02T20:11",
+      "2026-10-02T20:20"
+     ],
+     [
+      "2026-10-02T21:28",
+      "2026-10-02T21:36"
+     ]
+    ],
+    "l-bed": [
+     [
+      "2026-10-02T21:45",
+      "2026-10-02T22:39"
+     ]
+    ],
+    "l-door": [
+     [
+      "2026-10-02T18:30",
+      "2026-10-02T19:49"
+     ]
+    ],
+    "l-off": [
+     [
+      "2026-10-02T19:24",
+      "2026-10-02T22:30"
+     ]
+    ]
+   }
+  },
+  {
+   "seed": 7,
+   "date": "2026-10-03",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "random",
+    "seed": 7,
+    "windowStart": "18:30",
+    "windowEnd": "23:00",
+    "lights": {
+     "rooms": [
+      "거실",
+      "주방",
+      "욕실",
+      "침실",
+      "현관"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": false,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "lights": {
+    "l-living": [
+     [
+      "2026-10-03T19:11",
+      "2026-10-03T22:07"
+     ]
+    ],
+    "l-kitchen": [
+     [
+      "2026-10-03T18:49",
+      "2026-10-03T19:05"
+     ]
+    ],
+    "l-bath": [
+     [
+      "2026-10-03T21:37",
+      "2026-10-03T21:42"
+     ],
+     [
+      "2026-10-03T22:12",
+      "2026-10-03T22:20"
+     ]
+    ],
+    "l-bed": [
+     [
+      "2026-10-03T21:55",
+      "2026-10-03T22:19"
+     ]
+    ],
+    "l-door": [
+     [
+      "2026-10-03T18:33",
+      "2026-10-03T19:37"
+     ]
+    ],
+    "l-off": [
+     [
+      "2026-10-03T18:44",
+      "2026-10-03T21:51"
+     ]
+    ]
+   }
+  },
+  {
+   "seed": 42,
+   "date": "2026-10-02",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "random",
+    "seed": 42,
+    "windowStart": "18:30",
+    "windowEnd": "23:00",
+    "lights": {
+     "rooms": [
+      "거실",
+      "주방",
+      "욕실",
+      "침실",
+      "현관"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": false,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "lights": {
+    "l-living": [
+     [
+      "2026-10-02T18:55",
+      "2026-10-02T21:27"
+     ]
+    ],
+    "l-kitchen": [
+     [
+      "2026-10-02T19:09",
+      "2026-10-02T19:30"
+     ]
+    ],
+    "l-bath": [
+     [
+      "2026-10-02T19:37",
+      "2026-10-02T19:50"
+     ],
+     [
+      "2026-10-02T21:00",
+      "2026-10-02T21:13"
+     ]
+    ],
+    "l-bed": [
+     [
+      "2026-10-02T21:32",
+      "2026-10-02T22:25"
+     ]
+    ],
+    "l-door": [
+     [
+      "2026-10-02T18:38",
+      "2026-10-02T19:43"
+     ]
+    ],
+    "l-off": [
+     [
+      "2026-10-02T19:29",
+      "2026-10-02T22:03"
+     ]
+    ]
+   }
+  },
+  {
+   "seed": 42,
+   "date": "2026-10-03",
+   "plan": {
+    "enabled": true,
+    "startDate": "2026-10-01",
+    "endDate": "2026-10-05",
+    "mode": "random",
+    "seed": 42,
+    "windowStart": "18:30",
+    "windowEnd": "23:00",
+    "lights": {
+     "rooms": [
+      "거실",
+      "주방",
+      "욕실",
+      "침실",
+      "현관"
+     ],
+     "devices": []
+    },
+    "curtains": {
+     "enabled": false,
+     "openAt": "08:00",
+     "closeAt": "18:30",
+     "rooms": [],
+     "devices": []
+    },
+    "endOnArriving": true
+   },
+   "lights": {
+    "l-living": [
+     [
+      "2026-10-03T19:16",
+      "2026-10-03T21:40"
+     ]
+    ],
+    "l-kitchen": [
+     [
+      "2026-10-03T18:58",
+      "2026-10-03T19:21"
+     ],
+     [
+      "2026-10-03T20:04",
+      "2026-10-03T20:17"
+     ]
+    ],
+    "l-bath": [
+     [
+      "2026-10-03T20:21",
+      "2026-10-03T20:35"
+     ],
+     [
+      "2026-10-03T22:26",
+      "2026-10-03T22:35"
+     ]
+    ],
+    "l-bed": [
+     [
+      "2026-10-03T21:42",
+      "2026-10-03T22:05"
+     ]
+    ],
+    "l-door": [
+     [
+      "2026-10-03T18:42",
+      "2026-10-03T19:32"
+     ]
+    ],
+    "l-off": [
+     [
+      "2026-10-03T18:46",
+      "2026-10-03T21:21"
+     ]
+    ]
+   }
+  }
+ ]
+}

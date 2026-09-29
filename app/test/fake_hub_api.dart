@@ -130,6 +130,82 @@ class FakeHubApi implements HubApi {
     return {'linked': false};
   }
 
+  // ---- automation (in-memory) ----
+  final List<Map<String, dynamic>> rules = [];
+  final List<Map<String, dynamic>> runLog = [];
+  int _ruleSeq = 0;
+
+  @override
+  Future<List<Map<String, dynamic>>> automationRules() async => rules.map((r) => Map<String, dynamic>.from(r)).toList();
+
+  @override
+  Future<Map<String, dynamic>> saveAutomationRule(Map<String, dynamic> rule, {String? id}) async {
+    calls.add('save-rule');
+    final saved = {...rule, 'id': id ?? rule['id'] ?? 'r${++_ruleSeq}'};
+    final i = rules.indexWhere((r) => r['id'] == saved['id']);
+    i < 0 ? rules.add(saved) : rules[i] = saved;
+    return saved;
+  }
+
+  @override
+  Future<void> deleteAutomationRule(String id) async {
+    calls.add('delete-rule');
+    rules.removeWhere((r) => r['id'] == id);
+  }
+
+  @override
+  Future<Map<String, dynamic>> setAutomationRuleEnabled(String id, bool enabled) async {
+    calls.add('enable-rule:$enabled');
+    final r = rules.firstWhere((r) => r['id'] == id);
+    r['enabled'] = enabled;
+    return r;
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> automationLog({int limit = 50}) async => runLog;
+
+  @override
+  Future<void> clearAutomationLog() async => runLog.clear();
+
+  Map<String, dynamic>? awayPlan;
+
+  @override
+  Future<Map<String, dynamic>> awayGet() async => {
+    'plan': awayPlan,
+    'status': awayPlan == null ? null : {'state': 'active', 'day': 3, 'days': 7},
+    'schedule': awayPlan == null
+        ? []
+        : [
+            {
+              'deviceId': 'demo:light',
+              'name': '침실 조명 (예시)',
+              'room': '침실',
+              'intervals': [
+                ['21:40', '22:10'],
+              ],
+            },
+          ],
+  };
+
+  @override
+  Future<Map<String, dynamic>> awaySet(Map<String, dynamic> plan) async {
+    calls.add('away-set');
+    awayPlan = plan;
+    return awayGet();
+  }
+
+  @override
+  Future<void> awayStop() async {
+    calls.add('away-stop');
+    awayPlan = null;
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> emitAutomationEvent(String name) async {
+    calls.add('event:$name');
+    return const [];
+  }
+
   @override
   Stream<HubEvent> events() => events$.stream;
 

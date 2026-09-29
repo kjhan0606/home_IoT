@@ -11,7 +11,8 @@ NOTE: PATs created after 2024-12-30 are valid for 24 h only; long-running use
 needs the OAuth2 provider (cloud/auth.py, docs/cloud-integrations.md).
 
 SmartThings -> canonical translation (per component):
-  switch                                   -> power
+  switch | light                           -> power   (light on/off; kind "light" by category)
+  windowShade (+ windowShadeLevel)         -> curtain  (open/close/pause/setShadeLevel)
   audioVolume + audioMute                  -> volume
   tvChannel                                -> channel
   mediaInputSource | samsungvd.mediaInputSource -> mediaInput
@@ -46,6 +47,8 @@ _CATEGORY_KIND = {
     "kimchirefrigerator": "refrigerator",
     "robotcleaner": "vacuum",
     "light": "light",
+    "curtain": "curtain",
+    "blind": "curtain",
     "switch": "switch",
     "smartplug": "switch",
     "smartlock": "lock",
@@ -70,6 +73,23 @@ _VACUUM_STATUS = {
     "reserve": "idle",
     "powerOff": "idle",
 }
+# windowShade attribute value -> canonical curtain.status
+_SHADE_STATUS = {
+    "open": "open",
+    "closed": "closed",
+    "opening": "opening",
+    "closing": "closing",
+    "partially open": "partial",
+    "unknown": "unknown",
+}
+
+
+def _shade_status_from_level(level: Any) -> str:
+    if isinstance(level, bool) or not isinstance(level, (int, float)):
+        return "unknown"
+    return "closed" if level <= 0 else "open" if level >= 100 else "partial"
+
+
 # Enum from the robotCleanerCleaningMode capability definition.
 _ST_CLEANING_MODES = ["auto", "part", "repeat", "manual", "stop", "map"]
 
@@ -243,7 +263,9 @@ class SmartThingsAdapter(CloudAdapter):
             return "vacuum"
         if "tvChannel" in allcaps:
             return "tv"
-        if "switch" in allcaps:
+        if "windowShade" in allcaps or "windowShadeLevel" in allcaps:
+            return "curtain"
+        if "switch" in allcaps or "light" in allcaps:
             return "switch"
         return "unknown"
 
@@ -266,6 +288,27 @@ class SmartThingsAdapter(CloudAdapter):
 
         if "switch" in main:
             add(cap.POWER, ["turnOn", "turnOff", "toggle"], {"switch": val("main", "switch", "switch", "unknown")})
+        elif "light" in main:
+            # Legacy ST "light" capability: same on/off commands and `switch` attribute.
+            add(cap.POWER, ["turnOn", "turnOff", "toggle"], {"switch": val("main", "light", "switch", "unknown")})
+            comps[cap.POWER + ".st"] = "light"
+
+        # ---- curtain / blind ---------------------------------------------
+        if "windowShade" in main or "windowShadeLevel" in main:
+            acts = []
+            if "windowShade" in main:
+                supported = val("main", "windowShade", "supportedWindowShadeCommands") or ["open", "close", "pause"]
+                acts += [a for a, c in (("open", "open"), ("close", "close"), ("stop", "pause")) if c in supported]
+            if "windowShadeLevel" in main:
+                acts.append("setPosition")
+                if not {"open", "close"} & set(acts):
+                    acts += ["open", "close"]      # emulate with 100 / 0
+            level = val("main", "windowShadeLevel", "shadeLevel") if "windowShadeLevel" in main else None
+            state_str = val("main", "windowShade", "windowShade") if "windowShade" in main else None
+            add(cap.CURTAIN, acts, {
+                "position": int(level) if isinstance(level, (int, float)) and not isinstance(level, bool) else None,
+                "status": _SHADE_STATUS.get(state_str, _shade_status_from_level(level)),
+            })
 
         if "audioVolume" in main or "audioMute" in main:
             acts: list[str] = []
@@ -406,7 +449,20 @@ class SmartThingsAdapter(CloudAdapter):
             if action == "toggle":
                 cur = (device.capabilities.get(cap.POWER) or cap.CapabilityInstance(cap.POWER)).state.get("switch")
                 action = "turnOff" if cur == "on" else "turnOn"
-            return self._send(device, comp, "switch", "on" if action == "turnOn" else "off")
+            st_cap = (device.meta.get("components") or {}).get(cap.POWER + ".st", "switch")
+            return self._send(device, comp, st_cap, "on" if action == "turnOn" else "off")
+
+        if capability == cap.CURTAIN:
+            has_shade = "windowShade" in st_caps
+            has_level = "windowShadeLevel" in st_caps
+            if action == "setPosition":
+                pos = _int_param(params, "position", 0, 100)
+                return self._send(device, comp, "windowShadeLevel", "setShadeLevel", [pos])
+            if action in ("open", "close") and not has_shade and has_level:
+                return self._send(device, comp, "windowShadeLevel", "setShadeLevel",
+                                  [100 if action == "open" else 0])
+            st_cmd = {"open": "open", "close": "close", "stop": "pause"}[action]
+            return self._send(device, comp, "windowShade", st_cmd)
 
         if capability == cap.VOLUME:
             if action == "setLevel":

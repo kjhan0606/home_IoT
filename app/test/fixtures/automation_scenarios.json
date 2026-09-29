@@ -1,0 +1,5291 @@
+{
+ "scenarios": [
+  {
+   "name": "bedtime: last light goes off inside the window -> close curtains (skip the already-closed one)",
+   "rules": [
+    {
+     "id": "bed",
+     "name": "취침 시 커튼 닫기",
+     "enabled": true,
+     "trigger": {
+      "type": "allLightsOff"
+     },
+     "conditions": [
+      {
+       "type": "timeWindow",
+       "start": "22:00",
+       "end": "02:00"
+      }
+     ],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "close",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    "c2": {
+     "id": "c2",
+     "name": "c2",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    "c2": {
+     "id": "c2",
+     "name": "c2",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T23:10:00",
+   "events": [],
+   "lastFired": {},
+   "expect": [
+    {
+     "ruleId": "bed",
+     "reason": "모든 조명이 꺼짐",
+     "key": null,
+     "steps": [
+      {
+       "deviceId": "c1",
+       "action": "close",
+       "skip": null
+      },
+      {
+       "deviceId": "c2",
+       "action": "close",
+       "skip": "already-closed"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "bedtime: lights off at 12:00 (outside window) -> nothing",
+   "rules": [
+    {
+     "id": "bed",
+     "name": "취침 시 커튼 닫기",
+     "enabled": true,
+     "trigger": {
+      "type": "allLightsOff"
+     },
+     "conditions": [
+      {
+       "type": "timeWindow",
+       "start": "22:00",
+       "end": "02:00"
+      }
+     ],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "close",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    "c2": {
+     "id": "c2",
+     "name": "c2",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    "c2": {
+     "id": "c2",
+     "name": "c2",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T12:00:00",
+   "events": [],
+   "lastFired": {},
+   "expect": []
+  },
+  {
+   "name": "bedtime: window crosses midnight (01:30 is inside)",
+   "rules": [
+    {
+     "id": "bed",
+     "name": "취침 시 커튼 닫기",
+     "enabled": true,
+     "trigger": {
+      "type": "allLightsOff"
+     },
+     "conditions": [
+      {
+       "type": "timeWindow",
+       "start": "22:00",
+       "end": "02:00"
+      }
+     ],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "close",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    "c2": {
+     "id": "c2",
+     "name": "c2",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    "c2": {
+     "id": "c2",
+     "name": "c2",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-30T01:30:00",
+   "events": [],
+   "lastFired": {},
+   "expect": [
+    {
+     "ruleId": "bed",
+     "reason": "모든 조명이 꺼짐",
+     "key": null,
+     "steps": [
+      {
+       "deviceId": "c1",
+       "action": "close",
+       "skip": null
+      },
+      {
+       "deviceId": "c2",
+       "action": "close",
+       "skip": "already-closed"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "bedtime: window end is exclusive (02:00 is outside)",
+   "rules": [
+    {
+     "id": "bed",
+     "name": "취침 시 커튼 닫기",
+     "enabled": true,
+     "trigger": {
+      "type": "allLightsOff"
+     },
+     "conditions": [
+      {
+       "type": "timeWindow",
+       "start": "22:00",
+       "end": "02:00"
+      }
+     ],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "close",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    "c2": {
+     "id": "c2",
+     "name": "c2",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    "c2": {
+     "id": "c2",
+     "name": "c2",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-30T02:00:00",
+   "events": [],
+   "lastFired": {},
+   "expect": []
+  },
+  {
+   "name": "bedtime: one light still on -> nothing",
+   "rules": [
+    {
+     "id": "bed",
+     "name": "취침 시 커튼 닫기",
+     "enabled": true,
+     "trigger": {
+      "type": "allLightsOff"
+     },
+     "conditions": [
+      {
+       "type": "timeWindow",
+       "start": "22:00",
+       "end": "02:00"
+      }
+     ],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "close",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T23:10:00",
+   "events": [],
+   "lastFired": {},
+   "expect": []
+  },
+  {
+   "name": "bedtime: no previous snapshot (first look) -> nothing",
+   "rules": [
+    {
+     "id": "bed",
+     "name": "취침 시 커튼 닫기",
+     "enabled": true,
+     "trigger": {
+      "type": "allLightsOff"
+     },
+     "conditions": [
+      {
+       "type": "timeWindow",
+       "start": "22:00",
+       "end": "02:00"
+      }
+     ],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "close",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": null,
+   "cur": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    "c2": {
+     "id": "c2",
+     "name": "c2",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T23:10:00",
+   "events": [],
+   "lastFired": {},
+   "expect": []
+  },
+  {
+   "name": "bedtime: lights already off before (no transition) -> nothing",
+   "rules": [
+    {
+     "id": "bed",
+     "name": "취침 시 커튼 닫기",
+     "enabled": true,
+     "trigger": {
+      "type": "allLightsOff"
+     },
+     "conditions": [
+      {
+       "type": "timeWindow",
+       "start": "22:00",
+       "end": "02:00"
+      }
+     ],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "close",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    "c2": {
+     "id": "c2",
+     "name": "c2",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    "c2": {
+     "id": "c2",
+     "name": "c2",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T23:10:00",
+   "events": [],
+   "lastFired": {},
+   "expect": []
+  },
+  {
+   "name": "bedtime: an offline bulb that stays 'on' does not block, and going offline is not 'off'",
+   "rules": [
+    {
+     "id": "bed",
+     "name": "취침 시 커튼 닫기",
+     "enabled": true,
+     "trigger": {
+      "type": "allLightsOff"
+     },
+     "conditions": [
+      {
+       "type": "timeWindow",
+       "start": "22:00",
+       "end": "02:00"
+      }
+     ],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "close",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T22:05:00",
+   "events": [],
+   "lastFired": {},
+   "expect": [
+    {
+     "ruleId": "bed",
+     "reason": "모든 조명이 꺼짐",
+     "key": null,
+     "steps": [
+      {
+       "deviceId": "c1",
+       "action": "close",
+       "skip": null
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "bedtime: home without lights -> never fires",
+   "rules": [
+    {
+     "id": "bed",
+     "name": "취침 시 커튼 닫기",
+     "enabled": true,
+     "trigger": {
+      "type": "allLightsOff"
+     },
+     "conditions": [
+      {
+       "type": "timeWindow",
+       "start": "22:00",
+       "end": "02:00"
+      }
+     ],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "close",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T23:00:00",
+   "events": [],
+   "lastFired": {},
+   "expect": []
+  },
+  {
+   "name": "bedtime: disabled rule does not fire",
+   "rules": [
+    {
+     "id": "bed",
+     "name": "취침 시 커튼 닫기",
+     "enabled": false,
+     "trigger": {
+      "type": "allLightsOff"
+     },
+     "conditions": [
+      {
+       "type": "timeWindow",
+       "start": "22:00",
+       "end": "02:00"
+      }
+     ],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "close",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    "c2": {
+     "id": "c2",
+     "name": "c2",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    "c2": {
+     "id": "c2",
+     "name": "c2",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T23:10:00",
+   "events": [],
+   "lastFired": {},
+   "expect": []
+  },
+  {
+   "name": "bedtime: no curtains -> fires with no steps (logged as no-targets)",
+   "rules": [
+    {
+     "id": "bed",
+     "name": "취침 시 커튼 닫기",
+     "enabled": true,
+     "trigger": {
+      "type": "allLightsOff"
+     },
+     "conditions": [
+      {
+       "type": "timeWindow",
+       "start": "22:00",
+       "end": "02:00"
+      }
+     ],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "close",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T23:10:00",
+   "events": [],
+   "lastFired": {},
+   "expect": [
+    {
+     "ruleId": "bed",
+     "reason": "모든 조명이 꺼짐",
+     "key": null,
+     "steps": []
+    }
+   ]
+  },
+  {
+   "name": "bedtime: unreachable curtain is not commanded",
+   "rules": [
+    {
+     "id": "bed",
+     "name": "취침 시 커튼 닫기",
+     "enabled": true,
+     "trigger": {
+      "type": "allLightsOff"
+     },
+     "conditions": [
+      {
+       "type": "timeWindow",
+       "start": "22:00",
+       "end": "02:00"
+      }
+     ],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "close",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    "c2": {
+     "id": "c2",
+     "name": "c2",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": false,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T23:10:00",
+   "events": [],
+   "lastFired": {},
+   "expect": [
+    {
+     "ruleId": "bed",
+     "reason": "모든 조명이 꺼짐",
+     "key": null,
+     "steps": []
+    }
+   ]
+  },
+  {
+   "name": "wake: 07:00 exactly",
+   "rules": [
+    {
+     "id": "wake",
+     "name": "기상 시 커튼 열기",
+     "enabled": true,
+     "trigger": {
+      "type": "time",
+      "at": "07:00",
+      "days": []
+     },
+     "conditions": [],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "open",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T07:00:00",
+   "events": [],
+   "lastFired": {},
+   "expect": [
+    {
+     "ruleId": "wake",
+     "reason": "시간 07:00",
+     "key": "2026-09-29@07:00",
+     "steps": [
+      {
+       "deviceId": "c1",
+       "action": "open",
+       "skip": null
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "wake: tick 9 minutes late still fires",
+   "rules": [
+    {
+     "id": "wake",
+     "name": "기상 시 커튼 열기",
+     "enabled": true,
+     "trigger": {
+      "type": "time",
+      "at": "07:00",
+      "days": []
+     },
+     "conditions": [],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "open",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T07:09:00",
+   "events": [],
+   "lastFired": {},
+   "expect": [
+    {
+     "ruleId": "wake",
+     "reason": "시간 07:00",
+     "key": "2026-09-29@07:00",
+     "steps": [
+      {
+       "deviceId": "c1",
+       "action": "open",
+       "skip": null
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "wake: 10 minutes late is too late",
+   "rules": [
+    {
+     "id": "wake",
+     "name": "기상 시 커튼 열기",
+     "enabled": true,
+     "trigger": {
+      "type": "time",
+      "at": "07:00",
+      "days": []
+     },
+     "conditions": [],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "open",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T07:10:00",
+   "events": [],
+   "lastFired": {},
+   "expect": []
+  },
+  {
+   "name": "wake: one minute early -> nothing",
+   "rules": [
+    {
+     "id": "wake",
+     "name": "기상 시 커튼 열기",
+     "enabled": true,
+     "trigger": {
+      "type": "time",
+      "at": "07:00",
+      "days": []
+     },
+     "conditions": [],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "open",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T06:59:00",
+   "events": [],
+   "lastFired": {},
+   "expect": []
+  },
+  {
+   "name": "wake: already fired today (same key) -> nothing",
+   "rules": [
+    {
+     "id": "wake",
+     "name": "기상 시 커튼 열기",
+     "enabled": true,
+     "trigger": {
+      "type": "time",
+      "at": "07:00",
+      "days": []
+     },
+     "conditions": [],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "open",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T07:03:00",
+   "events": [],
+   "lastFired": {
+    "wake": "2026-09-29@07:00"
+   },
+   "expect": []
+  },
+  {
+   "name": "wake: fired yesterday -> fires again",
+   "rules": [
+    {
+     "id": "wake",
+     "name": "기상 시 커튼 열기",
+     "enabled": true,
+     "trigger": {
+      "type": "time",
+      "at": "07:00",
+      "days": []
+     },
+     "conditions": [],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "open",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T07:00:00",
+   "events": [],
+   "lastFired": {
+    "wake": "2026-09-28@07:00"
+   },
+   "expect": [
+    {
+     "ruleId": "wake",
+     "reason": "시간 07:00",
+     "key": "2026-09-29@07:00",
+     "steps": [
+      {
+       "deviceId": "c1",
+       "action": "open",
+       "skip": null
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "wake: weekday-only rule fires on Tuesday",
+   "rules": [
+    {
+     "id": "wk",
+     "name": "기상 시 커튼 열기",
+     "enabled": true,
+     "trigger": {
+      "type": "time",
+      "at": "07:00",
+      "days": [
+       1,
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "conditions": [],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "open",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T07:00:00",
+   "events": [],
+   "lastFired": {},
+   "expect": [
+    {
+     "ruleId": "wk",
+     "reason": "시간 07:00",
+     "key": "2026-09-29@07:00",
+     "steps": [
+      {
+       "deviceId": "c1",
+       "action": "open",
+       "skip": null
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "wake: weekday-only rule skips Saturday",
+   "rules": [
+    {
+     "id": "wk",
+     "name": "기상 시 커튼 열기",
+     "enabled": true,
+     "trigger": {
+      "type": "time",
+      "at": "07:00",
+      "days": [
+       1,
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "conditions": [],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "open",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-10-03T07:00:00",
+   "events": [],
+   "lastFired": {},
+   "expect": []
+  },
+  {
+   "name": "wake: time triggers work on the first look too (prev = None)",
+   "rules": [
+    {
+     "id": "wake",
+     "name": "기상 시 커튼 열기",
+     "enabled": true,
+     "trigger": {
+      "type": "time",
+      "at": "07:00",
+      "days": []
+     },
+     "conditions": [],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "open",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": null,
+   "cur": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T07:01:00",
+   "events": [],
+   "lastFired": {},
+   "expect": [
+    {
+     "ruleId": "wake",
+     "reason": "시간 07:00",
+     "key": "2026-09-29@07:00",
+     "steps": [
+      {
+       "deviceId": "c1",
+       "action": "open",
+       "skip": null
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "wake: curtain already open -> skipped step",
+   "rules": [
+    {
+     "id": "wake",
+     "name": "기상 시 커튼 열기",
+     "enabled": true,
+     "trigger": {
+      "type": "time",
+      "at": "07:00",
+      "days": []
+     },
+     "conditions": [],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "open",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T07:00:00",
+   "events": [],
+   "lastFired": {},
+   "expect": [
+    {
+     "ruleId": "wake",
+     "reason": "시간 07:00",
+     "key": "2026-09-29@07:00",
+     "steps": [
+      {
+       "deviceId": "c1",
+       "action": "open",
+       "skip": "already-open"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "event: 'leaving' turns lights off and locks (skips the already-locked)",
+   "rules": [
+    {
+     "id": "leave",
+     "name": "외출",
+     "enabled": true,
+     "trigger": {
+      "type": "event",
+      "name": "leaving"
+     },
+     "conditions": [],
+     "actions": [
+      {
+       "selector": {
+        "kind": "light"
+       },
+       "capability": "power",
+       "action": "turnOff",
+       "params": {}
+      },
+      {
+       "selector": {},
+       "capability": "lock",
+       "action": "lock",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "d1": {
+     "id": "d1",
+     "name": "d1",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": false
+       }
+      }
+     }
+    },
+    "d2": {
+     "id": "d2",
+     "name": "d2",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": true
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "d1": {
+     "id": "d1",
+     "name": "d1",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": false
+       }
+      }
+     }
+    },
+    "d2": {
+     "id": "d2",
+     "name": "d2",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": true
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T09:00:00",
+   "events": [
+    "leaving"
+   ],
+   "lastFired": {},
+   "expect": [
+    {
+     "ruleId": "leave",
+     "reason": "이벤트 leaving",
+     "key": null,
+     "steps": [
+      {
+       "deviceId": "l1",
+       "action": "turnOff",
+       "skip": null
+      },
+      {
+       "deviceId": "l2",
+       "action": "turnOff",
+       "skip": null
+      },
+      {
+       "deviceId": "d1",
+       "action": "lock",
+       "skip": null
+      },
+      {
+       "deviceId": "d2",
+       "action": "lock",
+       "skip": "already-locked"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "event: other event name -> nothing",
+   "rules": [
+    {
+     "id": "leave",
+     "name": "외출",
+     "enabled": true,
+     "trigger": {
+      "type": "event",
+      "name": "leaving"
+     },
+     "conditions": [],
+     "actions": [
+      {
+       "selector": {
+        "kind": "light"
+       },
+       "capability": "power",
+       "action": "turnOff",
+       "params": {}
+      },
+      {
+       "selector": {},
+       "capability": "lock",
+       "action": "lock",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "d1": {
+     "id": "d1",
+     "name": "d1",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": false
+       }
+      }
+     }
+    },
+    "d2": {
+     "id": "d2",
+     "name": "d2",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": true
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "d1": {
+     "id": "d1",
+     "name": "d1",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": false
+       }
+      }
+     }
+    },
+    "d2": {
+     "id": "d2",
+     "name": "d2",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": true
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T09:00:00",
+   "events": [
+    "arriving"
+   ],
+   "lastFired": {},
+   "expect": []
+  },
+  {
+   "name": "event: no event -> nothing",
+   "rules": [
+    {
+     "id": "leave",
+     "name": "외출",
+     "enabled": true,
+     "trigger": {
+      "type": "event",
+      "name": "leaving"
+     },
+     "conditions": [],
+     "actions": [
+      {
+       "selector": {
+        "kind": "light"
+       },
+       "capability": "power",
+       "action": "turnOff",
+       "params": {}
+      },
+      {
+       "selector": {},
+       "capability": "lock",
+       "action": "lock",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "d1": {
+     "id": "d1",
+     "name": "d1",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": false
+       }
+      }
+     }
+    },
+    "d2": {
+     "id": "d2",
+     "name": "d2",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": true
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "d1": {
+     "id": "d1",
+     "name": "d1",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": false
+       }
+      }
+     }
+    },
+    "d2": {
+     "id": "d2",
+     "name": "d2",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": true
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T09:00:00",
+   "events": [],
+   "lastFired": {},
+   "expect": []
+  },
+  {
+   "name": "deviceState: door unlocks -> lights on (only changed lights get commands)",
+   "rules": [
+    {
+     "id": "door",
+     "name": "문 열리면 조명",
+     "enabled": true,
+     "trigger": {
+      "type": "deviceState",
+      "capability": "lock",
+      "field": "locked",
+      "equals": false,
+      "match": "any",
+      "selector": {}
+     },
+     "conditions": [],
+     "actions": [
+      {
+       "selector": {
+        "kind": "light"
+       },
+       "capability": "power",
+       "action": "turnOn",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "d1": {
+     "id": "d1",
+     "name": "d1",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": true
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "d1": {
+     "id": "d1",
+     "name": "d1",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": false
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T18:00:00",
+   "events": [],
+   "lastFired": {},
+   "expect": [
+    {
+     "ruleId": "door",
+     "reason": "lock.locked = false",
+     "key": null,
+     "steps": [
+      {
+       "deviceId": "l1",
+       "action": "turnOn",
+       "skip": null
+      },
+      {
+       "deviceId": "l2",
+       "action": "turnOn",
+       "skip": "already-on"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "deviceState: stays unlocked (no transition) -> nothing",
+   "rules": [
+    {
+     "id": "door",
+     "name": "문 열리면 조명",
+     "enabled": true,
+     "trigger": {
+      "type": "deviceState",
+      "capability": "lock",
+      "field": "locked",
+      "equals": false,
+      "match": "any",
+      "selector": {}
+     },
+     "conditions": [],
+     "actions": [
+      {
+       "selector": {
+        "kind": "light"
+       },
+       "capability": "power",
+       "action": "turnOn",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "d1": {
+     "id": "d1",
+     "name": "d1",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": false
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "d1": {
+     "id": "d1",
+     "name": "d1",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": false
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T18:00:00",
+   "events": [],
+   "lastFired": {},
+   "expect": []
+  },
+  {
+   "name": "conditions: days condition blocks on Saturday",
+   "rules": [
+    {
+     "id": "b2",
+     "name": "취침 시 커튼 닫기",
+     "enabled": true,
+     "trigger": {
+      "type": "allLightsOff"
+     },
+     "conditions": [
+      {
+       "type": "days",
+       "days": [
+        1,
+        2,
+        3,
+        4,
+        5
+       ]
+      }
+     ],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "close",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    "c2": {
+     "id": "c2",
+     "name": "c2",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    "c2": {
+     "id": "c2",
+     "name": "c2",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-10-03T23:00:00",
+   "events": [],
+   "lastFired": {},
+   "expect": []
+  },
+  {
+   "name": "conditions: anyLightOn / allLightsOff / deviceState",
+   "rules": [
+    {
+     "id": "cond",
+     "name": "외출",
+     "enabled": true,
+     "trigger": {
+      "type": "event",
+      "name": "leaving"
+     },
+     "conditions": [
+      {
+       "type": "anyLightOn"
+      },
+      {
+       "type": "deviceState",
+       "capability": "lock",
+       "field": "locked",
+       "equals": false,
+       "match": "any",
+       "selector": {}
+      }
+     ],
+     "actions": [
+      {
+       "selector": {},
+       "capability": "lock",
+       "action": "lock",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "d1": {
+     "id": "d1",
+     "name": "d1",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": false
+       }
+      }
+     }
+    },
+    "d2": {
+     "id": "d2",
+     "name": "d2",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": true
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "d1": {
+     "id": "d1",
+     "name": "d1",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": false
+       }
+      }
+     }
+    },
+    "d2": {
+     "id": "d2",
+     "name": "d2",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": true
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T09:00:00",
+   "events": [
+    "leaving"
+   ],
+   "lastFired": {},
+   "expect": [
+    {
+     "ruleId": "cond",
+     "reason": "이벤트 leaving",
+     "key": null,
+     "steps": [
+      {
+       "deviceId": "d1",
+       "action": "lock",
+       "skip": null
+      },
+      {
+       "deviceId": "d2",
+       "action": "lock",
+       "skip": "already-locked"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "setPosition action with params; curtain already there is skipped",
+   "rules": [
+    {
+     "id": "half",
+     "name": "반만",
+     "enabled": true,
+     "trigger": {
+      "type": "event",
+      "name": "half"
+     },
+     "conditions": [],
+     "actions": [
+      {
+       "selector": {
+        "kind": "curtain"
+       },
+       "capability": "curtain",
+       "action": "setPosition",
+       "params": {
+        "position": 50
+       }
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 50,
+        "status": "partial"
+       }
+      }
+     }
+    },
+    "c2": {
+     "id": "c2",
+     "name": "c2",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 50,
+        "status": "partial"
+       }
+      }
+     }
+    },
+    "c2": {
+     "id": "c2",
+     "name": "c2",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T09:00:00",
+   "events": [
+    "half"
+   ],
+   "lastFired": {},
+   "expect": [
+    {
+     "ruleId": "half",
+     "reason": "이벤트 half",
+     "key": null,
+     "steps": [
+      {
+       "deviceId": "c1",
+       "action": "setPosition",
+       "skip": "already-there"
+      },
+      {
+       "deviceId": "c2",
+       "action": "setPosition",
+       "skip": null
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "selector by room",
+   "rules": [
+    {
+     "id": "bed",
+     "name": "취침 시 커튼 닫기",
+     "enabled": true,
+     "trigger": {
+      "type": "allLightsOff"
+     },
+     "conditions": [
+      {
+       "type": "timeWindow",
+       "start": "22:00",
+       "end": "02:00"
+      }
+     ],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain",
+        "room": "거실"
+       },
+       "capability": "curtain",
+       "action": "close",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    "c2": {
+     "id": "c2",
+     "name": "c2",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 0,
+        "status": "closed"
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "l2": {
+     "id": "l2",
+     "name": "l2",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    "c2": {
+     "id": "c2",
+     "name": "c2",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "거실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T23:10:00",
+   "events": [],
+   "lastFired": {},
+   "expect": [
+    {
+     "ruleId": "bed",
+     "reason": "모든 조명이 꺼짐",
+     "key": null,
+     "steps": [
+      {
+       "deviceId": "c2",
+       "action": "close",
+       "skip": null
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "two rules fire from the same change (order = rule order)",
+   "rules": [
+    {
+     "id": "bed",
+     "name": "취침 시 커튼 닫기",
+     "enabled": true,
+     "trigger": {
+      "type": "allLightsOff"
+     },
+     "conditions": [
+      {
+       "type": "timeWindow",
+       "start": "22:00",
+       "end": "02:00"
+      }
+     ],
+     "actions": [
+      {
+       "selector": {
+        "capability": "curtain"
+       },
+       "capability": "curtain",
+       "action": "close",
+       "params": {}
+      }
+     ]
+    },
+    {
+     "id": "bed2",
+     "name": "취침 시 커튼 닫기",
+     "enabled": true,
+     "trigger": {
+      "type": "allLightsOff"
+     },
+     "conditions": [
+      {
+       "type": "timeWindow",
+       "start": "22:00",
+       "end": "02:00"
+      }
+     ],
+     "actions": [
+      {
+       "selector": {},
+       "capability": "lock",
+       "action": "lock",
+       "params": {}
+      }
+     ]
+    }
+   ],
+   "prev": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "on"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    "d1": {
+     "id": "d1",
+     "name": "d1",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": false
+       }
+      }
+     }
+    }
+   },
+   "cur": {
+    "l1": {
+     "id": "l1",
+     "name": "l1",
+     "kind": "light",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "power": {
+       "key": "power",
+       "actions": [
+        "turnOn",
+        "turnOff",
+        "toggle"
+       ],
+       "state": {
+        "switch": "off"
+       }
+      }
+     }
+    },
+    "c1": {
+     "id": "c1",
+     "name": "c1",
+     "kind": "curtain",
+     "reachable": true,
+     "controllable": true,
+     "meta": {
+      "room": "침실"
+     },
+     "capabilities": {
+      "curtain": {
+       "key": "curtain",
+       "actions": [
+        "open",
+        "close",
+        "stop",
+        "setPosition"
+       ],
+       "state": {
+        "position": 100,
+        "status": "open"
+       }
+      }
+     }
+    },
+    "d1": {
+     "id": "d1",
+     "name": "d1",
+     "kind": "lock",
+     "reachable": true,
+     "controllable": true,
+     "meta": {},
+     "capabilities": {
+      "lock": {
+       "key": "lock",
+       "actions": [
+        "lock",
+        "unlock"
+       ],
+       "state": {
+        "locked": false
+       }
+      }
+     }
+    }
+   },
+   "now": "2026-09-29T23:10:00",
+   "events": [],
+   "lastFired": {},
+   "expect": [
+    {
+     "ruleId": "bed",
+     "reason": "모든 조명이 꺼짐",
+     "key": null,
+     "steps": [
+      {
+       "deviceId": "c1",
+       "action": "close",
+       "skip": null
+      }
+     ]
+    },
+    {
+     "ruleId": "bed2",
+     "reason": "모든 조명이 꺼짐",
+     "key": null,
+     "steps": [
+      {
+       "deviceId": "d1",
+       "action": "lock",
+       "skip": null
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
